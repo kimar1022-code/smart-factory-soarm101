@@ -1,4 +1,4 @@
-﻿# 🏭 Smart Factory: Dual SO-ARM101 Robot Control System
+# 🏭 Smart Factory: Dual SO-ARM101 Robot Control System
 
 > Unity + Raspberry Pi + LeRobot SDK로 구축한 두 대의 협동로봇 분산 제어 시스템
 
@@ -8,8 +8,6 @@
 [![Raspberry Pi](https://img.shields.io/badge/RaspberryPi-4-A22846?logo=raspberry-pi&logoColor=white)](https://www.raspberrypi.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-orange)]()
-
-<!-- 시각 자료 추가 예정: docs/images/demo.gif -->
 
 ---
 
@@ -50,33 +48,130 @@
 
 ## 🏗️ Architecture
 
-┌──────────────────────────────────┐
-│  Unity 6 (Windows PC)            │
-│  ┌──────────────────────────┐    │
-│  │  SmartFactoryUI          │    │
-│  │  ↓                       │    │
-│  │  SOArmDualManager        │    │
-│  │  ├─ Robot1 (Sim+Real)    │    │
-│  │  └─ Robot2 (Sim+Real)    │    │
-│  └──────────────────────────┘    │
-└──────────────┬───────────────────┘
-│ TCP Socket (JSON)
-│ Port 5000
-▼
-┌──────────────────────────────────┐
-│  Raspberry Pi 4 (Ubuntu 24.04)   │
-│  ┌──────────────────────────┐    │
-│  │  robot_server_dual.py    │    │
-│  │  ↓                       │    │
-│  │  LeRobot SDK             │    │
-│  └──────────────────────────┘    │
-└─────┬─────────────┬──────────────┘
-│ USB         │ USB
-▼             ▼
-┌──────────┐   ┌──────────┐
-│ Robot 1  │   │ Robot 2  │
-│ SO-ARM101│   │ SO-ARM101│
-└──────────┘   └──────────┘
+본 시스템은 **3-tier 분산 아키텍처**로 구성되어 있습니다.
+
+### Layer 1: Unity Client (Windows PC)
+
+`SmartFactoryUI`가 사용자 입력을 받아 `SOArmDualManager`로 전달하면, 이 매니저가 5가지 제어 모드(Robot1Only / Robot2Only / Independent / Mirror / Cooperative)에 따라 두 개의 `SOArmManager` 인스턴스(각 로봇 1대씩 담당)에 명령을 라우팅합니다. 각 매니저는 Sim(Unity 시뮬레이터)과 Real(실로봇)을 동시에 제어합니다.
+
+### Layer 2: Network Bridge (TCP/JSON over Port 5000)
+
+Unity와 Raspberry Pi는 TCP 소켓 위에 JSON 메시지로 통신합니다. `mode`, `motor`, `value` 세 필드로 구성된 단일 명령 형태로, 어떤 로봇의 어느 모터를 어떤 값으로 움직일지 지정합니다.
+
+### Layer 3: Raspberry Pi Server (Ubuntu 24.04)
+
+`robot_server_dual.py`가 TCP 메시지를 수신하면, LeRobot SDK의 FeetechMotorsBus를 통해 USB serial로 두 대의 SO-ARM101을 제어합니다. 각 로봇은 6개의 Feetech STS3215 모터로 구성되어 있고, USB serial-by-id 경로로 식별되어 재연결 시에도 안정성을 유지합니다.
+
+### 데이터 흐름 요약
+
+`Unity UI → DualManager → Manager A/B → TCP/JSON → Pi Server → LeRobot SDK → SO-ARM101 A/B`
+
+---
+
+
+# 🏭 Smart Factory: Dual SO-ARM101 Robot Control System
+
+> Unity + Raspberry Pi + LeRobot SDK로 구축한 두 대의 협동로봇 분산 제어 시스템
+
+[![Unity](https://img.shields.io/badge/Unity-6000.4.3f1-black?logo=unity)](https://unity.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![LeRobot](https://img.shields.io/badge/LeRobot-HuggingFace-FFD21E)](https://github.com/huggingface/lerobot)
+[![Raspberry Pi](https://img.shields.io/badge/RaspberryPi-4-A22846?logo=raspberry-pi&logoColor=white)](https://www.raspberrypi.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-orange)]()
+
+---
+```mermaid
+flowchart TD
+    UI[SmartFactoryUI<br/>OnGUI Control Panel]
+    Dual[SOArmDualManager<br/>5 Control Modes]
+    Mgr1[SOArmManager A<br/>Sim+Real]
+    Mgr2[SOArmManager B<br/>Sim+Real]
+    Server[robot_server_dual.py<br/>TCP Socket Server]
+    LeRobot[LeRobot SDK<br/>FeetechMotorsBus]
+    Robot1[(SO-ARM101 A<br/>6 Feetech STS3215)]
+    Robot2[(SO-ARM101 B<br/>6 Feetech STS3215)]
+
+    UI --> Dual
+    Dual --> Mgr1
+    Dual --> Mgr2
+    Mgr1 -->|TCP/JSON Port 5000| Server
+    Mgr2 -->|TCP/JSON Port 5000| Server
+    Server --> LeRobot
+    LeRobot -->|USB Serial| Robot1
+    LeRobot -->|USB Serial| Robot2
+
+    classDef unity fill:#1a1a2e,stroke:#fff,color:#fff
+    classDef pi fill:#c41e3a,stroke:#fff,color:#fff
+    classDef robot fill:#2d3a2e,stroke:#fff,color:#fff
+    class UI,Dual,Mgr1,Mgr2 unity
+    class Server,LeRobot pi
+    class Robot1,Robot2 robot
+```
+## 📋 Overview
+
+**Smart Factory: Dual SO-ARM101**은 Hugging Face의 **LeRobot 프레임워크**를 기반으로, 두 대의 SO-ARM101 6축 협동로봇을 Unity 시뮬레이터와 실시간 동기화 제어하는 **스마트 팩토리 시뮬레이션 시스템**입니다.
+
+| 항목 | 사양 |
+|---|---|
+| 로봇 | SO-ARM101 (3D 프린팅, 6-DOF) × 2대 |
+| 모터 | Feetech STS3215 × 12개 |
+| 컨트롤러 보드 | Waveshare Bus Servo Adapter (A) × 2개 |
+| 메인 컴퓨터 | Raspberry Pi 4 (4GB RAM, Ubuntu 24.04) |
+| Unity 호스트 | Windows PC |
+| 통신 | TCP Socket (JSON Protocol, Port 5000) |
+
+---
+
+## ✨ Features
+
+### 🤖 두 로봇 동시 제어
+- **Robot1Only / Robot2Only**: 단일 로봇 제어
+- **Independent**: 두 로봇 독립 제어
+- **Mirror**: 두 로봇 동기 동작 (디지털 트윈)
+- **Cooperative**: 협동 작업 (스마트 팩토리)
+
+### 🔄 Sim ↔ Real 실시간 동기화
+- Unity URDF 임포트 정확한 3D 모델링
+- 공식 SO-ARM101 관절 범위 적용
+- 슬라이더 조작 → 시뮬+실로봇 동시 동작
+
+### 📡 분산 시스템 아키텍처
+- TCP/JSON 프로토콜 직접 설계
+- Unity(클라이언트) ↔ Raspberry Pi(서버) ↔ LeRobot SDK
+- USB serial-by-id 기반 안정적 모터 식별
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    UI[SmartFactoryUI<br/>OnGUI Control Panel]
+    Dual[SOArmDualManager<br/>5 Control Modes]
+    Mgr1[SOArmManager #1<br/>Sim+Real]
+    Mgr2[SOArmManager #2<br/>Sim+Real]
+    Server[robot_server_dual.py<br/>TCP Socket Server]
+    LeRobot[LeRobot SDK<br/>FeetechMotorsBus]
+    Robot1[(SO-ARM101 #1<br/>6 Feetech STS3215)]
+    Robot2[(SO-ARM101 #2<br/>6 Feetech STS3215)]
+
+    UI --> Dual
+    Dual --> Mgr1
+    Dual --> Mgr2
+    Mgr1 -->|TCP/JSON Port 5000| Server
+    Mgr2 -->|TCP/JSON Port 5000| Server
+    Server --> LeRobot
+    LeRobot -->|USB Serial| Robot1
+    LeRobot -->|USB Serial| Robot2
+
+    classDef unity fill:#1a1a2e,stroke:#fff,color:#fff
+    classDef pi fill:#c41e3a,stroke:#fff,color:#fff
+    classDef robot fill:#2d3a2e,stroke:#fff,color:#fff
+    class UI,Dual,Mgr1,Mgr2 unity
+    class Server,LeRobot pi
+    class Robot1,Robot2 robot
+```
 
 ---
 
@@ -98,28 +193,31 @@
 ---
 
 ## 📁 Project Structure
+
+```
 smart-factory-soarm101/
 ├── unity/
 │   └── Assets/Scripts/
-│       ├── SOArmJointConfig.cs       # 관절 설정 데이터
-│       ├── SOArmPresets.cs           # 6축 프리셋 (공식 URDF 값)
-│       ├── ISOArmController.cs       # 컨트롤러 인터페이스
-│       ├── SOArmMotorMapper.cs       # 각도 ↔ 서버값 변환
-│       ├── SOArmSocketClient.cs      # TCP 소켓 통신
-│       ├── SOArmSimController.cs     # Unity 시뮬 제어
-│       ├── SOArmRealController.cs    # 실제 로봇 제어
-│       ├── SOArmManager.cs           # Sim+Real 통합 (1대)
-│       ├── SOArmDualManager.cs       # 두 로봇 통합
-│       └── SmartFactoryUI.cs         # OnGUI 제어 UI
+│       ├── SOArmJointConfig.cs
+│       ├── SOArmPresets.cs
+│       ├── ISOArmController.cs
+│       ├── SOArmMotorMapper.cs
+│       ├── SOArmSocketClient.cs
+│       ├── SOArmSimController.cs
+│       ├── SOArmRealController.cs
+│       ├── SOArmManager.cs
+│       ├── SOArmDualManager.cs
+│       └── SmartFactoryUI.cs
 ├── raspberry_pi/
-│   └── robot_server_dual.py          # 두 로봇 통합 TCP 서버
+│   └── robot_server_dual.py
 ├── urdf/
-│   └── SO101_unity/                  # URDF + DAE 메시
+│   └── SO101_unity/
 ├── docs/
-│   └── SETUP.md                      # 상세 설치 가이드
+│   └── SETUP.md
 ├── README.md
 ├── LICENSE
 └── .gitignore
+```
 
 ---
 
@@ -129,56 +227,34 @@ smart-factory-soarm101/
 
 ### Raspberry Pi (Server)
 
-```bash
-# LeRobot 설치
-git clone https://github.com/huggingface/lerobot.git
-cd lerobot
-python -m venv ~/lerobot-env
-source ~/lerobot-env/bin/activate
-pip install -e ".[feetech]"
+LeRobot 설치 후 캘리브레이션을 진행하고 서버를 실행합니다.
 
-# PyTorch ARM CPU 빌드 (필수)
-pip install torch==2.7.0 torchvision==0.22.0 \
-    --index-url https://download.pytorch.org/whl/cpu
-
-# 캘리브레이션 (각 로봇별 1회)
-python -m lerobot.scripts.lerobot_calibrate \
-    --robot.type=so100_follower \
-    --robot.port=/dev/serial/by-id/... \
-    --robot.id=robot1
-
-# 서버 실행
-python raspberry_pi/robot_server_dual.py
-```
+- LeRobot SDK + Feetech 드라이버 설치
+- PyTorch ARM CPU 빌드 설치 (필수)
+- 각 로봇 캘리브레이션 (`--robot.id=robot1`, `--robot.id=robot2`)
+- 서버 실행: `python raspberry_pi/robot_server_dual.py`
 
 ### Unity (Client)
 
-1. Unity 6000.4.3f1 프로젝트 생성
-2. URDF Importer 설치
-3. `urdf/SO101_unity/so101.urdf` 임포트
-4. `unity/Assets/Scripts/` 스크립트 추가
-5. Robot1_Group / Robot2_Group 씬 구성
-6. ▶ Play
+- Unity 6000.4.3f1 프로젝트 생성
+- URDF Importer 설치 (Package Manager → Git URL)
+- `urdf/SO101_unity/so101.urdf` 임포트
+- `unity/Assets/Scripts/` 스크립트 추가
+- Robot1_Group / Robot2_Group 씬 구성
+- Play 버튼
 
 ---
 
 ## 📡 Communication Protocol
 
-### Unity → Raspberry Pi (TCP/JSON)
+Unity → Raspberry Pi 방향으로 TCP 소켓 위에 JSON 메시지를 전송합니다.
 
-```json
-{
-  "mode": "robot1",
-  "motor": "shoulder_pan",
-  "value": 30.5
-}
-```
+메시지 필드:
+- **mode**: `robot1` / `robot2` / `mirror` — 제어 대상
+- **motor**: `shoulder_pan` / `shoulder_lift` / `elbow_flex` / `wrist_flex` / `wrist_roll` / `gripper` — 모터 이름
+- **value**: -100 ~ 100 (float) — 정규화된 위치 값
 
-| 필드 | 값 | 설명 |
-|---|---|---|
-| `mode` | `robot1` / `robot2` / `mirror` | 제어 대상 |
-| `motor` | `shoulder_pan`, `shoulder_lift`, `elbow_flex`, `wrist_flex`, `wrist_roll`, `gripper` | 모터 이름 |
-| `value` | -100 ~ 100 (float) | 정규화 위치 값 |
+서버는 명령을 받아 LeRobot SDK의 `FeetechMotorsBus.write()`로 전달합니다.
 
 ---
 
@@ -201,9 +277,9 @@ python raspberry_pi/robot_server_dual.py
 |---|---|---|
 | **URDF Import NullReferenceException** | STL Convex Mesh 생성 실패 | STL → DAE 변환 + Collision 주석 처리 |
 | **Unity 모델이 분홍색** | URP 머티리얼 미적용 | Edit → Render Pipeline → URP Material 변환 |
-| **Overload Error / 모터 응답 없음** | 모터 과부하 또는 케이블 | 전원 OFF/ON, 모터 스캔 재확인 |
-| **Address already in use (port 5000)** | 이전 서버 프로세스 잔존 | `pkill -f robot_server_dual.py` |
-| **PyTorch Illegal Instruction** | ARM 비호환 빌드 | ARM CPU 빌드(`--index-url cpu`) 사용 |
+| **Overload Error** | 모터 과부하 또는 케이블 | 전원 OFF/ON, 모터 스캔 재확인 |
+| **Address already in use** | 이전 서버 프로세스 잔존 | `pkill -f robot_server_dual.py` |
+| **PyTorch Illegal Instruction** | ARM 비호환 빌드 | ARM CPU 빌드 사용 |
 
 ---
 
