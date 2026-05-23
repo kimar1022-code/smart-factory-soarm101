@@ -177,10 +177,10 @@ Unity → Raspberry Pi 방향으로 TCP 소켓 위에 JSON 메시지를 전송�
 
 - [x] **Phase 1**: 기본 제어 (각 로봇 독립 + 미러)
 - [x] **Phase 2**: Unity 시뮬 ↔ 실로봇 동기화
-- [ ] **Phase 3**: 작업 시퀀스 녹화/재생 (JSON)
-- [ ] **Phase 4**: 협동 작업 (Pick & Place 전달)
+- [x] **Phase 2.5**: 양방향 통신 (Pi → Unity 상태 푸시) 🆕
+- [ ] **Phase 3**: 작업 시퀀스 녹화/재생 (Teach & Play) 🚧 **In Progress**
+- [ ] **Phase 4**: 그리퍼 카메라 비전 통합
 - [ ] **Phase 5**: 스마트 팩토리 UI (작업 큐 관리)
-- [ ] **Phase 6**: 카메라 비전 통합
 
 ---
 
