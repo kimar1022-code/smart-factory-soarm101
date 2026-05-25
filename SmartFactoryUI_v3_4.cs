@@ -56,9 +56,17 @@ namespace SOArmControl
         private int setHomeTarget = 0; // 0=robot1, 1=robot2
         private string setHomeStatus = "";
 
+     // ════════════════════════════════════════
+     // 외부에서 슬라이더값 읽기용 (Record UI에서 사용)
+     // ════════════════════════════════════════
+        public float[] GetR1Sliders() { return r1Sliders; }
+        public float[] GetR2Sliders() { return r2Sliders; }
+        public float GetR1Gripper() { return r1Gripper; }
+        public float GetR2Gripper() { return r2Gripper; }
+
         void Start()
         {
-            if (dualManager == null) dualManager = FindObjectOfType<SOArmDualManager>();
+            if (dualManager == null) dualManager = FindAnyObjectByType<SOArmDualManager>();
             InitSlidersFromRobot(r1Sliders, dualManager?.robot1);
             InitSlidersFromRobot(r2Sliders, dualManager?.robot2);
         }
@@ -74,31 +82,46 @@ namespace SOArmControl
         void InitStyles()
         {
             if (stylesInitialized) return;
+
             boxStyle = new GUIStyle(GUI.skin.box);
             labelStyle = new GUIStyle(GUI.skin.label);
+
             if (fontSize > 0)
             {
+                // GUI.skin의 모든 스타일에 폰트 크기 적용
+                // (다음 OnGUI부터 모든 Button, Label, Box, TextField 등에 반영됨)
+                GUI.skin.box.fontSize = fontSize;
+                GUI.skin.label.fontSize = fontSize;
+                GUI.skin.button.fontSize = fontSize;
+                GUI.skin.textField.fontSize = fontSize;
+                GUI.skin.textArea.fontSize = fontSize;
+                GUI.skin.toggle.fontSize = fontSize;
+                GUI.skin.horizontalSlider.fontSize = fontSize;
+
+                // 로컬 스타일도 적용 (혹시 사용될 때 대비)
                 boxStyle.fontSize = fontSize;
                 labelStyle.fontSize = fontSize;
             }
+
             stylesInitialized = true;
         }
 
         void CalculateSizes()
         {
-            int margin = 10;
-            int gap = 20;
-            int availableWidth = Screen.width - (margin * 2) - gap;
-            actualPanelWidth = (panelWidth > 0) ? panelWidth : (availableWidth / 2);
+            // 좌측 슬라이더 패널: 폭 좁게, 세로로 2개 쌓기
+            actualPanelWidth = (panelWidth > 0) ? panelWidth : 280;
 
             int topBar = 160;
             int bottomBar = 60;
             int verticalMargin = 30;
             int availableHeight = Screen.height - topBar - bottomBar - verticalMargin;
-            actualPanelHeight = (panelHeight > 0) ? panelHeight : availableHeight;
+
+            // 패널 1개 높이 = 사용 가능 높이의 절반 (gap 5px)
+            int gap = 5;
+            actualPanelHeight = (panelHeight > 0) ? panelHeight : ((availableHeight - gap) / 2);
 
             if (actualPanelWidth < 280) actualPanelWidth = 280;
-            if (actualPanelHeight < 400) actualPanelHeight = 400;
+            if (actualPanelHeight < 320) actualPanelHeight = 320;
         }
 
         void OnGUI()
@@ -111,7 +134,7 @@ namespace SOArmControl
             DrawTopBar();
             DrawRobotPanel("🤖 Robot 1", 10, 160,
                 dualManager.robot1, r1Sliders, ref r1Gripper, true, 1, ref r1Scroll);
-            DrawRobotPanel("🤖 Robot 2", actualPanelWidth + 30, 160,
+            DrawRobotPanel("🤖 Robot 2", 10, 160 + actualPanelHeight + 5,
                 dualManager.robot2, r2Sliders, ref r2Gripper, false, 2, ref r2Scroll);
             DrawBottomBar();
 
@@ -124,7 +147,7 @@ namespace SOArmControl
 
         void DrawTopBar()
         {
-            int totalWidth = actualPanelWidth * 2 + 30;
+            int totalWidth = Screen.width - 20;
 
             GUI.Box(new Rect(10, 10, totalWidth, 45),
                 $"제어 모드: {dualManager.controlMode}");
@@ -139,8 +162,8 @@ namespace SOArmControl
                 dualManager.ChangeMode(SOArmDualManager.ControlMode.Independent);
             if (GUI.Button(new Rect(x + dx * 3, y, w, h), "미러"))
                 dualManager.ChangeMode(SOArmDualManager.ControlMode.Mirror);
-            if (GUI.Button(new Rect(x + dx * 4, y, w, h), "협동"))
-                dualManager.ChangeMode(SOArmDualManager.ControlMode.Cooperative);
+            if (GUI.Button(new Rect(x + dx * 4, y, w, h), "🎬 Record"))
+                dualManager.ChangeMode(SOArmDualManager.ControlMode.Record);
 
             GUI.Box(new Rect(10, 60, totalWidth, 40), "버튼 1회 이동 각도");
             GUI.Label(new Rect(20, 78, 80, 20), "스텝 (°):");
@@ -241,7 +264,7 @@ namespace SOArmControl
                 return;
             }
 
-            var client = dualManager.robot1.real.GetComponent<SOArmSocketClient>();
+            var client = dualManager.robot1.real.socketClient;
             if (client == null)
             {
                 setHomeStatus = "❌ SocketClient 없음";
@@ -261,7 +284,7 @@ namespace SOArmControl
         {
             if (dualManager.robot1?.real != null)
             {
-                var client = dualManager.robot1.real.GetComponent<SOArmSocketClient>();
+                var client = dualManager.robot1.real.socketClient;
                 if (client != null)
                 {
                     if (!jsonLine.EndsWith("\n"))
@@ -400,8 +423,7 @@ namespace SOArmControl
                     sliders[i] = newVal;
                     dualManager.RouteJointCommand(isRobot1, i, newVal);
 
-                    if (dualManager.controlMode == SOArmDualManager.ControlMode.Mirror ||
-                        dualManager.controlMode == SOArmDualManager.ControlMode.Cooperative)
+                    if (dualManager.controlMode == SOArmDualManager.ControlMode.Mirror)
                     {
                         if (isRobot1) r2Sliders[i] = newVal;
                         else r1Sliders[i] = newVal;
@@ -426,8 +448,7 @@ namespace SOArmControl
                 gripper = newGrip;
                 dualManager.RouteGripperCommand(isRobot1, gripper);
 
-                if (dualManager.controlMode == SOArmDualManager.ControlMode.Mirror ||
-                    dualManager.controlMode == SOArmDualManager.ControlMode.Cooperative)
+                if (dualManager.controlMode == SOArmDualManager.ControlMode.Mirror)
                 {
                     if (isRobot1) r2Gripper = gripper;
                     else r1Gripper = gripper;
@@ -462,9 +483,8 @@ namespace SOArmControl
 
         void DrawBottomBar()
         {
-            int y = 160 + actualPanelHeight + 8;
-            int totalWidth = actualPanelWidth * 2 + 30;
-
+            int y = Screen.height - 50;
+            int totalWidth = Screen.width - 20;
             int btnW = (totalWidth - 30) / 3;
             int btnH = 35;
             int x = 10;

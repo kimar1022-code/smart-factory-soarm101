@@ -83,7 +83,7 @@ namespace SOArmControl
             if (socketClient == null)
                 socketClient = GetComponent<SOArmSocketClient>();
             if (socketClient == null)
-                socketClient = FindObjectOfType<SOArmSocketClient>();
+                socketClient = FindAnyObjectByType<SOArmSocketClient>();
         }
 
         void Start()
