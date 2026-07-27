@@ -1,4 +1,4 @@
-# Smart Factory: Dual SO-ARM101 Robot Control System
+# Smart Factory: Dual SO-ARM101
 
 SO-ARM101 6축 협동로봇 두 대를 Unity 시뮬레이터와 실시간 동기화 제어하는 분산 시스템입니다.
 Hugging Face LeRobot 프레임워크 기반이며, Unity(Windows)와 라즈베리파이 서버가
