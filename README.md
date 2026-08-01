@@ -109,6 +109,7 @@ Unity UI → DualManager → Manager A/B ─┬→ SimController  (ArticulationB
 
 | 경로 | 내용 |
 |---|---|
+| [`docs/SETUP.md`](docs/SETUP.md) | **설치 가이드** — 라파 초기 설정부터 Unity 씬 구성까지 |
 | `docs/spec/` | **팀 표준 스펙** — User/System Requirement, H/W·S/W Architecture |
 | `docs/` | 장문 엔지니어링 문서 — 요구사항, HW·SW 아키텍처, PincOpen 이식기 |
 | `docs/v2/` | 위 문서의 Confluence 형식 판 |
