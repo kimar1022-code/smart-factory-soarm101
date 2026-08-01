@@ -98,12 +98,24 @@ Unity UI → DualManager → Manager A/B ─┬→ SimController  (ArticulationB
 
 | 파일 | 역할 |
 |---|---|
+| `robot_server_dual.py` | **TCP 서버 본체.** 명령 해석 → LeRobot SDK → 모터 |
+| `start_server.sh` | 서버 기동/재기동 |
 | `arm_set_home.py` | 팔 관절 0점 재정의 |
 | `teach_torque.py` | 직접교시용 토크 조절 |
 | `pincopen_apply_manual.py` | 눈으로 확인한 그리퍼 양 끝을 캘리브+펌웨어에 기록 |
-| `pincopen_calibrate_gripper.py` / `pincopen_find_limits.py` | 그리퍼 가동범위 탐색 |
+| `pincopen_calibrate_gripper.py` | 그리퍼 대화식 캘리브레이션 |
 
-**문서** (`docs/`) — 요구사항 / HW·SW 아키텍처 / PincOpen 이식기, `docs/v2/`는 Confluence 형식
+**문서**
+
+| 경로 | 내용 |
+|---|---|
+| `docs/spec/` | **팀 표준 스펙** — User/System Requirement, H/W·S/W Architecture |
+| `docs/` | 장문 엔지니어링 문서 — 요구사항, HW·SW 아키텍처, PincOpen 이식기 |
+| `docs/v2/` | 위 문서의 Confluence 형식 판 |
+
+> 저장소에는 **계속 쓰는 구현만** 둔다.
+> 로그·크래시 복구본·압축 백업·일회성 스크립트는 `.gitignore` 로 제외한다.
+> (한 번 커밋된 것은 히스토리에 남으므로 필요하면 꺼낼 수 있다)
 
 ---
 
@@ -131,6 +143,12 @@ Unity UI → DualManager → Manager A/B ─┬→ SimController  (ArticulationB
 **라즈베리파이 (서버)**
 
 ```bash
+bash /home/sw/start_server.sh        # 재기동 + 로그/포트 확인까지 한 번에
+```
+
+직접 띄우려면:
+
+```bash
 source ~/lerobot-env/bin/activate
 pkill -9 -f robot_server_dual.py     # ⚠️ -9 여야 함. 아래 참고
 python robot_server_dual.py
@@ -138,6 +156,10 @@ python robot_server_dual.py
 
 > ⚠️ `pkill`(SIGTERM)은 서버의 종료 핸들러를 깨워 `disable_torque()`를 호출합니다.
 > 그러면 **12V 팔이 중력으로 주저앉습니다.** 반드시 `-9`로 죽여 토크를 유지하세요.
+> `start_server.sh` 도 같은 이유로 `-9`를 씁니다.
+
+> ⚠️ 라즈베리파이 IP는 자주 바뀝니다. 연결이 안 되면 라파에서 `hostname -I` 로 확인하고,
+> **PC와 같은 대역인지** 먼저 보세요. 다른 공유기에 붙어 있으면 라우팅이 없어 닿지 않습니다.
 
 **Unity (클라이언트)**
 
