@@ -151,6 +151,19 @@ UpgradeLog*.htm
 # 로컬 도구 설정 (개발자 PC마다 다름)
 .claude/settings.local.json
 
+# 라즈베리파이 일회성 스크립트 — 그때 한 번 쓰고 끝난 것들.
+# 저장소에는 계속 쓰는 구현만 둔다.
+#   probe_* / find_limits : 자동 탐색 방식. 실패했다.
+#                           STS3215 의 20틱 불감대를 스톨 판정이
+#                           기계적 스토퍼로 오인해 범위와 방향을 잘못 냈다.
+#   step*                 : 초기 단계별 확인용
+#   fix_r2_offset         : 로봇2 인코더 랩어라운드 일회성 수정
+# (이력은 커밋 1264ce7 에 남아 있으므로 필요하면 꺼낼 수 있다)
+raspberry_pi/pincopen_probe_*.py
+raspberry_pi/pincopen_find_limits.py
+raspberry_pi/pincopen_step*.py
+raspberry_pi/pincopen_fix_r2_offset.py
+
 # 라즈베리파이 빌드 캐시
 lerobot-env/
 .cache/
