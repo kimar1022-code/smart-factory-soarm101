@@ -9,6 +9,10 @@
 
 ## 구성도
 
+![HW Architecture](images/HW_ARCHITECTURE_01.png)
+
+<details><summary>다이어그램 소스 (mermaid)</summary>
+
 ```mermaid
 flowchart TB
     ADMIN["<b>Operator PC</b><br/>Windows"]
@@ -63,6 +67,8 @@ flowchart TB
     class R1,R2 robot
     class PSU power
 ```
+
+</details>
 
 ---
 

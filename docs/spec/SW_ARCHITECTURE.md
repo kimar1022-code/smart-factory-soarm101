@@ -9,6 +9,10 @@
 
 ## 구성도
 
+![SW Architecture](images/SW_ARCHITECTURE_01.png)
+
+<details><summary>다이어그램 소스 (mermaid)</summary>
+
 ```mermaid
 flowchart TB
     subgraph CLIENT["Client Layer"]
@@ -65,6 +69,8 @@ flowchart TB
     class EXEC exec
     class SERVER server
 ```
+
+</details>
 
 **범례**
 
