@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell(ssh-keygen *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(wsl -- which sshpass ssh 2>&1 | Out-String; Write-Output '---'; wsl -- bash -c 'echo WSL_DISTRO=$WSL_DISTRO_NAME; lsb_release -d 2>/dev/null || cat /etc/os-release | head -3')"
+    ]
+  }
+}
