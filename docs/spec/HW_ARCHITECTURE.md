@@ -11,6 +11,8 @@
 
 ![HW Architecture](images/HW_ARCHITECTURE_01.png)
 
+> 편집용 원본: [`HW_ARCHITECTURE.drawio`](HW_ARCHITECTURE.drawio) — draw.io / diagrams.net 에서 열어 수정
+
 <details><summary>다이어그램 소스 (mermaid)</summary>
 
 ```mermaid

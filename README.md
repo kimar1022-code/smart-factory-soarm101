@@ -221,8 +221,13 @@ norm = ((raw − range_min) / (range_max − range_min)) × 200 − 100
 
 ## 트러블슈팅
 
+### 로봇 · 통신
+
 | 이슈 | 원인 | 해결 |
 |---|---|---|
+| **서버 재시작할 때마다 두 팔이 떨어짐** | `start_server.sh`의 `pkill`(SIGTERM)이 종료 핸들러를 깨워 `disable_torque()` 호출 | `pkill -9` — 핸들러를 건너뛰면 모터가 토크 유지 |
+| **손으로 밀어도 안 꺾임** (직접교시) | STS3215는 1:345 감속이라 역구동 불가. `Torque_Limit` 500→192(38%)까지 내려도 소용없음 | 낮추지 말고 **끌 것.** 단 중력 부하 없는 관절만 |
+| **라파에 접속 안 됨** — ping도 실패 | PC와 **다른 대역**에 붙음 (75번 vs 45번). 라우팅이 없어 원천적으로 불가 | IP만 보지 말고 대역 확인. 같은 Wi-Fi로 |
 | 통신이 멈춤 / 트래픽 0 | **Run In Background 꺼짐** — 창이 비활성이면 Editor가 정지 | Player Settings에서 켜기 |
 | 폴링이 영구 정지 | 각도 응답 유실 시 대기 타임아웃 없음 | 1초 타임아웃 + 재요청 |
 | Editor 프리징 | `Debug.Log`가 초당 360회 | 로그를 플래그 뒤로 |
@@ -233,8 +238,18 @@ norm = ((raw − range_min) / (range_max − range_min)) × 200 − 100
 | URDF NullReferenceException | STL Convex Mesh 생성 실패 | STL → DAE + Collision 주석 |
 | 모델이 분홍색 | URP 머티리얼 미적용 | Render Pipeline → URP 변환 |
 | 임포트 후 관절이 안 움직임 | `stiffness = 0` | `ConfigureDrives()` |
-| Address already in use | 이전 서버 잔존 | `pkill -9 -f robot_server_dual.py` |
+| Address already in use | 이전 서버 잔존 | `pkill -9 -f robot_server_dual.py` 후 2초 대기 |
 | PyTorch Illegal Instruction | ARM 비호환 빌드 | ARM CPU 빌드 사용 |
+
+### 개발 환경 (Windows)
+
+| 이슈 | 원인 | 해결 |
+|---|---|---|
+| `.gitignore`에 `*.json` → 클론한 쪽에서 프로젝트가 안 열림 | `Packages/manifest.json`이 빠져 패키지 복원 실패 | 캘리브레이션 파일만 지정해서 무시 |
+| 추적 해제한 파일이 다음 커밋에 다시 들어옴 | `git add <디렉터리>`는 무시 규칙 없는 파일을 다시 추가 | `git rm --cached` 만으론 부족. `.gitignore`에 못박기 |
+| PowerShell 스크립트에서 한글이 깨지고 **줄바꿈까지 사라짐** | PS 5.1은 BOM 없는 `.ps1`을 ANSI로 읽음. `//` 주석 뒤 개행이 먹혀 다음 JS 줄이 주석 처리됨 | 스크립트를 ASCII로 쓰거나 BOM 포함 저장 |
+| Chrome 헤드리스 캡처에 여백이 대부분 | `--screenshot`은 창 전체를 찍음 (5100×4200 중 다이어그램은 900px) | 캡처 후 흰 여백 자동 크롭 |
+| PDF에서 텍스트 추출 실패 | 서브셋 폰트 — 문자열이 글리프 인덱스라 사람이 읽을 수 없음 | 원본(Confluence 등)에서 받거나 이미지로 읽기 |
 
 ---
 

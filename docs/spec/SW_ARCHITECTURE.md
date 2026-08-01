@@ -11,6 +11,8 @@
 
 ![SW Architecture](images/SW_ARCHITECTURE_01.png)
 
+> 편집용 원본: [`SW_ARCHITECTURE.drawio`](SW_ARCHITECTURE.drawio) — draw.io / diagrams.net 에서 열어 수정
+
 <details><summary>다이어그램 소스 (mermaid)</summary>
 
 ```mermaid

@@ -1,0 +1,164 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="S_W Architecture" id="sw-arch">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ========== Client Layer ========== -->
+        <mxCell id="client" value="Client Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="800" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ui" value="Control UI&lt;br&gt;&lt;i&gt;SmartFactoryUI&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#3b82f6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="90" y="75" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="teach" value="Teach Panel&lt;br&gt;&lt;i&gt;직접교시 · 녹화&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#3b82f6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="350" y="75" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="mon" value="Status Monitor&lt;br&gt;&lt;i&gt;각도 · 연결 상태&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#3b82f6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="75" width="220" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Control Layer ========== -->
+        <mxCell id="ctrl" value="Control Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fed7aa;strokeColor=#f97316;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="210" width="800" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="dual" value="Dual Manager&lt;br&gt;&lt;i&gt;모드 라우팅&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f97316;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="90" y="245" width="200" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="mgr1" value="Robot Manager 1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f97316;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="340" y="245" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="mgr2" value="Robot Manager 2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f97316;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="340" y="305" width="180" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="rec" value="Motion Recorder&lt;br&gt;&lt;i&gt;녹화 · 재생&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f97316;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="270" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e-dual-mgr1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f97316;" edge="1" parent="1" source="dual" target="mgr1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-dual-mgr2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#f97316;" edge="1" parent="1" source="dual" target="mgr2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Execution Layer ========== -->
+        <mxCell id="exec" value="Execution Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e9d5ff;strokeColor=#a855f7;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="430" width="800" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="sim" value="Sim Controller&lt;br&gt;&lt;i&gt;ArticulationBody&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#a855f7;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="90" y="465" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="real" value="Real Controller&lt;br&gt;&lt;i&gt;속도 제한 · 리밋&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#a855f7;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="350" y="465" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="sock" value="Socket Client&lt;br&gt;&lt;i&gt;TCP · 콜백 큐&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#a855f7;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="465" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e-real-sock" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#a855f7;" edge="1" parent="1" source="real" target="sock">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Server ========== -->
+        <mxCell id="server" value="Raspberry Pi Server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#10b981;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="600" width="800" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="disp" value="Command Dispatcher&lt;br&gt;&lt;i&gt;robot_server_dual.py&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="635" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="motor" value="Motor Bus&lt;br&gt;&lt;i&gt;LeRobot FeetechMotorsBus&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="350" y="635" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="cal" value="Calibration Store&lt;br&gt;&lt;i&gt;JSON&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="90" y="635" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e-disp-motor" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#10b981;" edge="1" parent="1" source="disp" target="motor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-motor-cal" style="edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;strokeColor=#10b981;" edge="1" parent="1" source="motor" target="cal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 하드웨어 ========== -->
+        <mxCell id="hw" value="&lt;b&gt;SO-ARM101 × 2&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3f4f6;strokeColor=#6b7280;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="350" y="750" width="220" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e-motor-hw" value="Serial" style="edgeStyle=orthogonalEdgeStyle;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="motor" target="hw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 계층 간 — 지령 ========== -->
+        <mxCell id="e-ui-dual" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=3;endArrow=classic;" edge="1" parent="1" source="ui" target="dual">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-teach-dual" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=3;endArrow=classic;" edge="1" parent="1" source="teach" target="dual">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-mgr1-sim" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=3;endArrow=classic;" edge="1" parent="1" source="mgr1" target="sim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-mgr1-real" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=3;endArrow=classic;" edge="1" parent="1" source="mgr1" target="real">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-mgr2-real" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeWidth=3;endArrow=classic;" edge="1" parent="1" source="mgr2" target="real">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-sock-disp" value="TCP / JSON" style="edgeStyle=orthogonalEdgeStyle;html=1;startArrow=classic;endArrow=classic;strokeWidth=3;fontSize=12;fontStyle=1;" edge="1" parent="1" source="sock" target="disp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 계층 간 — 되먹임 ========== -->
+        <mxCell id="e-real-sim" value="실물 각도 되먹임" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;strokeColor=#6b7280;fontSize=11;" edge="1" parent="1" source="real" target="sim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-real-rec" value="실물 각도" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;strokeColor=#6b7280;fontSize=11;" edge="1" parent="1" source="real" target="rec">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-rec-mgr1" value="재생 지령" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;strokeColor=#6b7280;fontSize=11;" edge="1" parent="1" source="rec" target="mgr1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-real-mon" value="상태" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;strokeColor=#6b7280;fontSize=11;" edge="1" parent="1" source="real" target="mon">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 범례 ========== -->
+        <mxCell id="lg" value="범례" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9fafb;strokeColor=#9ca3af;verticalAlign=top;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="430" width="230" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="lg1" value="" style="endArrow=classic;html=1;strokeWidth=3;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="915" y="470" as="sourcePoint" />
+            <mxPoint x="975" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg1t" value="지령 (사용자 → 로봇)" style="text;html=1;align=left;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="985" y="458" width="140" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" value="" style="endArrow=classic;html=1;dashed=1;strokeColor=#6b7280;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="915" y="505" as="sourcePoint" />
+            <mxPoint x="975" y="505" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg2t" value="되먹임 (로봇 → 화면)" style="text;html=1;align=left;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="985" y="493" width="140" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" value="" style="endArrow=none;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="915" y="538" as="sourcePoint" />
+            <mxPoint x="975" y="538" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg3t" value="동일 계층 내부 연결" style="text;html=1;align=left;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="985" y="526" width="140" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 주석 ========== -->
+        <mxCell id="note" value="⚠️ 되먹임 30 Hz / 지령 10 Hz&#10;화면이 실물보다 늦으면 사용자는 이미&#10;지나간 상태를 보고 판단하게 된다.&#10;지령은 사람 손 속도를 넘을 필요가 없지만&#10;표시는 실물을 놓치면 안 된다." style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff7ed;strokeColor=#f59e0b;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="900" y="600" width="230" height="120" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

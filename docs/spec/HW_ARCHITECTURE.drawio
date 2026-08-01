@@ -1,0 +1,126 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="H_W Architecture" id="hw-arch">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ========== 조작 ========== -->
+        <mxCell id="admin" value="&lt;b&gt;Operator PC&lt;/b&gt;&lt;br&gt;Windows" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="440" y="30" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Unity Host ========== -->
+        <mxCell id="unity" value="Unity Host" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#3b82f6;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="120" width="420" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ui" value="Control UI&lt;br&gt;&lt;i&gt;조작 · 모니터링&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#3b82f6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="365" y="155" width="175" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="dt" value="Digital Twin&lt;br&gt;&lt;i&gt;URDF · ArticulationBody&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#3b82f6;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="560" y="155" width="175" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ui-dt" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#3b82f6;" edge="1" parent="1" source="ui" target="dt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Raspberry Pi ========== -->
+        <mxCell id="pi" value="Raspberry Pi 4 · Ubuntu 24.04" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fed7aa;strokeColor=#f97316;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="290" width="420" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="rcu" value="Robot Control Unit&lt;br&gt;&lt;i&gt;robot_server_dual.py&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f97316;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="365" y="325" width="175" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="lr" value="LeRobot SDK&lt;br&gt;&lt;i&gt;FeetechMotorsBus&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f97316;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="560" y="325" width="175" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e-rcu-lr" style="edgeStyle=none;html=1;endArrow=none;strokeColor=#f97316;" edge="1" parent="1" source="rcu" target="lr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 전원 ========== -->
+        <mxCell id="psu" value="DC 12 V&lt;br&gt;Power Supply" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fef3c7;strokeColor=#f59e0b;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="317" width="150" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Robot 1 ========== -->
+        <mxCell id="r1" value="SO-ARM101 · Robot 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#10b981;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="460" width="460" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="Bus Servo Adapter (A)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="230" y="495" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="m1" value="STS3215 × 5&lt;br&gt;&lt;i&gt;ID 1~5 · 관절&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="110" y="590" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="g1" value="STS3215 × 1&lt;br&gt;&lt;i&gt;ID 6 · 그리퍼&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="330" y="590" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" value="PincOpen Gripper&lt;br&gt;&lt;i&gt;평행 4절 링크&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="330" y="675" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e-a1-m1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#10b981;" edge="1" parent="1" source="a1" target="m1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-a1-g1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#10b981;" edge="1" parent="1" source="a1" target="g1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-g1-p1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#10b981;" edge="1" parent="1" source="g1" target="p1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== Robot 2 ========== -->
+        <mxCell id="r2" value="SO-ARM101 · Robot 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d1fae5;strokeColor=#10b981;verticalAlign=top;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="460" width="460" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="Bus Servo Adapter (A)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="730" y="495" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" value="STS3215 × 5&lt;br&gt;&lt;i&gt;ID 1~5 · 관절&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="590" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" value="STS3215 × 1&lt;br&gt;&lt;i&gt;ID 6 · 그리퍼&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="830" y="590" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="PincOpen Gripper&lt;br&gt;&lt;i&gt;평행 4절 링크&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#10b981;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="830" y="675" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e-a2-m2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#10b981;" edge="1" parent="1" source="a2" target="m2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-a2-g2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#10b981;" edge="1" parent="1" source="a2" target="g2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-g2-p2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#10b981;" edge="1" parent="1" source="g2" target="p2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 계층 간 연결 ========== -->
+        <mxCell id="e-admin-unity" style="edgeStyle=orthogonalEdgeStyle;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;" edge="1" parent="1" source="admin" target="unity">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-unity-pi" value="TCP/IP · Wi-Fi" style="edgeStyle=orthogonalEdgeStyle;html=1;startArrow=classic;endArrow=classic;strokeWidth=3;fontSize=12;fontStyle=1;" edge="1" parent="1" source="unity" target="pi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-pi-a1" value="USB Serial" style="edgeStyle=orthogonalEdgeStyle;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;fontSize=11;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="pi" target="a1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-pi-a2" value="USB Serial" style="edgeStyle=orthogonalEdgeStyle;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;fontSize=11;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="pi" target="a2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-psu-a1" value="12 V" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;strokeColor=#f59e0b;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="psu" target="a1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-psu-a2" value="12 V" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;strokeColor=#f59e0b;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="psu" target="a2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 주석 ========== -->
+        <mxCell id="note" value="⚠️ 로봇 2대는 서로 다른 USB 포트에 연결된다.&#10;장치명(/dev/ttyUSB0)은 재부팅 시 뒤바뀔 수 있으므로&#10;/dev/serial/by-id/... 경로로 고정 식별한다.&#10;이 조치가 없으면 로봇1 명령이 로봇2로 나간다." style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#fff7ed;strokeColor=#f59e0b;align=left;verticalAlign=top;fontSize=11;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="80" y="120" width="240" height="110" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
