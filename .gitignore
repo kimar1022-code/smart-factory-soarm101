@@ -114,6 +114,43 @@ robot2.json
 #    Packages/manifest.json 이 빠지면 클론한 쪽에서 패키지가 복원되지 않아
 #    프로젝트가 열리지 않는다.
 
+# ===============================
+# 구현물이 아닌 것 — 항상 제외
+# ===============================
+# 원칙: 저장소에는 **최종 구현 파일만** 둔다.
+# 로그 · 크래시 복구본 · 압축 백업 · 캡처 결과물은 재생성 가능하거나
+# 그 시점에만 의미가 있으므로 남기지 않는다.
+# (지워도 커밋 히스토리에는 남아 있으니 필요하면 언제든 꺼낼 수 있다)
+
+# Unity 업그레이드 로그
+UpgradeLog*.htm
+
+# Unity 크래시 복구 씬 — 자동 생성물이지 작업물이 아니다
+[Aa]ssets/_[Rr]ecovery/
+[Aa]ssets/_[Rr]ecovery.meta
+
+# Unity 신규 프로젝트 템플릿 잔재
+[Aa]ssets/TutorialInfo/
+[Aa]ssets/TutorialInfo.meta
+[Aa]ssets/Scenes/SampleScene.unity*
+
+# 압축 백업 / 내려받은 원본 아카이브
+*.zip
+*.7z
+*.rar
+*.tar.gz
+
+# Unity Recorder 프로젝트 파일 · 녹화 결과물
+[Rr]ecordings/
+[Rr]ecorder*/
+
+# 캡처 · 렌더 산출물 (PincOpenCapture 등이 뱉는 것)
+[Cc]aptures/
+[Ss]creenshots/
+
+# 로컬 도구 설정 (개발자 PC마다 다름)
+.claude/settings.local.json
+
 # 라즈베리파이 빌드 캐시
 lerobot-env/
 .cache/
