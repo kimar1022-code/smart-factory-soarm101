@@ -241,6 +241,11 @@ norm = ((raw − range_min) / (range_max − range_min)) × 200 − 100
 | 임포트 후 관절이 안 움직임 | `stiffness = 0` | `ConfigureDrives()` |
 | Address already in use | 이전 서버 잔존 | `pkill -9 -f robot_server_dual.py` 후 2초 대기 |
 | PyTorch Illegal Instruction | ARM 비호환 빌드 | ARM CPU 빌드 사용 |
+| **속도 설정이 안 먹는데 로그는 성공** | `Max_Velocity` 는 sts3215 에 없는 레지스터. 예외를 `try/except` 가 삼킴 | `Goal_Velocity` 로 변경. 되읽어 확인할 것 |
+| **서버를 켜면 팔이 스스로 움직임** | 기동 경로가 `enable_torque()` 전에 `Goal_Position` 을 현재 위치로 안 맞춤 | 켜기 전 현재 위치로 동기화 (`handle_teach` 와 동일 방식) |
+| **수동모드인데 그리퍼가 손으로 안 벌어짐** | 그리퍼도 1:345 감속이라 역구동 불가. 팔 관절과 같은 이유 | 풀지 말 것. `TEACH_FREE` 에서 빼고 **슬라이더로만** 조작 |
+
+> 2026-08-02 세션의 상세 경위와 재현 방법은 [`docs/TROUBLESHOOTING_2026-08-02.md`](docs/TROUBLESHOOTING_2026-08-02.md) 에 있습니다.
 
 ### 개발 환경 (Windows)
 
