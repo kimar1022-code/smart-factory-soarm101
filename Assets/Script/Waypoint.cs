@@ -18,10 +18,10 @@ namespace SOArmControl
 
         // ── motion 타입 전용 필드 ──
         public string target;         // "robot1" / "robot2" / "both"
-        public float[] joints;        // robot1/robot2일 때 6개 관절
+        public float[] joints;        // robot1 관절 6개 (robot2 단독일 땐 안 씀)
         public float gripper;         // 0~100 %
-        public float[] joints2;       // "both"일 때 robot2의 관절 (6개)
-        public float gripper2;        // "both"일 때 robot2의 그리퍼
+        public float[] joints2;       // robot2 관절 6개
+        public float gripper2;        // robot2 그리퍼
         public int velocity;          // 이 스텝의 속도
         public int acceleration;      // 가속도
         public float delayAfter;      // 스텝 완료 후 대기 (초)
@@ -39,7 +39,7 @@ namespace SOArmControl
             joints2 = new float[6];
             velocity = 800;
             acceleration = 50;
-            delayAfter = 0.5f;
+            delayAfter = 1.0f;
             gripper = 50f;
             gripper2 = 50f;
             duration = 1.0f;

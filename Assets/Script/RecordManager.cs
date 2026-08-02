@@ -91,7 +91,7 @@ namespace SOArmControl
             wp.target = target;  // "robot1" / "robot2" / "both"
             wp.velocity = velocity;
             wp.acceleration = acceleration;
-            wp.delayAfter = 0.5f;
+            wp.delayAfter = 1.0f;   // 동작 사이 기본 텀
 
             // 현재 슬라이더값(시뮬 목표값)을 캡처
             if (target == "robot1" || target == "both")
@@ -105,7 +105,7 @@ namespace SOArmControl
                 wp.gripper2 = CaptureGripper(dualManager.robot2);
             }
 
-            // both가 아닌 경우 사용 안 하는 배열도 안전하게 초기화
+            // 안 쓰는 쪽도 비워 둔다
             if (target == "robot1") { wp.joints2 = new float[6]; wp.gripper2 = 50f; }
             if (target == "robot2") { wp.joints = new float[6]; wp.gripper = 50f; }
 
@@ -250,6 +250,7 @@ namespace SOArmControl
                 string json = File.ReadAllText(path);
                 CurrentProject = JsonUtility.FromJson<RecordProject>(json);
                 CurrentProject.RenumberSteps();  // 안전하게 재정렬
+                MigrateLegacy();
                 statusMessage = $"📂 불러옴: {CurrentProject.projectName}";
                 Debug.Log($"[Record] {statusMessage}");
                 return true;
@@ -260,6 +261,45 @@ namespace SOArmControl
                 Debug.LogError($"[Record] {statusMessage}");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// 예전 파일 보정.
+        ///
+        /// 옛 IMGUI 화면은 robot2 단독 스텝의 관절을 joints 에 넣었고, 새 코드는
+        /// 언제나 joints2 를 읽는다. 그대로 두면 그 스텝들이 (0,0,0,0,0) 으로
+        /// 실행돼 실물이 0 자세로 꺾인다. 불러올 때 한 번 옮겨 준다.
+        /// </summary>
+        void MigrateLegacy()
+        {
+            if (CurrentProject?.waypoints == null) return;
+            int moved = 0;
+
+            foreach (var wp in CurrentProject.waypoints)
+            {
+                if (wp == null || wp.type != "motion" || wp.target != "robot2") continue;
+                if (wp.joints == null) continue;
+                if (wp.joints2 == null) wp.joints2 = new float[6];
+
+                // joints2 는 비었는데 joints 에 값이 있으면 옛 형식이다
+                if (AllZero(wp.joints2) && !AllZero(wp.joints))
+                {
+                    Array.Copy(wp.joints, wp.joints2, Mathf.Min(wp.joints.Length, 6));
+                    wp.gripper2 = wp.gripper;
+                    wp.joints = new float[6];
+                    moved++;
+                }
+            }
+
+            if (moved > 0)
+                Debug.Log($"[Record] 예전 형식 R2 스텝 {moved}개를 joints2 로 옮겼습니다");
+        }
+
+        static bool AllZero(float[] a)
+        {
+            if (a == null) return true;
+            foreach (var v in a) if (Mathf.Abs(v) > 0.001f) return false;
+            return true;
         }
 
         /// <summary>Recordings/ 폴더의 모든 .json 파일 목록</summary>
@@ -404,6 +444,9 @@ namespace SOArmControl
                 statusMessage = $"✅ Step {wp.stepNumber} 완료";
         }
 
+        /// <summary>robot2 의 관절은 언제나 joints2 에 있다. 단독이든 both 든 마찬가지다.</summary>
+        static float[] R2Joints(Waypoint wp) => wp.joints2;
+
         IEnumerator ExecuteMotion(Waypoint wp)
         {
             if (dualManager == null) yield break;
@@ -417,40 +460,186 @@ namespace SOArmControl
             // Robot2
             if (wp.target == "robot2" || wp.target == "both")
             {
-                float[] joints = wp.target == "both" ? wp.joints2 : wp.joints;
-                float gripper = wp.target == "both" ? wp.gripper2 : wp.gripper;
-                ApplyJoints(dualManager.robot2, joints);
-                ApplyGripper(dualManager.robot2, gripper);
+                ApplyJoints(dualManager.robot2, R2Joints(wp));
+                ApplyGripper(dualManager.robot2, wp.gripper2);
             }
 
-            // 스텝 완료 대기 (delayAfter는 다음 스텝 가기 전 추가 대기)
-            yield return new WaitForSeconds(Mathf.Max(0.1f, wp.delayAfter));
+            // ⚠️ 목표만 던지고 고정 시간만 기다리면 안 된다.
+            //    팔은 초당 6~7° 정도로 움직이는데 0.5초마다 다음 스텝이 목표를 덮어써서,
+            //    중간 자세들을 스쳐 지나가고 마지막 자세로만 간다.
+            //    "스텝을 다 진행하지 않는다" 의 정체가 이것이었다.
+            //    실제 도착을 확인하고 넘어간다.
+            yield return WaitUntilArrived(wp);
+
+            // 그리퍼도 다 움직인 뒤에 넘어간다.
+            //
+            // 도착 판정(NearPose)은 그리퍼를 일부러 뺀다 — 물건을 물면 목표까지
+            // 닫히지 않아 영영 도착이 안 되기 때문이다. 그런데 그 바람에 관절만
+            // 도착하면 곧장 다음 스텝으로 넘어가, 그리퍼가 닫히는 중에 팔이 출발했다.
+            // "그리퍼 닫으면서 다음으로 넘어간다" 가 이 증상이다.
+            yield return WaitGripperDone(wp);
+
+            // 다 움직인 뒤 쉬었다가 다음 동작으로 간다.
+            float gap = Mathf.Max(stepGapSec, wp.delayAfter);
+            if (gap > 0f)
+            {
+                // 멈춰 있는 동안 화면이 "정지한 것"처럼 보이지 않게 남은 시간을 보여준다.
+                statusMessage = $"⏸ Step {wp.stepNumber} 완료 — 다음까지 {gap:F1}초";
+                yield return new WaitForSeconds(gap);
+            }
+        }
+
+        [Tooltip("그리퍼가 멈춘 것으로 볼 때까지 필요한 정지 시간(초).")]
+        public float gripperSettleSec = 0.4f;
+
+        [Tooltip("그리퍼를 기다리는 최대 시간(초). 넘으면 포기하고 다음으로 간다.")]
+        public float gripperTimeoutSec = 4f;
+
+        /// <summary>
+        /// 그리퍼가 더 이상 움직이지 않을 때까지 기다린다.
+        ///
+        /// "목표에 닿았나" 로 판단할 수 없다. 물건을 물면 거기서 멈추므로 목표에는
+        /// 영영 닿지 않는다. 그래서 "값이 더 안 변하는가" 로 끝을 본다 —
+        /// 허공에서 다 닫히든, 물건에 막혀 서든 똑같이 잡힌다.
+        /// </summary>
+        IEnumerator WaitGripperDone(Waypoint wp)
+        {
+            // 명령이 서보까지 나가기 전에 "안 움직인다"고 판정하면 안 된다.
+            // 송신 루프가 한 바퀴 돌 시간은 주고 본다.
+            float leadIn = Time.time + 0.35f;
+            while (Time.time < leadIn)
+            {
+                if (!isPlaying) yield break;
+                yield return null;
+            }
+
+            float deadline = Time.time + gripperTimeoutSec;
+            float still = 0f;
+            float prev = GripReading(wp);
+
+            while (Time.time < deadline)
+            {
+                if (!isPlaying) yield break;
+                yield return null;
+
+                float now = GripReading(wp);
+                if (Mathf.Abs(now - prev) < 0.2f) still += Time.deltaTime;
+                else still = 0f;
+                prev = now;
+
+                if (still >= gripperSettleSec) yield break;   // 멈췄다
+            }
+
+            statusMessage = $"⚠ Step {wp.stepNumber} 그리퍼가 계속 움직입니다 — 다음으로 넘어갑니다";
+            Debug.LogWarning($"[Record] {statusMessage}");
+        }
+
+        /// <summary>이 스텝이 건드리는 그리퍼들의 실제 위치 합. 변화만 보면 되므로 합으로 충분하다.</summary>
+        float GripReading(Waypoint wp)
+        {
+            float sum = 0f;
+            if (wp.target == "robot1" || wp.target == "both") sum += GripAngle(dualManager?.robot1);
+            if (wp.target == "robot2" || wp.target == "both") sum += GripAngle(dualManager?.robot2);
+            return sum;
+        }
+
+        /// <summary>그리퍼는 마지막 관절이다. 목표값이 아니라 실제로 읽힌 각도를 본다.</summary>
+        static float GripAngle(SOArmManager robot)
+        {
+            if (robot == null) return 0f;
+            try { return robot.GetJointAngle(robot.JointCount - 1); }
+            catch { return 0f; }
+        }
+
+        [Header("재생")]
+        [Tooltip("한 동작이 끝난 뒤 다음 동작까지 무조건 쉬는 시간(초).\n" +
+                 "스텝에 저장된 delayAfter 가 이보다 길면 그 값을 쓴다.")]
+        public float stepGapSec = 10.0f;
+
+        [Tooltip("스텝 도착으로 인정할 오차(도). 크게 주면 다음 스텝으로 일찍 넘어가 부드럽게 이어진다.")]
+        public float arriveToleranceDeg = 3f;
+
+        [Tooltip("한 스텝 도착을 기다리는 최대 시간(초). 넘으면 포기하고 다음으로 간다.\n" +
+                 "무한 대기로 재생이 멈춰 팔이 중간 자세에 방치되는 것을 막는다.")]
+        public float arriveTimeoutSec = 30f;
+
+        /// <summary>목표에 실제로 닿을 때까지 기다린다. 못 닿으면 시간 제한으로 빠져나온다.</summary>
+        IEnumerator WaitUntilArrived(Waypoint wp)
+        {
+            float deadline = Time.time + arriveTimeoutSec;
+
+            while (Time.time < deadline)
+            {
+                if (!isPlaying) yield break;          // 정지 누르면 즉시 중단
+                if (Arrived(wp)) yield break;
+                yield return null;
+            }
+
+            statusMessage = $"⚠ Step {wp.stepNumber} 도착 확인 실패 — 다음으로 넘어갑니다";
+            Debug.LogWarning($"[Record] {statusMessage}");
+        }
+
+        bool Arrived(Waypoint wp)
+        {
+            if (wp.target == "robot1" || wp.target == "both")
+                if (!NearPose(dualManager?.robot1, wp.joints)) return false;
+
+            if (wp.target == "robot2" || wp.target == "both")
+                if (!NearPose(dualManager?.robot2, R2Joints(wp))) return false;
+
+            return true;
+        }
+
+        bool NearPose(SOArmManager robot, float[] target)
+        {
+            if (robot == null || target == null) return true;   // 확인할 수 없으면 막지 않는다
+
+            // 그리퍼(마지막)는 제외한다. 물건을 물면 목표까지 안 닫혀 영영 도착이 안 된다.
+            // 대신 WaitGripperDone 이 "더 이상 안 움직임" 으로 그리퍼를 따로 기다린다.
+            for (int i = 0; i < Mathf.Min(target.Length, 5); i++)
+            {
+                float cur;
+                try { cur = robot.GetJointAngle(i); }
+                catch { continue; }
+                if (Mathf.Abs(cur - target[i]) > arriveToleranceDeg) return false;
+            }
+            return true;
         }
 
         // ════════════════════════════════════════
         //                헬퍼
         // ════════════════════════════════════════
 
+        /// <summary>
+        /// 로봇의 현재 관절 각도를 읽는다.
+        ///
+        /// 예전에는 여기가 0 만 돌려주는 껍데기였다. 작성 당시 SOArmManager 가
+        /// 각도를 노출하지 않아 UI 가 슬라이더 값을 넘겨주는 구조로 미뤄뒀던 것인데,
+        /// 그 바람에 UI 를 거치지 않고 AddMotionStep 을 부르면 스텝이 전부
+        /// (0,0,0,0,0) 으로 저장됐다. 지금은 GetJointAngle 이 있으니 직접 읽는다.
+        ///
+        /// 교시 중에는 실물을 손으로 민 자리가 목표로 반영되므로(AdoptRealPose)
+        /// 이 값이 곧 "지금 이 자세" 다.
+        /// </summary>
         float[] CaptureJoints(SOArmManager robot)
         {
-            float[] arr = new float[6];
+            var arr = new float[6];
             if (robot == null) return arr;
+
             for (int i = 0; i < 6; i++)
             {
-                // SOArmManager는 슬라이더 값을 직접 노출하지 않으니,
-                // 시뮬 컨트롤러의 LastTargets에서 가져옴
-                // (없으면 0으로)
-                arr[i] = 0f;
+                // 관절 하나가 실패해도 스텝 저장 전체가 죽으면 안 된다.
+                try { arr[i] = robot.GetJointAngle(i); }
+                catch { arr[i] = 0f; }
             }
-            // 실제 캡처는 UI에서 슬라이더 값을 전달받는 방식이 더 정확
-            // → AddMotionStepWithJoints(...) 오버로드를 UI에서 사용하도록 함
             return arr;
         }
 
         float CaptureGripper(SOArmManager robot)
         {
-            // 마찬가지로 UI 슬라이더값이 진실. 기본값 50 반환.
-            return 50f;
+            if (robot == null) return 50f;
+            try { return robot.GetGripperPercent(); }
+            catch { return 50f; }
         }
 
         void ApplyJoints(SOArmManager robot, float[] joints)
@@ -484,7 +673,7 @@ namespace SOArmControl
             wp.target = target;
             wp.velocity = velocity;
             wp.acceleration = acceleration;
-            wp.delayAfter = 0.5f;
+            wp.delayAfter = 1.0f;   // 동작 사이 기본 텀
 
             // 항상 안전한 복사
             wp.joints = new float[6];
@@ -495,13 +684,10 @@ namespace SOArmControl
                 Array.Copy(r1Joints, wp.joints, 6);
                 wp.gripper = r1Gripper;
             }
-            if (target == "robot2")
-            {
-                // robot2 단독일 때는 joints 필드에 넣음
-                Array.Copy(r2Joints, wp.joints, 6);
-                wp.gripper = r2Gripper;
-            }
-            if (target == "both")
+            // ⚠️ robot2 는 단독이든 both 든 언제나 joints2 에 넣는다.
+            //    예전에는 단독일 때만 joints 에 넣었는데, 재생 쪽은 joints2 를 읽어
+            //    R2 단독 스텝이 전부 (0,0,0,0,0) 으로 실행됐다. 실물이 0 자세로 꺾인다.
+            if (target == "robot2" || target == "both")
             {
                 Array.Copy(r2Joints, wp.joints2, 6);
                 wp.gripper2 = r2Gripper;
