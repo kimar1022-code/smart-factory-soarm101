@@ -264,13 +264,27 @@ namespace SOArmControl
             for (int i = 0; i < joints.Length; i++) smoothedAngles[i] = targetAngles[i];
         }
 
-        void AdoptRealPose(Dictionary<string, float> angles)
+        /// <summary>
+        /// 실물의 현재 자세를 목표로 채택한다.
+        ///
+        /// <paramref name="includeGripper"/> 가 false 면 그리퍼만 제외한다.
+        /// 수동모드에서 필요하다. 그리퍼는 1:345 감속이라 손으로 벌릴 수 없어
+        /// **슬라이더가 유일한 조작 수단**인데, 여기서 목표를 실물값으로 덮어쓰면
+        /// 슬라이더로 넣은 목표가 다음 폴링(30Hz)에 즉시 지워진다.
+        /// 그래서 교시 중에는 그리퍼를 채택 대상에서 뺀다.
+        /// 팔은 반대로 계속 채택해야 손으로 민 자리에 머문다.
+        /// </summary>
+        void AdoptRealPose(Dictionary<string, float> angles, bool includeGripper = true)
         {
             if (joints == null) return;
             EnsureSmoothed();
 
+            bool firstAdoption = !WritesEnabled;
+
             for (int i = 0; i < joints.Length; i++)
             {
+                if (!includeGripper && joints[i].motorName == "gripper") continue;
+
                 if (angles.TryGetValue(joints[i].motorName, out float deg))
                 {
                     targetAngles[i] = deg;
@@ -280,9 +294,14 @@ namespace SOArmControl
             }
 
             WritesEnabled = true;
-            Debug.Log($"[SOArmReal-{robotServerMode}] 실물 자세 채택 완료 — 쓰기 허용. " +
-                      string.Join(", ", System.Linq.Enumerable.Select(
-                          joints, j => $"{j.motorName}={(angles.ContainsKey(j.motorName) ? angles[j.motorName].ToString("F1") : "?")}")));
+
+            // ⚠️ 교시 중에는 이 함수가 폴링마다(30Hz) 불린다. 무조건 찍으면
+            //    README 에 적힌 "Debug.Log 초당 360회 → Editor 프리징" 을 다시 만든다.
+            //    첫 채택에서만 남긴다.
+            if (firstAdoption)
+                Debug.Log($"[SOArmReal-{robotServerMode}] 실물 자세 채택 완료 — 쓰기 허용. " +
+                          string.Join(", ", System.Linq.Enumerable.Select(
+                              joints, j => $"{j.motorName}={(angles.ContainsKey(j.motorName) ? angles[j.motorName].ToString("F1") : "?")}")));
         }
 
         // ====== v3 신규: 각도 읽기 ======
@@ -301,7 +320,9 @@ namespace SOArmControl
 
                     // Teach 모드: 목표를 실물의 현재 위치로 계속 끌고 간다.
                     // 그래야 손으로 민 자리에 그대로 머문다. (안 하면 Goal 로 튕겨 돌아감)
-                    if (teachMode && WritesEnabled) AdoptRealPose(angles);
+                    // 그리퍼는 제외한다. 손으로 못 만지는 관절이라 슬라이더 목표를
+                    // 지켜줘야 하고, 안 그러면 교시 중 그리퍼 조작·녹화가 불가능하다.
+                    if (teachMode && WritesEnabled) AdoptRealPose(angles, includeGripper: false);
 
                     // 첫 수신이면 실물 자세를 그대로 목표로 삼는다.
                     // 이렇게 해야 쓰기가 풀린 직후에도 실물이 제자리에 머문다.

@@ -96,10 +96,31 @@ namespace SOArmControl
         public void Connect() { isReady = true; }
         public void Disconnect() { isReady = false; }
 
-        public string GetJointName(int i) => joints[i].displayName;
-        public float GetJointMinAngle(int i) => joints[i].minAngle;
-        public float GetJointMaxAngle(int i) => joints[i].maxAngle;
-        public float GetJointAngle(int i) => targetAngles[i];
+        /// <summary>
+        /// joints 와 targetAngles 의 길이를 맞춘다.
+        ///
+        /// ⚠️ targetAngles 는 Awake 에서 joints.Length 크기로 한 번만 만든다.
+        ///    인스펙터에서 joints 를 늘리거나 줄이면 두 배열 길이가 어긋나서,
+        ///    joints.Length 로만 검사하는 가드를 통과한 뒤 targetAngles[i] 에서 터진다.
+        ///    Awake 전에 외부(UI 등)에서 불릴 수도 있으므로 접근 지점마다 확인한다.
+        /// </summary>
+        void EnsureArrays()
+        {
+            if (joints == null) return;
+            if (targetAngles != null && targetAngles.Length == joints.Length) return;
+
+            var old = targetAngles;
+            targetAngles = new float[joints.Length];
+            for (int i = 0; i < joints.Length; i++)
+                targetAngles[i] = (old != null && i < old.Length) ? old[i] : joints[i].homeAngle;
+        }
+
+        bool Valid(int i) { EnsureArrays(); return joints != null && i >= 0 && i < joints.Length && targetAngles != null && i < targetAngles.Length; }
+
+        public string GetJointName(int i) => Valid(i) ? joints[i].displayName : $"J{i}";
+        public float GetJointMinAngle(int i) => Valid(i) ? joints[i].minAngle : -180f;
+        public float GetJointMaxAngle(int i) => Valid(i) ? joints[i].maxAngle : 180f;
+        public float GetJointAngle(int i) => Valid(i) ? targetAngles[i] : 0f;
 
         [Header("디버그")]
         [Tooltip("관절 목표가 바뀔 때마다 로그를 남긴다.\n" +
@@ -109,7 +130,7 @@ namespace SOArmControl
 
         public void SetJointTarget(int i, float angleDeg)
         {
-            if (i < 0 || i >= joints.Length) return;
+            if (!Valid(i)) return;          // joints / targetAngles 양쪽 길이를 모두 확인한다
             if (EmergencyStopped) return;   // 🛑 정지 중에는 목표 변경 자체를 막는다
             targetAngles[i] = Mathf.Clamp(angleDeg, joints[i].ClampMin, joints[i].ClampMax);
 
