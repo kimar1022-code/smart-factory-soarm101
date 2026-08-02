@@ -16,6 +16,26 @@ Hugging Face LeRobot 프레임워크 기반이며, Unity(Windows)와 라즈베�
 
 ---
 
+## 화면
+
+**관제 화면** — 왼쪽에 두 로봇의 관절 제어, 가운데에 TOP / SIDE / FRONT 뷰,
+오른쪽 아래에 온도·전압·부하를 묶은 상태표를 뒀습니다.
+각 뷰는 드래그로 돌리고 휠로 확대할 수 있습니다.
+
+![관제 화면](docs/images/control_tower_main.jpg)
+
+**Recorder** — 오른쪽에서 열립니다. 자세를 스텝으로 쌓아 하나의 루틴을 만들고,
+반복 구간과 대기를 섞어 재생합니다. R1 · R2 · 둘 다를 스텝마다 고를 수 있습니다.
+
+![Recorder](docs/images/control_tower_recorder.jpg)
+
+**루틴 불러오기** — 저장된 루틴을 골라서 엽니다.
+현재 스텝이 남아 있으면 몇 개가 사라지는지 먼저 알립니다.
+
+![루틴 불러오기](docs/images/control_tower_load.jpg)
+
+---
+
 ## 기능
 
 **제어 모드** — "어떻게 제어하나"와 "어느 팔을 쓰나"를 분리했습니다.
