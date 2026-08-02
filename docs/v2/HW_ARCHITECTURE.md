@@ -36,7 +36,7 @@
 | `공식 노트북` | PincOpen 저장소 `flash_and_tests/flash_test.ipynb` |
 | `ROS2 xacro` | CNURobotics `urdf/gripper_macros.xacro` |
 | `STL 실측` | 메시 파일을 직접 파싱해 경계값을 잰 결과 |
-| `CLAUDE.md` | `F:\UNITY\LeRobot\CLAUDE.md` |
+| `PROJECT_NOTES.md` | `F:\UNITY\LeRobot\PROJECT_NOTES.md` |
 
 **단위:** 길이 = mm (URDF 원본 m × 1000) / 각도 = 도(°) (URDF 원본 rad × 180/π, 원본 rad 병기)
 
@@ -198,7 +198,7 @@ gripper_link                       87.0 g
 | 손목 회전 | **5** | `wrist_roll` | Z | −2.74385 ~ 2.84121 | −157.21 ~ 162.79 | −157.2 ~ 162.8 | ✅ **비대칭** |
 | 그리퍼 (PincOpen) | **6** | `gripper` | Z | **−0.8465 ~ 0** | **−48.50 ~ 0** | **−48.5 ~ 0** | ✅ |
 
-> **홈 포즈: 모든 관절 0°** — LeRobot 캘리브레이션이 "가운데 = 0" 으로 잡기 때문 (`CLAUDE.md`).
+> **홈 포즈: 모든 관절 0°** — LeRobot 캘리브레이션이 "가운데 = 0" 으로 잡기 때문 (`PROJECT_NOTES.md`).
 > 단, PincOpen J6 의 홈은 `FingerOpenDeg = 0°` = **열림** 상태다 (`CODE` `SOArmPresets`).
 >
 > ⚠️ 모든 revolute 조인트의 `effort=10`, `velocity=10` 은 **URDF 기본값**이며
@@ -489,7 +489,7 @@ python /home/sw/robot_server_dual.py
 유니티 연결 대기중... (포트 5000)
 ```
 
-> 🔺 IP 기록이 문서마다 다르다: `CLAUDE.md` = `192.168.75.245`,
+> 🔺 IP 기록이 문서마다 다르다: `PROJECT_NOTES.md` = `192.168.75.245`,
 > `SOArmSocketClient.cs` 기본값 = `192.168.45.18`,
 > **Unity 씬 실제 저장값 = `192.168.75.245`**. 안 되면 라파에서 `hostname -I` 로 재확인할 것.
 

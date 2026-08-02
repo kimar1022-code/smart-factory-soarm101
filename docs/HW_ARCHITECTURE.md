@@ -19,7 +19,7 @@
 | `ROS2 xacro` | CNURobotics `urdf/gripper_macros.xacro` (`PINCOPEN_INTEGRATION` §7 인용) |
 | `STL 실측` | 메시 파일을 직접 파싱해 경계값을 잰 결과 (`PINCOPEN_INTEGRATION` §1~2) |
 | `HANDOFF` | `C:\Users\snbco\Desktop\HANDOFF.md` |
-| `CLAUDE.md` | `F:\UNITY\LeRobot\CLAUDE.md` |
+| `PROJECT_NOTES.md` | `F:\UNITY\LeRobot\PROJECT_NOTES.md` |
 | ⚠️ **미확인** | 확인하지 못함. 추측으로 채우지 않았음 |
 
 ### 0.2 단위
@@ -191,7 +191,7 @@ flowchart TB
 |---|:---:|---|:---:|---|---|---|---|
 | 베이스 좌우 회전 | **1** | `shoulder_pan` | Z | −1.91986 ~ 1.91986 | −110.00 ~ 110.00 | −110 ~ 110 ✅ | |
 | 어깨 상하 | **2** | `shoulder_lift` | Z | −1.74533 ~ 1.74533 | −100.00 ~ 100.00 | −100 ~ 100 ✅ | |
-| 팔꿈치 | **3** | `elbow_flex` | Z | −1.69 ~ 1.69 | −96.83 ~ 96.83 | −96.8 ~ 96.8 ✅ | 5° 캘리브 오프셋이 URDF에 반영됨 (`CLAUDE.md`) |
+| 팔꿈치 | **3** | `elbow_flex` | Z | −1.69 ~ 1.69 | −96.83 ~ 96.83 | −96.8 ~ 96.8 ✅ | 5° 캘리브 오프셋이 URDF에 반영됨 (`PROJECT_NOTES.md`) |
 | 손목 상하 | **4** | `wrist_flex` | Z | −1.65806 ~ 1.65806 | −95.00 ~ 95.00 | −95 ~ 95 ✅ | |
 | 손목 회전 | **5** | `wrist_roll` | Z | −2.74385 ~ 2.84121 | −157.21 ~ 162.79 | −157.2 ~ 162.8 ✅ | **비대칭** |
 | 그리퍼 (PincOpen) | **6** | `gripper` | Z | −1.22 ~ 0 | −69.90 ~ 0 | −69.9 ~ 0 ✅ | ⚠️ 이 값은 **손가락 각도**, 모터 각도 아님 |
@@ -479,7 +479,7 @@ STS3215는 입출력 커넥터가 2개씩 있어, 모터 → 모터 → 모터 �
 |---|---|
 | OS | Ubuntu 24.04 LTS |
 | 가상환경 | `~/lerobot-env` (반드시 activate 후 실행) |
-| LeRobot 소스 | `/home/sw/lerobot/.venv` (uv 관리, `CLAUDE.md`) |
+| LeRobot 소스 | `/home/sw/lerobot/.venv` (uv 관리, `PROJECT_NOTES.md`) |
 | 서버 파일 | `/home/sw/robot_server_dual.py` |
 | **PyTorch** | **2.7.0 + torchvision 0.22.0 (ARM CPU 빌드)** |
 
@@ -505,7 +505,7 @@ python /home/sw/robot_server_dual.py
 유니티 연결 대기중... (포트 5000)
 ```
 
-> ⚠️ IP 기록이 문서마다 다르다: `CLAUDE.md` = `192.168.75.245`, `HANDOFF` = `192.168.45.18`,
+> ⚠️ IP 기록이 문서마다 다르다: `PROJECT_NOTES.md` = `192.168.75.245`, `HANDOFF` = `192.168.45.18`,
 > **Unity 씬 실제 저장값 = `192.168.75.245`**. 안 되면 라파에서 `hostname -I` 로 재확인할 것.
 
 ---

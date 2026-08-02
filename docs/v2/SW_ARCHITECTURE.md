@@ -359,7 +359,7 @@ Robot_2       (Robot_1과 동일 구조)
 
 > 2 × 4 × 2 = **16가지 조합**을 enum 5개가 아니라 3개 필드로 표현한다.
 > 초기 설계의 `Robot1Only`/`Robot2Only` 는 "제어 방식"이 아니라 "어느 팔을 쓰나"였는데 같은 enum에 섞여 있었다.
-> 🔺 `CLAUDE.md` 의 5모드 기술은 구버전이다 (GAP_05).
+> 🔺 `PROJECT_NOTES.md` 의 5모드 기술은 구버전이다 (GAP_05).
 
 ## 5.5 재생(Playback) 상태
 
@@ -589,7 +589,7 @@ Real          Socket        Server        Manager        Sim
 | --- | --- | --- | --- | --- |
 | ADR_01 | **언어 경계를 프로세스 경계로 만든다 (TCP + NDJSON)** | ① Python.NET 임베딩 ② gRPC ③ ROS2 브리지 | Unity는 C#만, LeRobot SDK는 Python 전용이라 한 프로세스 불가. Python.NET은 ARM 빌드 리스크, gRPC는 스키마 컴파일 단계 추가, ROS2는 이 규모에 과함. TCP+JSON은 `nc` 로 손으로 찔러볼 수 있어 디버깅이 쉬움 | 스키마 검증이 없어 오타가 런타임에만 드러남. 실제로 `{value:F2}` 보간 사고 발생 → `InvariantCulture` 로 대응 |
 | ADR_02 | **`so101.urdf` 를 기구학의 단일 진실 공급원(SSoT)으로 삼는다** | Unity 인스펙터에 장착 오프셋 보관 | 두 곳에 있으면 반드시 어긋남. `applyMountOffset` 기본값 `false`, 씬 저장값도 `0` | 켠 채로 값이 0이면 그리퍼가 손목 원점으로 튐 → 코드·URDF·문서 3곳에 경고 명시 |
-| ADR_03 | **제어 모드를 2개로 줄이고 나머지를 직교 축으로 분리** | 5개 enum 유지 | `Robot1Only` 는 "제어 방식"이 아니라 "어느 팔을 쓰나". 다른 축을 같은 enum에 섞으면 조합 폭발 | `Cooperative` 소멸 → SR_19 미착수로 회귀. `CLAUDE.md` 갱신 필요 (GAP_05) |
+| ADR_03 | **제어 모드를 2개로 줄이고 나머지를 직교 축으로 분리** | 5개 enum 유지 | `Robot1Only` 는 "제어 방식"이 아니라 "어느 팔을 쓰나". 다른 축을 같은 enum에 섞으면 조합 폭발 | `Cooperative` 소멸 → SR_19 미착수로 회귀. `PROJECT_NOTES.md` 갱신 필요 (GAP_05) |
 | ADR_04 | **Sim / Real / Manager 가 모두 같은 인터페이스를 구현** | Manager를 별도 타입으로 | `SOArmManager` 가 인터페이스를 구현하면서 내부에 구현체 2개를 갖는 **Composite** 구조. UI는 "1대"인지 "합성체"인지 몰라도 됨 | 읽기 출처는 `PrimaryReader` 가 모드로 결정: `RealOnly`→real / `Mirror` && real 연결됨→real / 그 외→sim |
 | ADR_05 | **소켓은 씬 전체에 하나만 둔다** | 로봇마다 소켓 1개 | 서버가 1 프로세스 / 1 포트에서 2대를 모두 관리하므로 연결도 하나면 충분. `mode` 필드가 라우팅 담당 | `SmartFactoryUI.SendToServer()` 가 항상 `robot1.real.socketClient` 를 씀. 소켓이 하나라 기능은 정상이나 **robot1이 null이면 robot2 명령까지 실패** (TD_02) |
 | ADR_06 | **폐루프 구속은 스크립트로 대신 계산한다** | ① ROS2 `mimic` 태그 ② PhysX 관절 구속 | Unity URDF Importer가 `mimic` 을 반영하지 않고, PhysX 폐루프는 `ArticulationBody` 트리 제약과 충돌 | `LateUpdate()` 마다 3개 종동축에 복사 — 프레임당 고정 비용 |
@@ -614,7 +614,7 @@ Real          Socket        Server        Manager        Sim
 | TD_06 | 🟡 | **URDF 주석이 최신 값과 다름 (stale)** | `so101.urdf` L325~330, L348 | L325~330 은 "임시값 … limit ±1.25 rad — 커플링 배율 미확정" 이나 실제 리밋은 `-0.8465 ~ 0` 확정. L348 은 `(-69.9° ~ 0°)` 로 적혀 있으나 바로 다음 줄이 `0.8465 rad = 48.5°` | 주석 갱신 (GAP_02, GAP_03) |
 | TD_07 | 🟡 | **문서가 존재하지 않는 파일을 참조** | `PincOpenSafety.cs` L43·L81<br>`PINCOPEN_INTEGRATION.md` L4·L110·L184<br>`so101.urdf` L335 | `docs/PINCOPEN.md` 를 5곳에서 참조하지만 파일이 없다. **실물 그리퍼 안전 절차의 원본**이라 공백이 위험 | 복구 또는 재작성 |
 | TD_08 | 🟢 | **`RecordProject.cs` 주석 인코딩 깨짐** | `RecordProject.cs` 전체 | 한글 주석이 `Record ������Ʈ ��ü�� ǥ��` 처럼 깨짐 (CP949 ↔ UTF-8). 코드 동작에는 영향 없음 | UTF-8(BOM 포함)로 재저장 |
-| TD_09 | 🟢 | **라즈베리파이 IP가 3곳에서 불일치** | `CLAUDE.md` / `SOArmSocketClient.cs` 기본값 / 씬 | `192.168.75.245` vs `192.168.45.18`. 씬 실제값은 `192.168.75.245` | 설정 파일 1곳으로 일원화, 또는 mDNS 사용 |
+| TD_09 | 🟢 | **라즈베리파이 IP가 3곳에서 불일치** | `PROJECT_NOTES.md` / `SOArmSocketClient.cs` 기본값 / 씬 | `192.168.75.245` vs `192.168.45.18`. 씬 실제값은 `192.168.75.245` | 설정 파일 1곳으로 일원화, 또는 mDNS 사용 |
 | TD_10 | 🟢 | **서버 소스가 저장소 밖에 있음** | — | Unity 저장소 전체에 `.py` 파일 0개. 서버 동작을 코드로 검증할 수 없어 이 문서의 서버 측 서술이 전부 ⚠️ 미확인 | `robot_server_dual.py` 를 저장소에 포함 |
 | TD_11 | 🟢 | **OnGUI 즉시 모드 UI의 한계** | `SmartFactoryUI_v3_4`, `SmartFactoryRecordUI` | 좌표를 픽셀 상수로 직접 계산 (`GUI.Button(new Rect(x + dx*3 + 82, y, 78, h), …)`). 항목 추가 시마다 좌표 재계산 필요, 매 프레임 GC 할당 발생 | UI Toolkit(UXML/USS) 또는 uGUI 전환 |
 

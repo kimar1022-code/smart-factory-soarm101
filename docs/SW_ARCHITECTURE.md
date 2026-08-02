@@ -16,7 +16,7 @@ F:\UNITY\LeRobot\Assets\Editor\*.cs        (3개)
 F:\UNITY\LeRobot\Assets\Scenes\LeRobot.unity
 F:\UNITY\LeRobot\Assets\SO101_unity\so101.urdf
 F:\UNITY\LeRobot\docs\PINCOPEN_INTEGRATION.md
-F:\UNITY\LeRobot\CLAUDE.md
+F:\UNITY\LeRobot\PROJECT_NOTES.md
 C:\Users\snbco\Desktop\HANDOFF.md
 ```
 
@@ -837,11 +837,11 @@ Unity 파서(`SOArmRealController.ParseAndConvertAngles()`)가 기대하는 형�
 
 | | |
 |---|---|
-| **문제** | 초기 `ControlMode` 는 `Robot1Only / Robot2Only / Independent / Mirror / Cooperative` 5개였다 (`CLAUDE.md` 기록). `Robot1Only` 는 "제어 방식"이 아니라 "어느 팔을 쓰나"인데 같은 enum에 섞여 있었다. |
+| **문제** | 초기 `ControlMode` 는 `Robot1Only / Robot2Only / Independent / Mirror / Cooperative` 5개였다 (`PROJECT_NOTES.md` 기록). `Robot1Only` 는 "제어 방식"이 아니라 "어느 팔을 쓰나"인데 같은 enum에 섞여 있었다. |
 | **결정** | **3개의 독립된 축으로 분리:**<br/>① `ControlMode { Independent, Mirror }` — 제어 *방식*<br/>② `robot1Enabled` / `robot2Enabled` — 채널 *on/off*<br/>③ `isRecordModeActive` — 녹화 *여부* |
 | **효과** | 2 × 4 × 2 = 16가지 조합을 enum 5개가 아니라 3개 필드로 표현. "미러 + R2만 사용 + 녹화중" 같은 조합이 자연스럽게 가능해짐. |
 | **근거** | `SOArmDualManager.cs` L12·L36~39 주석: *"예전엔 ControlMode가 연결까지 겸했는데, 제어 방식과 채널 on/off는 다른 축이라 분리함"* |
-| **부작용** | `Cooperative` 가 사라져 FR-22가 미착수로 되돌아감. `CLAUDE.md` 의 5모드 기술은 구버전. |
+| **부작용** | `Cooperative` 가 사라져 FR-22가 미착수로 되돌아감. `PROJECT_NOTES.md` 의 5모드 기술은 구버전. |
 
 ### ADR-04. Sim / Real / Manager 가 모두 같은 인터페이스를 구현한다
 
@@ -964,7 +964,7 @@ ADR-09는 "프로세스 경계를 **인터페이스 경계**로" 한 번 더 감
 | TD-07 | 🟡 | **URDF 주석이 최신 값과 다름 (stale)** | `URDF` L325~330 | *"⚠️ 임시값 … limit ±1.25 rad — 커플링 배율 미확정"* 으로 적혀 있으나, 실제 리밋은 `-1.22 ~ 0` 으로 확정됐고 배율도 ×1.0으로 확정됨. `PINCOPEN_INTEGRATION` §6에도 같은 구버전 서술 잔존 | 주석 갱신 |
 | TD-08 | 🟡 | **문서가 존재하지 않는 파일을 참조** | `PincOpenSafety.cs` L43·L67<br/>`PINCOPEN_INTEGRATION.md` L4·L110·L184<br/>`URDF` L335 | `docs/PINCOPEN.md` 를 5곳에서 참조하지만 파일이 없다. **실물 그리퍼 안전 절차의 원본**이라 공백이 위험 | 복구 또는 재작성 |
 | TD-09 | 🟢 | **`RecordProject.cs` 주석 인코딩 깨짐** | `RecordProject.cs` 전체 | 한글 주석이 `Record ������Ʈ ��ü�� ǥ��` 처럼 깨져 있음 (CP949 ↔ UTF-8 혼선). 코드 동작에는 영향 없음 | UTF-8(BOM 포함)로 재저장 |
-| TD-10 | 🟢 | **라즈베리파이 IP가 3곳에서 불일치** | `CLAUDE.md` / `HANDOFF` / `SOArmSocketClient.cs` 기본값 | `192.168.75.245` vs `192.168.45.18` vs `192.168.45.18`. 씬 실제값은 `192.168.75.245` | 설정 파일 1곳으로 일원화, 또는 mDNS(`apollon.local`) 사용 |
+| TD-10 | 🟢 | **라즈베리파이 IP가 3곳에서 불일치** | `PROJECT_NOTES.md` / `HANDOFF` / `SOArmSocketClient.cs` 기본값 | `192.168.75.245` vs `192.168.45.18` vs `192.168.45.18`. 씬 실제값은 `192.168.75.245` | 설정 파일 1곳으로 일원화, 또는 mDNS(`apollon.local`) 사용 |
 | TD-11 | 🟢 | **`SOArmRealController.articulationBody` 슬롯이 한 칸 밀려 있음** | `SCENE` | `PINCOPEN_INTEGRATION` §9 각주에 기록됨. **이 컴포넌트는 해당 필드를 사용하지 않으므로**(소켓 명령만 보냄) 무해 | 혼동 방지를 위해 비우기 |
 | TD-12 | 🟢 | **서버 소스가 저장소 밖에 있음** | — | Unity 저장소 전체에 `.py` 파일 0개. 서버 동작을 코드로 검증할 수 없어 이 문서의 서버 측 서술이 전부 ⚠️ 미확인 | `robot_server_dual.py` 를 저장소에 포함 |
 | TD-13 | 🟢 | **OnGUI 즉시 모드 UI의 한계** | `SmartFactoryUI_v3_4`, `SmartFactoryRecordUI` | 좌표를 픽셀 상수로 직접 계산(`GUI.Button(new Rect(x + dx * 3 + 82, y, 78, h), …)`). 항목 추가 시마다 좌표 재계산 필요, 매 프레임 GC 할당 발생 | UI Toolkit(UXML/USS) 또는 uGUI 전환 |

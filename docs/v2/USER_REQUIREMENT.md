@@ -273,7 +273,7 @@
 | 4-4 | 꺼진 채널에 명령 미전송 | DualManager | ✅ |
 | 4-5 | 미러 시 반대편 UI 슬라이더 동기 | Unity UI | ✅ |
 | 4-6 | 전체 홈 / 전체 정지 / 전체 재연결 | Unity UI | ✅ (정지 실효성은 7-2 참조) |
-| 4-7 | 협동 작업 (SR_19) | DualManager | ⬜ `ControlMode` 는 2개뿐. `CLAUDE.md` 의 5모드 기술은 🔺 **구버전** |
+| 4-7 | 협동 작업 (SR_19) | DualManager | ⬜ `ControlMode` 는 2개뿐. `PROJECT_NOTES.md` 의 5모드 기술은 🔺 **구버전** |
 
 ---
 
@@ -355,10 +355,10 @@
 | GAP_02 | URDF 주석 내부 모순 | `so101.urdf` L348 주석 `(-69.9° ~ 0°)` | 바로 다음 줄 L349 는 `0.8465 rad = 48.5°` 로 옳게 적혀 있음 | L348 주석 수정 |
 | GAP_03 | URDF 상단 임시값 주석 | `so101.urdf` L325~330 `⚠️ 임시값 … limit ±1.25 rad — 커플링 배율 미확정` | 리밋은 `-0.8465 ~ 0` 으로 확정, 배율도 ×1.0 확정 | 주석 삭제/갱신 |
 | GAP_04 | `SOArmPresets` 관절 범위 | J1~J5 전부 `±110°` | 씬/URDF = ±110 / ±100 / ±96.8 / ±95 / −157.2~162.8 | 프리셋을 URDF 값으로 수정 (J6은 이미 상수 참조로 정상) |
-| GAP_05 | 제어 모드 개수 | `CLAUDE.md` = Robot1Only / Robot2Only / Independent / Mirror / Cooperative **5개** | `ControlMode { Independent, Mirror }` **2개** + `robot1Enabled`/`robot2Enabled` 분리 | `CLAUDE.md` 갱신 |
+| GAP_05 | 제어 모드 개수 | `PROJECT_NOTES.md` = Robot1Only / Robot2Only / Independent / Mirror / Cooperative **5개** | `ControlMode { Independent, Mirror }` **2개** + `robot1Enabled`/`robot2Enabled` 분리 | `PROJECT_NOTES.md` 갱신 |
 | GAP_06 | `SOArmManager.autoConnectReal` | 기존 `SW_ARCHITECTURE.md` = `0` | 씬 실제값 = **`1`** (2대 모두) | 구 문서 정정 |
 | GAP_07 | 그리퍼 안전 게이트 우회 | 기존 `REQUIREMENTS.md` §6.3 = 🔴 J6 각도 슬라이더가 게이트 우회 | `SOArmRealController.Update()` 송신 루프에 `motorName == "gripper"` 검사 **추가됨** | 결함 해소, 문서 정정 |
-| GAP_08 | 라즈베리파이 IP | `CLAUDE.md` `192.168.75.245` / `SOArmSocketClient.cs` 기본값 `192.168.45.18` | 씬 직렬화값 = **`192.168.75.245`** | 설정 일원화 |
+| GAP_08 | 라즈베리파이 IP | `PROJECT_NOTES.md` `192.168.75.245` / `SOArmSocketClient.cs` 기본값 `192.168.45.18` | 씬 직렬화값 = **`192.168.75.245`** | 설정 일원화 |
 
 ---
 

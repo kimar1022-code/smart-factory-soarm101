@@ -30,7 +30,7 @@
 | `Script/*` | `F:\UNITY\LeRobot\Assets\Script\*.cs` |
 | `Editor/*` | `F:\UNITY\LeRobot\Assets\Editor\*.cs` |
 | `PINCOPEN_INTEGRATION` | `F:\UNITY\LeRobot\docs\PINCOPEN_INTEGRATION.md` |
-| `CLAUDE.md` | `F:\UNITY\LeRobot\CLAUDE.md` |
+| `PROJECT_NOTES.md` | `F:\UNITY\LeRobot\PROJECT_NOTES.md` |
 | `HANDOFF` | `C:\Users\snbco\Desktop\HANDOFF.md` |
 
 ---
@@ -46,7 +46,7 @@
 
 Hugging Face **LeRobot** 프로젝트 기반의 **SO-ARM101 6축 로봇팔 2대**를,
 Unity로 만든 **디지털 트윈(Digital Twin)** 환경에서 시각화하고 실시간 동기화 제어한다.
-(출처: `CLAUDE.md` 프로젝트 개요)
+(출처: `PROJECT_NOTES.md` 프로젝트 개요)
 
 **디지털 트윈**이란, 실물 장비와 똑같이 생기고 똑같이 움직이는 "쌍둥이"를 컴퓨터 안에 만들어 두고
 둘을 계속 붙여놓는 기술이다. 실물을 만지지 않고도 미리 시험해 볼 수 있고,
@@ -194,7 +194,7 @@ Unity로 만든 **디지털 트윈(Digital Twin)** 환경에서 시각화하고 
 | FR-19 | 두 로봇을 미러(Mirror) 제어할 수 있어야 한다 | ✅ | `SetJointBoth()` / `SetGripperBoth()` |
 | FR-20 | 로봇별로 사용 여부(채널 on/off)를 켜고 끌 수 있어야 한다 | ✅ | `robot1Enabled` / `robot2Enabled` |
 | FR-21 | 전체 홈 이동 / 전체 정지 / 전체 재연결 버튼이 있어야 한다 | 🔵 | `DrawBottomBar()`. 단, 전체 정지는 SR-10 결함 참조 |
-| FR-22 | 두 로봇 협동 작업 시퀀스 (Cooperative) | ⬜ | 현재 `ControlMode` 는 `Independent`/`Mirror` 2개뿐. `CLAUDE.md` 의 5개 모드 기술은 **구버전** |
+| FR-22 | 두 로봇 협동 작업 시퀀스 (Cooperative) | ⬜ | 현재 `ControlMode` 는 `Independent`/`Mirror` 2개뿐. `PROJECT_NOTES.md` 의 5개 모드 기술은 **구버전** |
 
 ### 4.4 동작 녹화·재생 (Record / Play)
 
@@ -369,7 +369,7 @@ for (int i = 0; i < Mathf.Min(sliders.Length, robot.JointCount); i++)
 | **CON-08** | 서버는 **1개 프로세스 / 1개 포트(5000)** 에서 로봇 2대를 모두 관리한다 | `HANDOFF` §5. 씬에도 `SOArmSocketClient` 가 **딱 1개**만 존재 (`SCENE` L10623) — Real 컨트롤러 2개가 이 하나를 공유 |
 | **CON-09** | USB 포트 경로는 `ttyACM0` 이 아니라 `/dev/serial/by-id/...` 를 써야 한다 | 꽂는 순서·재부팅에 따라 번호가 바뀜 (`HANDOFF` §2) |
 | **CON-10** | Waveshare Bus Servo Adapter의 **점퍼는 반드시 B 위치(USB-SERVO)** | A 위치면 통신 자체가 안 됨 (`HANDOFF` §1) |
-| **CON-11** | 라즈베리파이 IP가 자주 바뀐다 | 안 되면 `hostname -I` 로 재확인 (`CLAUDE.md`). ⚠️ **현재 3곳의 IP 기록이 서로 다름** — TD-03 참조 |
+| **CON-11** | 라즈베리파이 IP가 자주 바뀐다 | 안 되면 `hostname -I` 로 재확인 (`PROJECT_NOTES.md`). ⚠️ **현재 3곳의 IP 기록이 서로 다름** — TD-03 참조 |
 | **CON-12** | Unity 프로젝트는 **외장하드 `F:\UNITY\LeRobot`** 에 있다 | 외장하드 미연결 시 전체 작업 불가 |
 | **CON-13** | PincOpen 메시는 **CC BY-SA 4.0** 이다 | 공개 시 출처 표기 + **동일 라이선스 유지 의무** (`URDF` L322) |
 
@@ -383,7 +383,7 @@ for (int i = 0; i < Mathf.Min(sliders.Length, robot.JointCount); i++)
 |---|---|---|---|
 | TD-01 | **`docs/PINCOPEN.md` 가 존재하지 않는다** | `PincOpenSafety.cs` L43·L67, `PINCOPEN_INTEGRATION.md` L4·L110·L184, `URDF` L335 가 이 파일을 참조하지만 `F:\UNITY\LeRobot\docs\` 에는 `PINCOPEN_INTEGRATION.md` 하나뿐 | 파일 복구 또는 재작성. SR-04 절차의 원본이므로 **안전 문서 공백** |
 | TD-02 | **`robot_server_dual.py` 소스가 이 저장소에 없다** | 라즈베리파이 `/home/sw/` 에만 존재. Unity 저장소 전체에 `.py` 파일 0개 | `scp sw@<IP>:/home/sw/robot_server_dual.py .` 후 저장소에 포함 |
-| TD-03 | **라즈베리파이 IP 기록이 3곳에서 불일치** | `CLAUDE.md` = `192.168.75.245` / `HANDOFF` = `192.168.45.18` / `SOArmSocketClient.cs` 기본값 = `192.168.45.18` / **`SCENE` 실제값 = `192.168.75.245`** | 라파에서 `hostname -I` 확인 후 일원화 |
+| TD-03 | **라즈베리파이 IP 기록이 3곳에서 불일치** | `PROJECT_NOTES.md` = `192.168.75.245` / `HANDOFF` = `192.168.45.18` / `SOArmSocketClient.cs` 기본값 = `192.168.45.18` / **`SCENE` 실제값 = `192.168.75.245`** | 라파에서 `hostname -I` 확인 후 일원화 |
 | TD-04 | 서버가 `get` / `set_home` / `torque` / `set_speed` / `home` 명령을 실제로 처리하는지 | TD-02 때문에 검증 불가. Unity 측 송신 코드만 확인됨 | 서버 소스 확보 후 대조 |
 | TD-05 | 카메라 개수 / 연결 위치 / 작동 여부 | `HANDOFF` §1 에도 미확인으로 표기됨 | 라파에서 `ls /dev/video*`, `v4l2-ctl --list-devices` |
 | TD-06 | 실물 SO-ARM101의 그리퍼 캘리브레이션 상태 | 실물 접근 필요 | SR-04 ① ② 단계 수행 |
