@@ -413,7 +413,23 @@ TEACH_FREE = ("shoulder_pan", "wrist_roll", "wrist_flex")
 
 # 수동모드가 켜진 로봇. 지금은 진단·보고용으로만 쓴다.
 TEACH_ON = {"robot1": False, "robot2": False}
-TEACH_HOLD = {"shoulder_lift": 320, "elbow_flex": 260}   # 평상값 500
+# 중력을 버티는 관절(shoulder_lift / elbow_flex)은 수동모드에서도 토크를 유지한다.
+#
+# 예전에는 여기서 한계를 500 → 320/260 으로 낮췄다. "조금이라도 손으로 밀리게"
+# 하려던 것인데, 두 가지가 확인되면서 없앴다.
+#
+#  1) 손으로 미는 데는 도움이 안 된다.
+#     220/180 까지 내려도 느낌이 같았다. 1:345 감속에서는 버티는 힘이
+#     모터가 아니라 기어 마찰이라 한계를 내려도 소용이 없다.
+#
+#  2) 오히려 해가 된다.
+#     한계를 낮추면 중력을 이기고 팔을 **들어올릴 힘**이 모자란다.
+#     내려가는 쪽은 중력이 도와 잘 가지만 올라가는 쪽은 도중에 스톨해서
+#     "특정 각도 이상 안 움직이고 락 걸린 것처럼" 보인다.
+#
+# 이 두 관절은 슬라이더·각도 입력으로 조작한다. 비워 두면 아래 get() 이
+# NORMAL_TORQUE_LIMIT 을 돌려주므로 평상시와 같은 힘으로 움직인다.
+TEACH_HOLD = {}   # 평상값 500 그대로 사용
 NORMAL_TORQUE_LIMIT = 500
 
 
@@ -482,6 +498,35 @@ def handle_set_speed(robots, mode, velocity, acceleration):
     return {"ok": True, "velocity": velocity, "acceleration": acceleration}
 
 
+def handle_temp_detail(robots, mode):
+    """모터별 온도와 **서보에 설정된 과열 한계**를 그대로 돌려준다.
+
+    최댓값 하나만 보면 "팔이 뜨겁다" 로 오해하기 쉽고,
+    그 값이 위험한지 아닌지는 서보의 Max_Temperature_Limit 과 견줘야 안다.
+    """
+    targets = []
+    if mode in ('robot1', 'both'):
+        targets.append(('robot1', robots['robot1']))
+    if mode in ('robot2', 'both'):
+        targets.append(('robot2', robots['robot2']))
+
+    out = {"ok": True, "type": "temp_detail"}
+    for name, bus in targets:
+        rows = {}
+        for motor in MOTOR_NAMES:
+            try:
+                t = int(bus.read("Present_Temperature", motor, normalize=False))
+                lim = int(bus.read("Max_Temperature_Limit", motor, normalize=False))
+                load = int(bus.read("Present_Load", motor, normalize=False))
+                if load > 511:
+                    load -= 1024              # 10비트 2의 보수
+                rows[motor] = {"temp": t, "limit": lim, "load": load}
+            except Exception as e:
+                rows[motor] = {"error": str(e)}
+        out[name] = rows
+    return out
+
+
 def handle_status(robots, mode):
     """로봇 상태(발열·전압·부하)를 읽어 관제 화면으로 보낸다.
 
@@ -515,6 +560,9 @@ def handle_status(robots, mode):
         # 0 을 넣으면 관제에서 "0도 / 0V" 로 오해된다.
         if temps:
             out[f"{tag}_temp"] = max(temps)          # 가장 뜨거운 모터가 기준
+            # 어느 모터가 뜨거운지 모르면 "팔이 뜨겁다" 로 오해하게 된다.
+            # 최댓값만 보내던 것을 모터 이름까지 함께 보낸다.
+            out[f"{tag}_hot"] = MOTOR_NAMES[temps.index(max(temps))]
         if volts:
             out[f"{tag}_volt"] = round(sum(volts) / len(volts) / 10.0, 1)
         if loads:
@@ -587,6 +635,9 @@ def handle_client(conn, addr, robots, calibrations):
                         )
 
                     # 🆕 로봇 상태 — 발열 / 전압 / 부하
+                    elif msg_type == 'temp_detail':
+                        response = handle_temp_detail(robots, msg.get('mode', 'both'))
+
                     elif msg_type == 'status':
                         response = handle_status(robots, msg.get('mode', 'both'))
 

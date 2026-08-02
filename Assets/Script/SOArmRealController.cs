@@ -66,6 +66,19 @@ namespace SOArmControl
                  "   12V 팔은 토크를 완전히 끄면 중력으로 주저앉는다.")]
         public bool teachMode = false;
 
+        [Tooltip("수동모드에서 서버가 토크를 실제로 푸는 관절.\n" +
+                 "이 목록에 있는 것만 실물 위치를 목표로 채택한다.\n" +
+                 "서버의 TEACH_FREE 와 같게 유지할 것.")]
+        public string[] teachFreeJoints = { "shoulder_pan", "wrist_flex", "wrist_roll" };
+
+        bool IsTeachFree(string motorName)
+        {
+            if (teachFreeJoints == null) return false;
+            foreach (var n in teachFreeJoints)
+                if (n == motorName) return true;
+            return false;
+        }
+
         [Header("시작 시 보호 (실물 우선)")]
         [Tooltip("실물 각도를 한 번 읽어 반영하기 전에는 쓰기를 막는다.\n" +
                  "끄면 Play 를 누르는 순간 시뮬의 홈 자세(0°)가 실물로 나가서 팔이 끌려간다.")]
@@ -267,14 +280,14 @@ namespace SOArmControl
         /// <summary>
         /// 실물의 현재 자세를 목표로 채택한다.
         ///
-        /// <paramref name="includeGripper"/> 가 false 면 그리퍼만 제외한다.
+        /// <paramref name="onlyTeachFree"/> 가 true 면 **실제로 토크가 풀린 관절만** 채택한다.
         /// 수동모드에서 필요하다. 그리퍼는 1:345 감속이라 손으로 벌릴 수 없어
         /// **슬라이더가 유일한 조작 수단**인데, 여기서 목표를 실물값으로 덮어쓰면
         /// 슬라이더로 넣은 목표가 다음 폴링(30Hz)에 즉시 지워진다.
         /// 그래서 교시 중에는 그리퍼를 채택 대상에서 뺀다.
         /// 팔은 반대로 계속 채택해야 손으로 민 자리에 머문다.
         /// </summary>
-        void AdoptRealPose(Dictionary<string, float> angles, bool includeGripper = true)
+        void AdoptRealPose(Dictionary<string, float> angles, bool onlyTeachFree = false)
         {
             if (joints == null) return;
             EnsureSmoothed();
@@ -283,7 +296,7 @@ namespace SOArmControl
 
             for (int i = 0; i < joints.Length; i++)
             {
-                if (!includeGripper && joints[i].motorName == "gripper") continue;
+                if (onlyTeachFree && !IsTeachFree(joints[i].motorName)) continue;
 
                 if (angles.TryGetValue(joints[i].motorName, out float deg))
                 {
@@ -318,11 +331,14 @@ namespace SOArmControl
                 {
                     LastReadAngles = angles;
 
-                    // Teach 모드: 목표를 실물의 현재 위치로 계속 끌고 간다.
-                    // 그래야 손으로 민 자리에 그대로 머문다. (안 하면 Goal 로 튕겨 돌아감)
-                    // 그리퍼는 제외한다. 손으로 못 만지는 관절이라 슬라이더 목표를
-                    // 지켜줘야 하고, 안 그러면 교시 중 그리퍼 조작·녹화가 불가능하다.
-                    if (teachMode && WritesEnabled) AdoptRealPose(angles, includeGripper: false);
+                    // Teach 모드: 손으로 민 자리에 머물도록 목표를 실물 위치로 끌고 간다.
+                    //
+                    // ⚠️ 단, **실제로 토크가 풀린 관절만** 그렇게 한다.
+                    //    shoulder_lift / elbow_flex 는 중력을 버텨야 해서 토크를 유지하는데,
+                    //    이 관절까지 채택하면 슬라이더로 넣은 목표가 33ms 만에 지워져
+                    //    손으로도 안 밀리고 슬라이더로도 안 움직이는 상태가 된다.
+                    //    그리퍼도 같은 이유로 제외 대상이다.
+                    if (teachMode && WritesEnabled) AdoptRealPose(angles, onlyTeachFree: true);
 
                     // 첫 수신이면 실물 자세를 그대로 목표로 삼는다.
                     // 이렇게 해야 쓰기가 풀린 직후에도 실물이 제자리에 머문다.
