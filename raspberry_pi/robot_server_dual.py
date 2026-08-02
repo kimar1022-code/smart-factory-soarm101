@@ -131,6 +131,18 @@ def make_bus(port, cal_path):
     bus.connect()
     bus.write_calibration(calibration)
     apply_speed_settings(bus, DEFAULT_VELOCITY, DEFAULT_ACCELERATION)
+
+    # ⚠️ 토크를 켜기 전에 목표를 현재 위치로 맞춰야 한다.
+    #    전원을 껐다 켜면 팔이 주저앉은 채로 시작하는데, 이걸 안 하면
+    #    토크가 들어오는 순간 예전 목표 위치로 팔이 스스로 올라간다.
+    #    handle_teach() 가 쓰는 것과 같은 방식이다.
+    for motor_name in MOTOR_NAMES:
+        try:
+            pos = int(bus.read("Present_Position", motor_name, normalize=False))
+            bus.write("Goal_Position", motor_name, pos, normalize=False)
+        except Exception as e:
+            print(f"  ⚠ {motor_name} 목표 동기화 실패: {e}")
+
     bus.enable_torque()
     return bus
 
@@ -139,9 +151,11 @@ def apply_speed_settings(bus, velocity, acceleration):
     """모든 모터에 속도/가속도 설정"""
     for motor_name in MOTOR_NAMES:
         try:
-            bus.write("Max_Velocity", motor_name, velocity)
+            # ⚠️ 레지스터 이름은 Goal_Velocity 다. Max_Velocity 는 sts3215
+            #    컨트롤 테이블에 없어서 예외로 죽고, 속도 제한이 통째로 안 걸렸다.
+            bus.write("Goal_Velocity", motor_name, velocity)
         except Exception as e:
-            print(f"  ⚠ {motor_name} Max_Velocity 실패: {e}")
+            print(f"  ⚠ {motor_name} Goal_Velocity 실패: {e}")
         try:
             bus.write("Acceleration", motor_name, acceleration)
         except Exception as e:
@@ -392,7 +406,13 @@ def handle_set_torque(robots, mode, enable):
 #
 # 【토크 OFF 관절은 Goal_Position 쓰기를 무시한다】
 #   덕분에 서버가 계속 명령을 보내도 손으로 민 자리에 머문다.
+# 그리퍼는 일부러 뺐다. 한 번 풀어서 시험해 봤지만 그리퍼도 1:345 감속이라
+# 손으로 벌리거나 오므릴 수가 없었다. 풀어봐야 조작은 안 되면서 슬라이더만
+# 못 쓰게 되므로, 수동모드에서도 토크를 유지하고 슬라이더로만 조작한다.
 TEACH_FREE = ("shoulder_pan", "wrist_roll", "wrist_flex")
+
+# 수동모드가 켜진 로봇. 지금은 진단·보고용으로만 쓴다.
+TEACH_ON = {"robot1": False, "robot2": False}
 TEACH_HOLD = {"shoulder_lift": 320, "elbow_flex": 260}   # 평상값 500
 NORMAL_TORQUE_LIMIT = 500
 
@@ -408,8 +428,8 @@ def handle_teach(robots, mode, enable):
     for rname, bus in targets:
         detail = {}
         for name in MOTOR_NAMES:
-            if name == 'gripper':
-                continue          # 그리퍼는 손으로 만지지 않는다
+            # 그리퍼도 푼다. 중력으로 무너질 게 없어서 완전 해제해도 안전하고,
+            # 손으로 벌리고 오므린 상태까지 그대로 녹화되어야 한다.
             try:
                 # ⚠️ 토크를 켜기 전에 목표를 현재 위치로 맞춰야 한다.
                 #    안 그러면 예전 목표로 팔이 튄다.
@@ -431,7 +451,19 @@ def handle_teach(robots, mode, enable):
             except Exception as e:
                 detail[name] = f"error: {e}"
                 result["ok"] = False
+
+        # 쓴 값을 믿지 말고 실제 레지스터를 되읽는다.
+        # "토크가 안 빠진 것 같다" 를 로그만 보고 판단할 수 없어서 넣었다.
+        for name in MOTOR_NAMES:
+            try:
+                te = int(bus.read("Torque_Enable", name, normalize=False))
+                tl = int(bus.read("Torque_Limit", name, normalize=False))
+                detail[name] = f"{detail.get(name, '?')}(실제 TE={te} TL={tl})"
+            except Exception as e:
+                detail[name] = f"{detail.get(name, '?')}(되읽기 실패: {e})"
+
         result["robots"][rname] = detail
+        TEACH_ON[rname] = bool(enable)
         print(f"  {'🔓 수동모드 ON' if enable else '🔒 수동모드 OFF'} — {rname}: {detail}")
     return result
 
@@ -450,18 +482,62 @@ def handle_set_speed(robots, mode, velocity, acceleration):
     return {"ok": True, "velocity": velocity, "acceleration": acceleration}
 
 
+def handle_status(robots, mode):
+    """로봇 상태(발열·전압·부하)를 읽어 관제 화면으로 보낸다.
+
+    ⚠️ 응답을 **평평한 키**로 준다. 유니티 JsonUtility 는 중첩 딕셔너리를
+       다루기 번거로워서, 중첩 구조로 주면 파싱에서 시간을 버린다.
+    """
+    targets = []
+    if mode in ('robot1', 'both'):
+        targets.append(('r1', robots['robot1']))
+    if mode in ('robot2', 'both'):
+        targets.append(('r2', robots['robot2']))
+
+    out = {"ok": True, "type": "status"}
+    for tag, bus in targets:
+        temps, volts, loads = [], [], []
+        for motor in MOTOR_NAMES:
+            try:
+                t = int(bus.read("Present_Temperature", motor, normalize=False))
+                v = int(bus.read("Present_Voltage", motor, normalize=False))
+                l = int(bus.read("Present_Load", motor, normalize=False))
+                # Present_Load 는 10비트 2의 보수다. 964 는 과부하가 아니라 -60.
+                if l > 511:
+                    l -= 1024
+                temps.append(t)
+                volts.append(v)
+                loads.append(abs(l))
+            except Exception as e:
+                print(f"  ⚠ {tag} {motor} 상태 읽기 실패: {e}")
+
+        # 값이 하나도 안 읽히면 키를 아예 넣지 않는다.
+        # 0 을 넣으면 관제에서 "0도 / 0V" 로 오해된다.
+        if temps:
+            out[f"{tag}_temp"] = max(temps)          # 가장 뜨거운 모터가 기준
+        if volts:
+            out[f"{tag}_volt"] = round(sum(volts) / len(volts) / 10.0, 1)
+        if loads:
+            out[f"{tag}_load"] = max(loads)
+
+    return out
+
+
 def handle_set_position(robots, mode, motor, value):
     targets = []
     if mode == 'robot1':
-        targets.append(robots['robot1'])
+        targets.append(('robot1', robots['robot1']))
     elif mode == 'robot2':
-        targets.append(robots['robot2'])
+        targets.append(('robot2', robots['robot2']))
     elif mode == 'mirror':
-        targets.append(robots['robot1'])
-        targets.append(robots['robot2'])
+        targets.append(('robot1', robots['robot1']))
+        targets.append(('robot2', robots['robot2']))
     else:
         raise ValueError(f"Unknown mode: {mode}")
-    for bus in targets:
+
+    for rname, bus in targets:
+        # 그리퍼는 수동모드에서도 토크를 유지하므로(TEACH_FREE 주석 참조)
+        # 여기서 걸러낼 것이 없다. 수동 중에도 슬라이더가 그대로 먹는다.
         bus.write("Goal_Position", motor, float(value))
 
 
@@ -509,6 +585,10 @@ def handle_client(conn, addr, robots, calibrations):
                             robots, msg.get('mode', 'both'),
                             bool(msg.get('enable', False))
                         )
+
+                    # 🆕 로봇 상태 — 발열 / 전압 / 부하
+                    elif msg_type == 'status':
+                        response = handle_status(robots, msg.get('mode', 'both'))
 
                     elif msg_type == 'set_speed':
                         response = handle_set_speed(
