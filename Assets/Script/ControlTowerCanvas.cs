@@ -62,7 +62,11 @@ namespace SOArmControl
         [Range(0f, 0.6f)] public float viewTilt = 0f;
 
         [Header("경고 임계값")]
-        public int tempWarn = 50;
+        [Tooltip("주황으로 바뀌는 온도. 여기서 +10°C 를 더 넘으면 빨강.\n\n" +
+                 "서보에서 읽은 Max_Temperature_Limit 은 70°C 다.\n" +
+                 "예전 기본값 50 은 근거 없이 정한 숫자여서, 정상 작동 중인 41°C 에도\n" +
+                 "곧 경고가 뜨는 상태였다. 실제 한계에서 역산해 55/65 로 둔다.")]
+        public int tempWarn = 55;      // 빨강 65 — 서보 한계 70 보다 5 여유
         public float voltWarn = 11.0f;
 
         [Header("동작")]
@@ -143,6 +147,15 @@ namespace SOArmControl
         /// <summary>목록에 보이는 첫 스텝의 인덱스. 줄 클릭을 실제 스텝 번호로 바꿀 때 쓴다.</summary>
         int routineFrom;
         const int RoutineRows = 13;
+
+        // ── 불러오기 창 ──
+        // "가져오기" 가 목록의 첫 파일을 말없이 열던 때는 루틴이 하나뿐이라 넘어갔지만,
+        // 파일이 늘면 원하는 것을 고를 방법이 없고 열자마자 작업 중이던 스텝이 사라진다.
+        // 골라서 열고, 열기 전에 무엇이 사라지는지 보여 준다.
+        bool loadOpen;
+        int loadFrom, loadSel;
+        string[] loadFiles = new string[0];
+        const int LoadRows = 10;
 
         bool wired, uiReady, rangesApplied;
         int readyFrames;
@@ -237,10 +250,29 @@ namespace SOArmControl
                 d.SetTeach(true, on); d.SetTeach(false, on); Log("수동모드 " + (on ? "ON" : "OFF")); });
             OnClick("BtnR1Only", () => Mode(SOArmDualManager.ControlMode.Independent, true));
             OnClick("BtnR2Only", () => Mode(SOArmDualManager.ControlMode.Independent, false));
-            OnClick("BtnMirror", () => { if (dualManager != null) { dualManager.ChangeMode(SOArmDualManager.ControlMode.Mirror); Log("Mirror 모드"); } });
+            OnClick("BtnMirror", () =>
+            {
+                if (dualManager == null) return;
+                // ⚠️ R1 only / R2 only 를 거쳤다면 한쪽 채널이 꺼져 있다.
+                //    Mirror 는 두 로봇을 같이 쓰는 모드이므로 반드시 둘 다 되살린다.
+                //    안 그러면 Mirror 인데 한 대만 움직여서 고장으로 오해한다.
+                dualManager.robot1Enabled = true;
+                dualManager.robot2Enabled = true;
+                dualManager.ChangeMode(SOArmDualManager.ControlMode.Mirror);
+                Log("Mirror 모드 — 두 로봇 모두 활성");
+            });
             OnClick("BtnEstop", () => { var d = dualManager; if (d == null) return;
                 if (d.EmergencyStopped) { d.ReleaseStopAll(); Log("비상정지 해제"); } else { d.StopAll(); Log("비상정지"); } });
-            OnClick("BtnHome", () => { if (dualManager != null) { dualManager.GoToHomeAll(); Log("홈으로 이동"); } });
+            OnClick("BtnHome", () =>
+            {
+                if (dualManager == null) return;
+                // ⚠️ 수동모드에서는 서버가 일부 관절의 토크를 끈다.
+                //    토크가 꺼진 서보는 Goal_Position 을 무시하므로 홈 명령이 그냥 씹힌다.
+                //    "홈을 눌렀는데 안 간다" 의 정체가 이것이다. 먼저 수동모드를 끈다.
+                if (EndTeachIfOn("홈으로 이동")) return;
+                dualManager.GoToHomeAll();
+                Log("홈으로 이동");
+            });
             OnClick("BtnRecord", ToggleRecord);
             // 레코더 안의 ✕ 닫기는 없앴다 — 위 Recorder 버튼이 여닫는 토글이라 중복이었다.
 
@@ -284,6 +316,7 @@ namespace SOArmControl
             {
                 var r = recordManager; if (r == null) return;
                 if (r.IsPlaying) { r.StopPlayback(); Log("정지"); return; }
+                if (EndTeachIfOn("재생")) return;
                 r.PlayStep(selectedStep);
                 Log($"Step {selectedStep + 1} 단독 실행");
             });
@@ -293,12 +326,25 @@ namespace SOArmControl
             {
                 var r = recordManager; if (r == null) return;
                 if (r.IsPlaying) { r.StopPlayback(); Log("정지"); return; }
+                if (EndTeachIfOn("전체 재생")) return;
                 r.StartPlayback();
                 Log("전체 재생");
             });
             OnClick("BtnNew", () => { if (recordManager != null) { recordManager.NewProject("Untitled"); selectedStep = 0; } });
             OnClick("BtnSave", () => { if (recordManager?.CurrentProject != null) recordManager.SaveProject(recordManager.CurrentProject.projectName); });
-            OnClick("BtnLoad", LoadLatest);
+            OnClick("BtnLoad", OpenLoadPicker);
+
+            // 불러오기 창 — 줄을 눌러 고르고, «불러오기» 로 확정한다.
+            // 줄 클릭만으로 바로 열면 잘못 눌렀을 때 작업이 날아간다.
+            for (int i = 0; i < LoadRows; i++)
+            {
+                int row = i;
+                OnClick("LoadRow" + i, () => loadSel = loadFrom + row);
+            }
+            OnClick("BtnLoadPrev",   () => loadSel--);
+            OnClick("BtnLoadNext",   () => loadSel++);
+            OnClick("BtnLoadOk",     ConfirmLoad);
+            OnClick("BtnLoadCancel", CloseLoadPicker);
 
             // 이름 입력 — Enter 를 치면 프로젝트 이름이 바뀌고 저장 경로도 따라 바뀐다
             OnSubmit("RoutineNameIn", s =>
@@ -309,6 +355,30 @@ namespace SOArmControl
                 recordManager.SetProjectName(s);
                 Log($"루틴 이름 → {s}");
             });
+        }
+
+        /// <summary>
+        /// 수동모드가 켜져 있으면 끄고 true 를 돌려준다(이번 클릭은 소비).
+        ///
+        /// 수동모드에서는 서버가 pan·wrist 의 토크를 끈다. 토크가 꺼진 서보는
+        /// Goal_Position 쓰기를 무시하므로, 홈 이동이나 루틴 재생 명령이 조용히 씹힌다.
+        /// "그리퍼만 따라오고 자세는 안 따라온다", "홈을 눌러도 안 간다" 가 모두 이 증상이다.
+        /// (그리퍼는 토크를 유지하므로 혼자 잘 따라온다)
+        ///
+        /// 몰래 끄고 바로 실행하면 팔이 갑자기 움직여 놀라므로, 끄기만 하고 한 번 멈춘다.
+        /// </summary>
+        bool EndTeachIfOn(string what)
+        {
+            var d = dualManager;
+            if (d == null) return false;
+            if (!d.robot1Teach && !d.robot2Teach && !d.teachMirror) return false;
+
+            d.SetTeach(true, false);
+            d.SetTeach(false, false);
+            if (d.teachMirror) d.SetTeachMirror(false);
+
+            Log($"수동모드를 껐습니다. 토크가 돌아왔으니 «{what}» 를 다시 누르세요.");
+            return true;
         }
 
         void Mode(SOArmDualManager.ControlMode m, bool r1)
@@ -363,6 +433,8 @@ namespace SOArmControl
         {
             recordOpen = !recordOpen;
             if (recordPanel != null) recordPanel.SetActive(recordOpen);
+            // 불러오기 창을 띄운 채 리코더를 닫으면, 다시 열었을 때 목록이 덮여 있다
+            if (!recordOpen) CloseLoadPicker();
             if (dualManager != null) dualManager.SetRecordMode(recordOpen);
             Log(recordOpen ? "Recorder 열림" : "Recorder 닫힘");
         }
@@ -399,6 +471,11 @@ namespace SOArmControl
             var rp = root.Find("RecordPanel");
             recordPanel = rp != null ? rp.gameObject : null;
             if (recordPanel != null) recordPanel.SetActive(recordOpen);
+
+            // 불러오기 창은 항상 닫힌 상태에서 시작한다.
+            // 화면을 다시 만들면 목록이 비어 있는데 창만 떠 있을 수 있다.
+            loadOpen = false;
+            var lp = LoadPanel; if (lp != null) lp.gameObject.SetActive(false);
         }
 
         void Set(string k, string v, Color? c = null)
@@ -439,6 +516,7 @@ namespace SOArmControl
             if (sliders.TryGetValue("AccSlider", out var acs) && acs != null) Set("AccValue", $"{acs.value:F0}", Accent);
 
             if (recordOpen) BindRoutine();
+            if (recordOpen && loadOpen) BindLoadPicker();
         }
 
         void BindRobot(string p, SOArmManager m, bool conn, bool teach)
@@ -915,13 +993,102 @@ namespace SOArmControl
             Log($"스텝 추가 ({target})");
         }
 
-        void LoadLatest()
+        // ── 불러오기 창 ──────────────────────────────────────────
+
+        Transform LoadPanel => root != null ? root.Find("RecordPanel/LoadPanel") : null;
+
+        void OpenLoadPicker()
         {
             if (recordManager == null) return;
-            var f = recordManager.ListSavedFiles();
-            if (f == null || f.Length == 0) { Log("저장된 루틴 없음"); return; }
-            recordManager.LoadProject(System.IO.Path.GetFileNameWithoutExtension(f[0]));
-            selectedStep = 0;
+
+            // 열 때마다 다시 읽는다. 창을 띄워 둔 사이에 저장한 파일이 목록에 없으면
+            // "저장했는데 안 보인다" 가 된다.
+            var f = recordManager.ListSavedFiles() ?? new string[0];
+            // 최근에 고친 것이 위로. 방금 저장한 루틴을 찾아 내려가지 않아도 된다.
+            Array.Sort(f, (a, b) => System.IO.File.GetLastWriteTime(System.IO.Path.Combine(recordManager.RecordingsFolder, b))
+                             .CompareTo(System.IO.File.GetLastWriteTime(System.IO.Path.Combine(recordManager.RecordingsFolder, a))));
+            loadFiles = f;
+            loadSel = 0; loadFrom = 0;
+
+            loadOpen = true;
+            var lp = LoadPanel; if (lp != null) lp.gameObject.SetActive(true);
+        }
+
+        void CloseLoadPicker()
+        {
+            loadOpen = false;
+            var lp = LoadPanel; if (lp != null) lp.gameObject.SetActive(false);
+        }
+
+        void ConfirmLoad()
+        {
+            if (recordManager == null) return;
+            if (loadFiles.Length == 0) { CloseLoadPicker(); return; }
+
+            loadSel = Mathf.Clamp(loadSel, 0, loadFiles.Length - 1);
+            string file = loadFiles[loadSel];
+
+            if (recordManager.LoadProject(System.IO.Path.GetFileNameWithoutExtension(file)))
+            {
+                selectedStep = 0;
+                Log($"루틴 불러옴 — {file}");
+                CloseLoadPicker();
+            }
+            // 실패하면 창을 열어 둔다. 닫아 버리면 왜 안 됐는지 볼 곳이 없다.
+        }
+
+        void BindLoadPicker()
+        {
+            int n = loadFiles.Length;
+            Set("LoadCount", n > 0 ? $"{n} 개" : "", TextDim);
+
+            if (n == 0)
+            {
+                Set("LoadEmpty", "저장된 루틴이 없습니다.\n스텝을 만든 뒤 «저장» 을 먼저 누르세요.", TextDim);
+                Set("LoadPage", "");
+                Set("LoadWarn", "");
+                for (int r = 0; r < LoadRows; r++) ClearLoadRow(r);
+                return;
+            }
+            Set("LoadEmpty", "");
+
+            loadSel = Mathf.Clamp(loadSel, 0, n - 1);
+            loadFrom = Mathf.Clamp(loadFrom, 0, Mathf.Max(0, n - LoadRows));
+            // 선택이 창 밖으로 나가면 따라 굴린다
+            if (loadSel < loadFrom) loadFrom = loadSel;
+            if (loadSel >= loadFrom + LoadRows) loadFrom = loadSel - LoadRows + 1;
+
+            for (int r = 0; r < LoadRows; r++)
+            {
+                int idx = loadFrom + r;
+                if (idx >= n) { ClearLoadRow(r); continue; }
+
+                bool sel = idx == loadSel;
+                Set($"LoadRow{r}Label", "  " + System.IO.Path.GetFileNameWithoutExtension(loadFiles[idx]),
+                    sel ? Color.black : TextMain);
+                if (buttons.TryGetValue("LoadRow" + r, out var rb) && rb != null)
+                {
+                    var im = rb.GetComponent<Image>();
+                    if (im != null) im.color = sel ? Accent : new Color(0, 0, 0, 0);
+                }
+            }
+
+            Set("LoadPage", n > LoadRows ? $"{loadSel + 1} / {n}" : $"{n} 개", TextDim);
+
+            // 열면 지금 것이 통째로 바뀐다. 스텝이 남아 있으면 반드시 알린다.
+            int cur = recordManager?.CurrentProject?.waypoints?.Count ?? 0;
+            Set("LoadWarn", cur > 0 ? $"⚠ 지금 스텝 {cur}개가 사라집니다. 필요하면 «취소» 후 저장하세요." : "",
+                cur > 0 ? Warn : TextDim);
+        }
+
+        void ClearLoadRow(int r)
+        {
+            Set($"LoadRow{r}Label", "");
+            if (buttons.TryGetValue("LoadRow" + r, out var rb) && rb != null)
+            {
+                var im = rb.GetComponent<Image>();
+                if (im != null) im.color = new Color(0, 0, 0, 0);
+            }
         }
 
         // ══════════════════════════════════════════════════════════
@@ -1041,6 +1208,7 @@ namespace SOArmControl
                 { "BtnRecord", iconRecord },
                 { "BtnPlay", iconPlay }, { "BtnNew", iconNew }, { "BtnSave", iconSave },
                 { "BtnLoad", iconLoad }, { "BtnDel", iconDelete },
+                { "BtnLoadOk", iconLoad }, { "BtnLoadCancel", iconDelete },
                 { "BtnLoop", iconLoop },
                 { "BtnAddR1", iconAdd }, { "BtnAddR2", iconAdd },
                 { "BtnAddBoth", iconAdd }, { "BtnAddWait", iconAdd },
@@ -1522,6 +1690,63 @@ namespace SOArmControl
                 ("BtnNew",  "새로",     SubBg,  Accent),
                 ("BtnLoad", "가져오기", SubBg,  Accent),
             }, labelMax: 18);
+
+            BuildLoadPicker(v);
+
+            v.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 저장된 루틴을 골라 여는 창. 리코더 패널 위에 덮어 띄운다.
+        ///
+        /// 리코더 패널은 이미 꽉 차 있어 목록을 넣을 자리가 없다. 아래로 늘리면
+        /// 사용자가 손봐 저장해 둔 배치가 밀린다. 필요할 때만 덮는 편이 안전하다.
+        /// </summary>
+        void BuildLoadPicker(RectTransform p)
+        {
+            var v = Panel(p, "LoadPanel", new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.98f), Vector2.zero, Vector2.zero, Bg);
+            Frame(v, Accent);
+
+            Label(v, "LoadTitle", "루틴 불러오기", TextAnchor.MiddleLeft, titleFontSize - 2, Accent,
+                  new Vector2(0.04f, 0.925f), new Vector2(0.70f, 0.985f), Vector2.zero, Vector2.zero);
+            Label(v, "LoadCount", "", TextAnchor.MiddleRight, baseFontSize - 4, TextDim,
+                  new Vector2(0.70f, 0.925f), new Vector2(0.96f, 0.985f), Vector2.zero, Vector2.zero);
+
+            var lb = Panel(v, "LoadListBg", new Vector2(0.04f, 0.30f), new Vector2(0.96f, 0.915f), Vector2.zero, Vector2.zero, SubBg);
+            for (int i = 0; i < LoadRows; i++)
+            {
+                float h = 1f / LoadRows;
+                float top = 1f - i * h, bot = top - h;
+                var rb = Btn(lb, "LoadRow" + i, "", new Vector2(0, bot), new Vector2(1, top),
+                             new Color(0, 0, 0, 0), TextMain);
+                var lbl = rb.transform.Find("LoadRow" + i + "Label") as RectTransform;
+                if (lbl != null)
+                {
+                    var t = lbl.GetComponent<Text>();
+                    t.alignment = TextAnchor.MiddleLeft;
+                    t.resizeTextForBestFit = false;
+                    t.fontSize = baseFontSize - 4;
+                    lbl.offsetMin = new Vector2(14, 0);
+                    lbl.offsetMax = new Vector2(-10, 0);
+                }
+            }
+            Label(v, "LoadEmpty", "", TextAnchor.UpperLeft, baseFontSize - 3, TextDim,
+                  new Vector2(0.06f, 0.62f), new Vector2(0.94f, 0.90f), Vector2.zero, Vector2.zero);
+
+            // 지금 열려 있는 것이 사라진다는 사실은 누르기 전에 보여야 한다.
+            Label(v, "LoadWarn", "", TextAnchor.MiddleLeft, baseFontSize - 4, Warn,
+                  new Vector2(0.04f, 0.235f), new Vector2(0.96f, 0.293f), Vector2.zero, Vector2.zero);
+
+            Btn(v, "BtnLoadPrev", "▲", new Vector2(0.04f, 0.135f), new Vector2(0.24f, 0.225f), SubBg, Accent);
+            Label(v, "LoadPage", "", TextAnchor.MiddleCenter, baseFontSize - 4, TextDim,
+                  new Vector2(0.24f, 0.135f), new Vector2(0.76f, 0.225f), Vector2.zero, Vector2.zero);
+            Btn(v, "BtnLoadNext", "▼", new Vector2(0.76f, 0.135f), new Vector2(0.96f, 0.225f), SubBg, Accent);
+
+            BtnRow(v, 0.04f, 0.96f, 0.03f, 0.125f, 0.02f, new[]
+            {
+                ("BtnLoadOk",     "불러오기", Accent, Color.black),
+                ("BtnLoadCancel", "취소",     SubBg,  TextMain),
+            }, labelMax: 20);
 
             v.gameObject.SetActive(false);
         }
