@@ -31,7 +31,9 @@ namespace SOArmControl
         private Coroutine playbackCoroutine;
 
         // ── 저장 폴더 경로 ──
-        private string RecordingsFolder
+        // 관제 화면이 "어디에 저장되는지"를 보여줘야 해서 공개로 바꿨다.
+        // 저장하고 나서 파일을 못 찾는 일이 실제로 잦다.
+        public string RecordingsFolder
         {
             get
             {
@@ -352,6 +354,54 @@ namespace SOArmControl
             currentStepIndex = -1;
             statusMessage = "✅ 재생 완료";
             Debug.Log($"[Record] {statusMessage}");
+        }
+
+        /// <summary>
+        /// 스텝 하나만 실행한다.
+        ///
+        /// 루틴을 만드는 중에는 "이 자세가 맞나"를 확인하려고 그 스텝만 돌려보고 싶을 때가 많다.
+        /// 전체 재생으로 확인하려면 앞 스텝을 다 거쳐야 해서 오래 걸리고, 중간에 있는
+        /// 대기·반복까지 같이 돌아간다.
+        /// </summary>
+        public void PlayStep(int index)
+        {
+            if (CurrentProject == null) return;
+            if (index < 0 || index >= CurrentProject.waypoints.Count)
+            { Debug.LogWarning($"[Record] 스텝 번호가 범위를 벗어났다: {index}"); return; }
+            if (isPlaying) { Debug.LogWarning("[Record] 재생 중에는 단독 실행을 받지 않는다"); return; }
+
+            playbackCoroutine = StartCoroutine(SingleStepRoutine(index));
+        }
+
+        IEnumerator SingleStepRoutine(int index)
+        {
+            isPlaying = true;
+            currentStepIndex = index;
+
+            var wp = CurrentProject.waypoints[index];
+            statusMessage = $"▶ Step {wp.stepNumber} 단독 실행";
+            Debug.Log($"[Record] {statusMessage}");
+
+            switch (wp.type)
+            {
+                case "motion":
+                    yield return ExecuteMotion(wp);
+                    break;
+                case "wait":
+                    yield return new WaitForSeconds(wp.duration);
+                    break;
+                default:
+                    // 반복 시작/끝은 표식일 뿐이라 혼자 실행할 동작이 없다.
+                    statusMessage = $"Step {wp.stepNumber} 은 반복 표식이라 실행할 동작이 없습니다";
+                    Debug.Log($"[Record] {statusMessage}");
+                    break;
+            }
+
+            isPlaying = false;
+            currentStepIndex = -1;
+            playbackCoroutine = null;
+            if (wp.type == "motion" || wp.type == "wait")
+                statusMessage = $"✅ Step {wp.stepNumber} 완료";
         }
 
         IEnumerator ExecuteMotion(Waypoint wp)
