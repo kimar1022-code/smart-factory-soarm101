@@ -5,17 +5,17 @@ using UnityEngine;
 namespace SOArmControl
 {
     /// <summary>
-    /// Record ÇÁ·ÎÁ§Æ® ÀüÃ¼¸¦ Ç¥Çö.
-    /// JSON ÆÄÀÏ·Î ÀúÀåµÊ.
+    /// Record í”„ë¡œì íŠ¸ ì „ì²´ë¥¼ í‘œí˜„.
+    /// JSON íŒŒì¼ë¡œ ì €ì¥ë¨.
     /// </summary>
     [Serializable]
     public class RecordProject
     {
-        public string projectName;        // "¹Ú½º Àü´Ş ÀÛ¾÷" °°Àº ÀÌ¸§
-        public string createdAt;          // »ı¼º ½Ã°¢ (ISO 8601)
-        public string lastModifiedAt;     // ¸¶Áö¸· ¼öÁ¤ ½Ã°¢
-        public string version;            // µ¥ÀÌÅÍ ¹öÀü (¸¶ÀÌ±×·¹ÀÌ¼Ç¿ë)
-        public List<Waypoint> waypoints;  // ¸ğµç ½ºÅÜÀÇ ¸®½ºÆ®
+        public string projectName;        // "ë°•ìŠ¤ ì „ë‹¬ ì‘ì—…" ê°™ì€ ì´ë¦„
+        public string createdAt;          // ìƒì„± ì‹œê° (ISO 8601)
+        public string lastModifiedAt;     // ë§ˆì§€ë§‰ ìˆ˜ì • ì‹œê°
+        public string version;            // ë°ì´í„° ë²„ì „ (ë§ˆì´ê·¸ë ˆì´ì…˜ìš©)
+        public List<Waypoint> waypoints;  // ëª¨ë“  ìŠ¤í…ì˜ ë¦¬ìŠ¤íŠ¸
 
         public RecordProject()
         {
@@ -26,7 +26,7 @@ namespace SOArmControl
             waypoints = new List<Waypoint>();
         }
 
-        // ¦¡¦¡ »õ ºó ÇÁ·ÎÁ§Æ® »ı¼º ¦¡¦¡
+        // â”€â”€ ìƒˆ ë¹ˆ í”„ë¡œì íŠ¸ ìƒì„± â”€â”€
         public static RecordProject NewProject(string name)
         {
             var p = new RecordProject();
@@ -34,14 +34,14 @@ namespace SOArmControl
             return p;
         }
 
-        // ¦¡¦¡ ½ºÅÜ ¹øÈ£ ÀÚµ¿ ÀçÁ¤·Ä (1, 2, 3...) ¦¡¦¡
+        // â”€â”€ ìŠ¤í… ë²ˆí˜¸ ìë™ ì¬ì •ë ¬ (1, 2, 3...) â”€â”€
         public void RenumberSteps()
         {
             for (int i = 0; i < waypoints.Count; i++)
                 waypoints[i].stepNumber = i + 1;
         }
 
-        // ¦¡¦¡ ¼öÁ¤ ½Ã°¢ °»½Å ¦¡¦¡
+        // â”€â”€ ìˆ˜ì • ì‹œê° ê°±ì‹  â”€â”€
         public void Touch()
         {
             lastModifiedAt = DateTime.Now.ToString("o");

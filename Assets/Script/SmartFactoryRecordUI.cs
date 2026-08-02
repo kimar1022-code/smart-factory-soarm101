@@ -19,6 +19,15 @@ namespace SOArmControl
         public int panelHeight = 320;     // 하단 Record 패널 높이
         public int fontSize = 0;
 
+        [Header("🔍 UI 배율")]
+        [Tooltip("메인 UI 의 uiScale 과 같은 값으로 맞춰야 두 패널이 어긋나지 않는다.")]
+        [Range(1f, 3f)]
+        public float uiScale = 1.6f;
+
+        /// <summary>배율을 적용한 가상 화면 크기. 배치 계산은 전부 이 값을 쓴다.</summary>
+        int VW => Mathf.RoundToInt(Screen.width / Mathf.Max(uiScale, 0.01f));
+        int VH => Mathf.RoundToInt(Screen.height / Mathf.Max(uiScale, 0.01f));
+
         // 텍스트 입력 상태
         private string projectNameInput = "Untitled";
         private string waitDurationText = "1.0";
@@ -48,6 +57,28 @@ namespace SOArmControl
                 mainUI = FindAnyObjectByType<SmartFactoryUI_v3_4>();
         }
 
+        /// <summary>
+        /// 실제로 쓸 글자 크기(px).
+        /// fontSize 가 0 이하면 화면 높이에 맞춰 자동으로 정한다.
+        /// 인스펙터에 0 이 저장돼 있어도 기본 11px 로 떨어져 안 보이는 것을 막는다.
+        /// </summary>
+        int FontPx => fontSize > 0 ? fontSize : 12;   // 확대는 uiScale 이 담당한다
+
+        /// <summary>버튼 한 줄 높이. 글자가 커지면 같이 커져야 잘리지 않는다.</summary>
+        int RowH => FontPx + 14;
+
+        void ApplyFont()
+        {
+            int f = FontPx;
+            GUI.skin.box.fontSize = f;
+            GUI.skin.label.fontSize = f;
+            GUI.skin.button.fontSize = f;
+            GUI.skin.textField.fontSize = f;
+            GUI.skin.textArea.fontSize = f;
+            GUI.skin.toggle.fontSize = f;
+            GUI.skin.horizontalSlider.fontSize = f;
+        }
+
         void OnGUI()
         {
             if (dualManager == null || recordManager == null) return;
@@ -55,9 +86,49 @@ namespace SOArmControl
             // Record 토글이 켜졌을 때만 UI 표시 (Independent/Mirror 어느 쪽에서든 가능)
             if (!dualManager.isRecordModeActive) return;
 
+            // 메인 UI 와 동일한 배율. 두 패널이 같은 좌표계를 써야 겹치거나 어긋나지 않는다.
+            GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity,
+                                       new Vector3(uiScale, uiScale, 1f));
+
+            ApplyFont();
             DrawRecordPanel();
 
             if (showLoadDialog) DrawLoadDialog();
+        }
+
+        /// <summary>
+        /// 수동모드(직접교시) 조작.
+        ///
+        /// 예전에는 메인 UI 에 별도 패널로 있었다. "자세를 만든다 → 스텝으로 저장한다" 가
+        /// 하나의 흐름이라 교시를 이 패널 안으로 합쳤다. 산업용 티치펜던트도
+        /// 프리드라이브와 프로그램 편집이 같은 화면에 있다.
+        /// </summary>
+        void DrawTeachRow(int x, int y, int w)
+        {
+            int bh = RowH;
+            int bw = (w - 10) / 3;
+
+            DrawTeachToggle(new Rect(x, y, bw, bh), "1번 수동",
+                dualManager.robot1Teach, v => dualManager.SetTeach(true, v));
+            DrawTeachToggle(new Rect(x + bw + 5, y, bw, bh), "2번 수동",
+                dualManager.robot2Teach, v => dualManager.SetTeach(false, v));
+            DrawTeachToggle(new Rect(x + (bw + 5) * 2, y, bw, bh), "미러 수동",
+                dualManager.teachMirror, v => dualManager.SetTeachMirror(v));
+
+            GUI.Label(new Rect(x, y + bh + 2, w, FontPx + 8),
+                dualManager.teachMirror
+                    ? "미러: 1번을 밀면 2번이 따라 합니다"
+                    : (dualManager.robot1Teach || dualManager.robot2Teach)
+                        ? "회전축·손목이 풀렸습니다. 그리퍼는 슬라이더로 조작하세요"
+                        : "켜면 손으로 팔을 밀어 자세를 만들 수 있습니다");
+        }
+
+        void DrawTeachToggle(Rect r, string label, bool on, System.Action<bool> setter)
+        {
+            var prev = GUI.backgroundColor;
+            if (on) GUI.backgroundColor = new Color(1f, 0.65f, 0.1f);   // 켜져 있으면 주황
+            if (GUI.Button(r, (on ? "✋ " : "") + label)) setter(!on);
+            GUI.backgroundColor = prev;
         }
 
         void DrawRecordPanel()
@@ -66,25 +137,29 @@ namespace SOArmControl
             int topBar = 160;
             int bottomBar = 60;
 
-            // 우측 세로 패널
-            int w = 320;
-            int x = Screen.width - w - margin;
+            // 우측 세로 패널. 글자를 키웠으므로 폭도 같이 넓힌다.
+            int w = Mathf.Min(440, VW - margin * 2);
+            int x = VW - w - margin;
             int y = topBar;
-            int h = Screen.height - topBar - bottomBar - margin;
+            int h = VH - topBar - bottomBar - margin;
 
             GUI.Box(new Rect(x, y, w, h), "🎬 Record Mode");
 
-            int curY = y + 25;
+            int curY = y + RowH;
             int curX = x + 10;
             int innerW = w - 20;
 
+            // ── 0행: 수동모드(직접교시) ── 자세를 만드는 단계라 맨 위에 둔다
+            DrawTeachRow(curX, curY, innerW);
+            curY += RowH + FontPx + 14;
+
             // ── 1행: 프로젝트 이름 ──
             DrawTopRow(curX, curY, innerW);
-            curY += 60;  // 두 줄 차지
+            curY += RowH * 2 + 14;  // 두 줄 차지
 
             // ── 2행: 스텝 추가 버튼들 ──
             DrawAddButtonsRow(curX, curY, innerW);
-            curY += 85;  // 두 줄 차지
+            curY += RowH * 2 + 40;  // 두 줄 차지
 
             // ── 3행: 스텝 리스트 ──
             int listHeight = h - (curY - y) - 80;
@@ -97,23 +172,27 @@ namespace SOArmControl
 
         void DrawTopRow(int x, int y, int w)
         {
+            int rh = RowH;
+            int lblW = FontPx * 5;
+
             // 1줄: 프로젝트 이름 + 이름변경
-            GUI.Label(new Rect(x, y + 4, 60, 22), "프로젝트:");
-            projectNameInput = GUI.TextField(new Rect(x + 60, y + 4, w - 130, 22), projectNameInput);
-            if (GUI.Button(new Rect(x + w - 65, y + 4, 65, 22), "이름변경"))
+            GUI.Label(new Rect(x, y + 4, lblW, rh), "프로젝트:");
+            projectNameInput = GUI.TextField(
+                new Rect(x + lblW, y + 4, w - lblW - FontPx * 5 - 5, rh), projectNameInput);
+            if (GUI.Button(new Rect(x + w - FontPx * 5, y + 4, FontPx * 5, rh), "이름변경"))
                 recordManager.SetProjectName(projectNameInput);
 
             // 2줄: 새로 / 저장 / 불러오기
-            int by = y + 30;
+            int by = y + rh + 8;
             int bw = (w - 10) / 3;
-            if (GUI.Button(new Rect(x, by, bw, 22), "🆕 새로"))
+            if (GUI.Button(new Rect(x, by, bw, rh), "🆕 새로"))
                 recordManager.NewProject(projectNameInput);
-            if (GUI.Button(new Rect(x + bw + 5, by, bw, 22), "💾 저장"))
+            if (GUI.Button(new Rect(x + bw + 5, by, bw, rh), "💾 저장"))
             {
                 string name = string.IsNullOrEmpty(saveFileNameText) ? projectNameInput : saveFileNameText;
                 recordManager.SaveProject(name);
             }
-            if (GUI.Button(new Rect(x + (bw + 5) * 2, by, bw, 22), "📂 불러오기"))
+            if (GUI.Button(new Rect(x + (bw + 5) * 2, by, bw, rh), "📂 불러오기"))
             {
                 availableFiles = recordManager.ListSavedFiles();
                 showLoadDialog = true;
@@ -316,12 +395,12 @@ namespace SOArmControl
         {
             int dw = 500;
             int dh = 400;
-            int dx = (Screen.width - dw) / 2;
-            int dy = (Screen.height - dh) / 2;
+            int dx = (VW - dw) / 2;
+            int dy = (VH - dh) / 2;
 
             // 배경
             GUI.color = new Color(0, 0, 0, 0.7f);
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0, 0, VW, VH), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
             GUI.Box(new Rect(dx, dy, dw, dh), "📂 프로젝트 불러오기");

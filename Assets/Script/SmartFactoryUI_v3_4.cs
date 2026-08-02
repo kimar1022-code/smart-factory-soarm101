@@ -25,6 +25,17 @@ namespace SOArmControl
         [Header("폰트 크기 (0이면 기본)")]
         public int fontSize = 0;
 
+        [Header("🔍 UI 배율")]
+        [Tooltip("화면 전체를 이 배율로 키운다.\n" +
+                 "글자 크기만 올리면 Rect 는 그대로라 상자 밖으로 넘쳐 잘린다.\n" +
+                 "GUI.matrix 로 레이아웃째 확대해야 비율이 유지된다.")]
+        [Range(1f, 3f)]
+        public float uiScale = 1.6f;
+
+        /// <summary>배율을 적용한 가상 화면 크기. 배치 계산은 전부 이 값을 쓴다.</summary>
+        int VW => Mathf.RoundToInt(Screen.width / Mathf.Max(uiScale, 0.01f));
+        int VH => Mathf.RoundToInt(Screen.height / Mathf.Max(uiScale, 0.01f));
+
         [Header("🎚️ 속도 설정")]
         [Range(0, 3000)]
         public int motorVelocity = 800;
@@ -86,10 +97,12 @@ namespace SOArmControl
             boxStyle = new GUIStyle(GUI.skin.box);
             labelStyle = new GUIStyle(GUI.skin.label);
 
+            // ⚠️ 여기서 글자만 키우지 않는다.
+            //    폰트만 올리면 Rect 는 그대로라 글자가 상자를 넘쳐 잘린다.
+            //    확대는 uiScale(GUI.matrix)이 레이아웃째 담당한다.
+            //    인스펙터에서 fontSize 를 직접 지정한 경우에만 반영한다.
             if (fontSize > 0)
             {
-                // GUI.skin의 모든 스타일에 폰트 크기 적용
-                // (다음 OnGUI부터 모든 Button, Label, Box, TextField 등에 반영됨)
                 GUI.skin.box.fontSize = fontSize;
                 GUI.skin.label.fontSize = fontSize;
                 GUI.skin.button.fontSize = fontSize;
@@ -98,7 +111,6 @@ namespace SOArmControl
                 GUI.skin.toggle.fontSize = fontSize;
                 GUI.skin.horizontalSlider.fontSize = fontSize;
 
-                // 로컬 스타일도 적용 (혹시 사용될 때 대비)
                 boxStyle.fontSize = fontSize;
                 labelStyle.fontSize = fontSize;
             }
@@ -114,7 +126,7 @@ namespace SOArmControl
             int topBar = 160;
             int bottomBar = 60;
             int verticalMargin = 30;
-            int availableHeight = Screen.height - topBar - bottomBar - verticalMargin;
+            int availableHeight = VH - topBar - bottomBar - verticalMargin;
 
             // 패널 1개 높이 = 사용 가능 높이의 절반 (gap 5px)
             int gap = 5;
@@ -127,6 +139,11 @@ namespace SOArmControl
         void OnGUI()
         {
             if (dualManager == null) return;
+
+            // 화면 전체를 배율로 확대한다. 글자·상자·간격이 같은 비율로 커지므로
+            // 어디도 잘리지 않는다. 이후 좌표 계산은 전부 VW/VH(가상 크기)를 쓴다.
+            GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity,
+                                       new Vector3(uiScale, uiScale, 1f));
 
             InitStyles();
             CalculateSizes();
@@ -155,8 +172,8 @@ namespace SOArmControl
         /// <summary>비상정지 중임을 화면 상단에 확실히 알린다. 깜빡여서 놓치지 않게.</summary>
         void DrawEmergencyBanner()
         {
-            int w = Mathf.Min(560, Screen.width - 40);
-            var rect = new Rect((Screen.width - w) / 2, 8, w, 52);
+            int w = Mathf.Min(560, VW - 40);
+            var rect = new Rect((VW - w) / 2, 8, w, 52);
 
             bool blink = Mathf.FloorToInt(Time.realtimeSinceStartup * 2f) % 2 == 0;
             var prevBg = GUI.backgroundColor;
@@ -199,31 +216,21 @@ namespace SOArmControl
         //   로봇2는 명령을 따라야 하므로 토크를 유지한다.
         void DrawTeachPanel(int x, int y)
         {
-            int w = Mathf.Min(430, Screen.width - x - 10);
+            int w = Mathf.Min(430, VW - x - 10);
             if (w < 260) return;                       // 화면이 좁으면 그리지 않는다
             EnsureRecorders();
 
-            GUI.Box(new Rect(x, y, w, 250), "✋ 수동 모드 (직접교시) & 🎬 모션 녹화");
+            GUI.Box(new Rect(x, y, w, 210), "🎬 모션 녹화 (연속 궤적)");
 
-            int bx = x + 10, by = y + 26, bw = (w - 30) / 3, bh = 26;
+            int bx = x + 10, by = y + 26, bh = 26;
 
-            // ── 수동모드 3종 ────────────────────────────────────
-            DrawTeachToggle(new Rect(bx, by, bw, bh), "1번 수동",
-                dualManager.robot1Teach, v => dualManager.SetTeach(true, v));
-            DrawTeachToggle(new Rect(bx + bw + 5, by, bw, bh), "2번 수동",
-                dualManager.robot2Teach, v => dualManager.SetTeach(false, v));
-            DrawTeachToggle(new Rect(bx + (bw + 5) * 2, by, bw, bh), "미러 수동",
-                dualManager.teachMirror, v => dualManager.SetTeachMirror(v));
-
-            GUI.Label(new Rect(bx, by + bh + 2, w - 20, 20),
-                dualManager.teachMirror
-                    ? "미러: 1번을 손으로 밀면 2번이 따라 합니다"
-                    : (dualManager.robot1Teach || dualManager.robot2Teach)
-                        ? "회전축·손목이 풀렸습니다. 어깨/팔꿈치는 무게 때문에 잠겨 있습니다"
-                        : "켜면 손으로 팔을 밀어 자세를 가르칠 수 있습니다");
+            // 수동모드(직접교시) 토글은 여기서 뺐다. 🎬 Record 패널로 옮겼다.
+            // "손으로 자세를 만든다 → 스텝으로 저장한다" 가 한 흐름이라
+            // 두 조작이 떨어져 있으면 화면을 오가야 했다.
+            // 이 패널은 이제 연속 궤적 녹화 전용이다(웨이포인트 루틴과는 별개).
 
             // ── 녹화 대상 ───────────────────────────────────────
-            int ry = by + bh + 24;
+            int ry = by;
             GUI.Label(new Rect(bx, ry, 60, 20), "녹화 대상:");
             if (GUI.Toggle(new Rect(bx + 70, ry, 60, 20), recordTarget == 0, " 1번")) recordTarget = 0;
             if (GUI.Toggle(new Rect(bx + 135, ry, 60, 20), recordTarget == 1, " 2번")) recordTarget = 1;
@@ -283,13 +290,7 @@ namespace SOArmControl
             GUI.Label(new Rect(bx, py + 18, w - 20, 40), recorderStatus);
         }
 
-        void DrawTeachToggle(Rect r, string label, bool on, System.Action<bool> setter)
-        {
-            var prev = GUI.backgroundColor;
-            if (on) GUI.backgroundColor = new Color(1f, 0.65f, 0.1f);   // 켜져 있으면 주황
-            if (GUI.Button(r, (on ? "✋ " : "") + label)) setter(!on);
-            GUI.backgroundColor = prev;
-        }
+        // DrawTeachToggle 은 SmartFactoryRecordUI 로 옮겼다. 교시 조작이 그쪽으로 통합됐다.
 
         [Header("🎬 모션 녹화 (없으면 자동 탐색)")]
         public SOArmMotionRecorder recorder1;
@@ -309,7 +310,7 @@ namespace SOArmControl
             // 인스펙터에서 안 꽂아뒀으면 씬에서 찾아 로봇별로 배정한다.
             if (recorder1 == null || recorder2 == null)
             {
-                var all = FindObjectsByType<SOArmMotionRecorder>(FindObjectsSortMode.None);
+                var all = FindObjectsByType<SOArmMotionRecorder>();
                 foreach (var r in all)
                 {
                     if (r.target == dualManager.robot1 && recorder1 == null) recorder1 = r;
@@ -350,7 +351,7 @@ namespace SOArmControl
 
         void DrawTopBar()
         {
-            int totalWidth = Screen.width - 20;
+            int totalWidth = VW - 20;
 
             string channelText = $"{(dualManager.robot1Enabled ? "R1" : "--")}/{(dualManager.robot2Enabled ? "R2" : "--")}";
             GUI.Box(new Rect(10, 10, totalWidth, 45),
@@ -513,12 +514,12 @@ namespace SOArmControl
         {
             int w = 500;
             int h = 220;
-            int x = (Screen.width - w) / 2;
-            int y = (Screen.height - h) / 2;
+            int x = (VW - w) / 2;
+            int y = (VH - h) / 2;
 
             // 배경 어둡게
             GUI.color = new Color(0, 0, 0, 0.7f);
-            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.DrawTexture(new Rect(0, 0, VW, VH), Texture2D.whiteTexture);
             GUI.color = Color.white;
 
             // 다이얼로그 박스
@@ -696,8 +697,8 @@ namespace SOArmControl
 
         void DrawBottomBar()
         {
-            int y = Screen.height - 50;
-            int totalWidth = Screen.width - 20;
+            int y = VH - 50;
+            int totalWidth = VW - 20;
             int btnW = (totalWidth - 30) / 3;
             int btnH = 35;
             int x = 10;
