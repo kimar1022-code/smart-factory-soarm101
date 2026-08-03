@@ -8,6 +8,50 @@ CLAUDE.md
 HANDOFF.md
 docs/TOMORROW.md
 
+# ── API 키 · 토큰 · 인증서 ──────────────────────────────────
+# 한 번 커밋되면 히스토리에 영구히 남는다. 나중에 파일을 지워도 이전 커밋에서
+# 그대로 꺼낼 수 있고, GitHub 은 지운 커밋도 한동안 API 로 조회된다.
+# 그래서 "지우면 된다" 가 아니라 애초에 안 올리는 쪽으로 막는다.
+# 키가 필요하면 파일이 아니라 환경변수로 넘긴다.
+
+# 환경변수 파일
+.env
+.env.*
+!.env.example
+
+# 키·인증서
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+!*.pub
+
+# 이름에 자격증명이 드러나는 파일
+*secret*
+*secrets*
+*apikey*
+*api_key*
+*api-key*
+*credential*
+*credentials*
+*token.json
+service-account*.json
+
+# SSH 개인키
+id_rsa
+id_ed25519
+id_ecdsa
+
+# 클라우드·패키지 도구 자격증명
+.aws/
+.netrc
+.npmrc
+
+# Hugging Face 토큰 — LeRobot 이 여기에 저장한다
+.huggingface/
+huggingface/token
+
 # 에디터·도구 로컬 설정
 .claude/
 .vs/
