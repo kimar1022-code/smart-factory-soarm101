@@ -26,6 +26,13 @@ v4 → v5 변경사항:
   - set_speed: {"type":"set_speed", "mode":"...", "velocity":..., "acceleration":...}
   - 🆕 home: {"type":"home", "mode":"robot1|robot2|both"}
   - 🆕 set_home: {"type":"set_home", "mode":"robot1|robot2", "confirm":true}
+  - 🆕 ik:  {"type":"ik", "current":[deg×5], "target":[x,y,z]}
+            -> {"ok":true, "joints":[deg×5], "reached":[x,y,z], "error_mm":..., "converged":true}
+  - 🆕 fk:  {"type":"fk", "joints":[deg×5]}  -> {"ok":true, "position":[x,y,z]}
+
+  ⚠️ ik/fk 는 계산만 한다. 모터를 건드리지 않는다. 단위는 degree/meter 이고
+     서버의 정규화값(-100~100)이 아니다. 실제 이동은 유니티가 기존 set 경로로
+     하므로 속도 제한·소프트 리밋·비상정지가 그대로 적용된다.
 """
 
 import socket
@@ -59,6 +66,34 @@ MOTOR_NAMES = [
     'shoulder_pan', 'shoulder_lift', 'elbow_flex',
     'wrist_flex', 'wrist_roll', 'gripper'
 ]
+
+# IK 대상은 팔 5축뿐이다. gripper 는 자세를 안 바꾸므로 뺀다.
+# (SO-ARM101 은 팔이 5축이다. 6축이 아니다 — 6번째는 그리퍼다)
+ARM_JOINT_NAMES = [
+    'shoulder_pan', 'shoulder_lift', 'elbow_flex',
+    'wrist_flex', 'wrist_roll'
+]
+
+# 기구학 전용 URDF. so101.urdf 에서 visual/collision 을 걷어낸 것.
+# 메시가 붙어 있으면 placo 가 DAE 를 찾다가 적재 자체가 실패한다.
+IK_URDF = '/home/sw/ik/so101_kin.urdf'
+
+# TCP 프레임. LeRobot 의 RobotKinematics 기본값과 같다.
+# ⚠️ 순정 조 끝 기준이다. PincOpen 손끝으로 옮기는 건 아직 안 했다 (FR-39).
+IK_TIP_FRAME = 'gripper_frame_link'
+
+# 자세 가중치. 위치를 1.0 으로 두고 자세를 0.01 로 낮춘다.
+#
+# 왜 낮추나: 팔이 5축이라 임의의 6D 자세를 만들 수 없다. J2·J3·J4 가 서로 평행한
+# pitch 축이라, 공구의 yaw 는 J1(팔이 놓인 평면)에 묶여 있다. 자세를 위치와
+# 같은 무게로 요구하면 솔버가 둘을 맞바꾸며 위치가 어긋난다.
+# LeRobot 본체(lerobot/model/kinematics.py)도 같은 이유로 0.01 을 기본값으로 쓴다.
+# 0.0 으로 두면 자세를 아예 안 본다.
+IK_ORIENTATION_WEIGHT = 0.01
+
+# 수렴 조건. 라파4에서 1회 solve 가 0.11ms, 보통 4회면 0.1mm 밑으로 떨어진다.
+IK_MAX_ITERS = 40
+IK_TOLERANCE_M = 0.0002   # 0.2mm
 
 LISTEN_HOST = '0.0.0.0'
 LISTEN_PORT = 5000
@@ -350,6 +385,125 @@ def handle_set_home_safe(robots, mode, calibrations, robot_name):
 # 기존 명령 처리 (v4와 동일)
 # ============================================================
 
+# ============================================================
+# 역기구학 (IK) — 계산만 한다. 모터는 건드리지 않는다.
+# ============================================================
+#
+# 설계 의도:
+#   이 명령은 모터에 아무것도 쓰지 않는다. (현재 각도, 목표 XYZ) → 관절 각도
+#   를 돌려주는 순수 함수다. 실제로 팔을 움직이는 건 유니티가 기존 set 경로로
+#   한다. 그래야 속도 제한 · 소프트 리밋 · 비상정지 · 그리퍼 안전 게이트가
+#   전부 그대로 걸린다. 여기서 직접 모터를 돌리면 그 방어선을 통째로 우회한다.
+#
+#   단위는 degree / meter 다. 서버의 정규화값(-100~100)이 아니다.
+#   정규화 변환은 유니티의 SOArmMotorMapper 가 이미 하고 있으므로 두 번 하지 않는다.
+#
+#   두 로봇은 기구학이 같으므로 solver 를 공유한다. mode 를 받지 않는 이유다.
+
+_ik_lock = threading.Lock()
+_ik_solver = None
+_ik_error = None
+
+
+def get_ik_solver():
+    """placo 솔버를 처음 쓸 때 한 번만 만든다. 실패해도 서버는 계속 산다."""
+    global _ik_solver, _ik_error
+    if _ik_solver is not None or _ik_error is not None:
+        return _ik_solver
+
+    try:
+        from lerobot.model.kinematics import RobotKinematics
+        _ik_solver = RobotKinematics(
+            urdf_path=IK_URDF,
+            target_frame_name=IK_TIP_FRAME,
+            joint_names=ARM_JOINT_NAMES,
+        )
+        print(f"  🧮 IK 준비됨 — {IK_URDF} / tip={IK_TIP_FRAME}")
+    except Exception as e:
+        # placo 미설치, URDF 없음, 프레임 이름 오타 등.
+        # 서버를 죽이지 않는다. IK 명령만 실패로 답한다.
+        _ik_error = f"{type(e).__name__}: {e}"
+        print(f"  ⚠️ IK 사용 불가 — {_ik_error}")
+    return _ik_solver
+
+
+def handle_fk(joints_deg):
+    """관절 각도(deg 5개) → TCP 위치(m)."""
+    solver = get_ik_solver()
+    if solver is None:
+        return {"ok": False, "type": "fk", "error": _ik_error}
+
+    if not isinstance(joints_deg, list) or len(joints_deg) < len(ARM_JOINT_NAMES):
+        return {"ok": False, "type": "fk",
+                "error": f"joints 는 {len(ARM_JOINT_NAMES)}개여야 한다"}
+
+    import numpy as np
+    q = np.array(joints_deg[:len(ARM_JOINT_NAMES)], dtype=float)
+    with _ik_lock:
+        T = solver.forward_kinematics(q)
+    p = T[:3, 3]
+    return {"ok": True, "type": "fk",
+            "position": [round(float(v), 5) for v in p]}
+
+
+def handle_ik(current_deg, target_xyz, orientation_weight=None):
+    """
+    (현재 관절 deg, 목표 TCP xyz m) → 관절 deg.
+
+    placo 의 solve() 는 QP 한 스텝이라 한 번 부르면 목표로 조금 다가갈 뿐이다.
+    수렴할 때까지 돌린다. 라파4에서 1회 0.11ms 라 40회를 돌아도 5ms 안쪽이다.
+    """
+    solver = get_ik_solver()
+    if solver is None:
+        return {"ok": False, "type": "ik", "error": _ik_error}
+
+    n = len(ARM_JOINT_NAMES)
+    if not isinstance(current_deg, list) or len(current_deg) < n:
+        return {"ok": False, "type": "ik", "error": f"current 는 {n}개여야 한다"}
+    if not isinstance(target_xyz, list) or len(target_xyz) < 3:
+        return {"ok": False, "type": "ik", "error": "target 은 [x,y,z] 여야 한다"}
+
+    import numpy as np
+    ow = IK_ORIENTATION_WEIGHT if orientation_weight is None else float(orientation_weight)
+
+    q = np.array(current_deg[:n], dtype=float)
+    target = np.array(target_xyz[:3], dtype=float)
+
+    with _ik_lock:
+        # 목표 4x4 행렬. 자세는 현재 자세를 그대로 물려준다 —
+        # 어차피 가중치가 낮아 구속이 약하고, 단위행렬을 넣으면
+        # 솔버가 엉뚱한 자세로 끌려가려다 위치를 놓친다.
+        T_target = solver.forward_kinematics(q).copy()
+        T_target[:3, 3] = target
+
+        iters = 0
+        err = None
+        for _ in range(IK_MAX_ITERS):
+            q = solver.inverse_kinematics(q, T_target,
+                                          position_weight=1.0,
+                                          orientation_weight=ow)
+            iters += 1
+            reached = solver.forward_kinematics(q)[:3, 3]
+            err = float(np.linalg.norm(reached - target))
+            if err < IK_TOLERANCE_M:
+                break
+
+        reached = solver.forward_kinematics(q)[:3, 3]
+
+    err_mm = round(err * 1000.0, 3)
+    return {
+        "ok": True,
+        "type": "ik",
+        "joints": [round(float(v), 3) for v in q[:n]],
+        "reached": [round(float(v), 5) for v in reached],
+        "error_mm": err_mm,
+        "iters": iters,
+        # 목표에 못 닿았으면 유니티가 사용자에게 알려줄 수 있게 표시한다.
+        # 팔 길이를 넘었거나, 5축으로는 그 자세가 안 되는 경우다.
+        "converged": err_mm <= 1.0,
+    }
+
+
 def handle_get_positions(robots, mode):
     result = {"ok": True}
     targets = []
@@ -640,6 +794,19 @@ def handle_client(conn, addr, robots, calibrations):
 
                     elif msg_type == 'status':
                         response = handle_status(robots, msg.get('mode', 'both'))
+
+                    # 🆕 역기구학 — 계산만 한다. 모터는 안 건드린다.
+                    #    실제 이동은 유니티가 기존 set 경로로 하므로
+                    #    속도 제한 · 소프트 리밋 · 비상정지가 그대로 걸린다.
+                    elif msg_type == 'ik':
+                        response = handle_ik(
+                            msg.get('current'),
+                            msg.get('target'),
+                            msg.get('orientation_weight'),
+                        )
+
+                    elif msg_type == 'fk':
+                        response = handle_fk(msg.get('joints'))
 
                     elif msg_type == 'set_speed':
                         response = handle_set_speed(
