@@ -144,6 +144,20 @@ namespace SOArmControl
 
         int selectedStep;
 
+        // ── 카티시안 면 ─────────────────────────────────────────
+        // 카드마다 따로 기억한다. R1 은 관절, R2 는 좌표로 두고 쓸 수 있어야 한다.
+        static readonly float[] CartSteps = { 1f, 5f, 10f, 50f };
+        readonly Dictionary<string, bool> cartMode = new Dictionary<string, bool>();
+        readonly Dictionary<string, int> cartStep = new Dictionary<string, int>();
+
+        /// <summary>Rx/Ry/Rz 한 번에 도는 각도. 5축이라 크게 주면 서버가 거절한다.</summary>
+        [Tooltip("회전 버튼 한 번에 도는 각도(도)")]
+        public float rotStepDeg = 5f;
+
+        // 로봇마다 하나씩. 하나를 useRobot2 만 바꿔 돌려 쓰면, 응답이 늦게 올 때
+        // 콜백이 엉뚱한 로봇에 적용된다(SOArmSocketClient 는 FIFO 매칭이다).
+        SOArmIKController ik1, ik2;
+
         /// <summary>목록에 보이는 첫 스텝의 인덱스. 줄 클릭을 실제 스텝 번호로 바꿀 때 쓴다.</summary>
         int routineFrom;
         const int RoutineRows = 13;
@@ -283,6 +297,10 @@ namespace SOArmControl
             // 로봇별
             WireRobot("R1", true);
             WireRobot("R2", false);
+
+            EnsureIk();
+            WireCart("R1");
+            WireCart("R2");
 
             // 카메라 프리셋 버튼은 두지 않는다. 계획 그림의 4칸(위/옆/앞/상태)이
             // 곧 시점이고, 메인 카메라 화면은 관제에 노출되지 않는다.
@@ -429,6 +447,129 @@ namespace SOArmControl
             else if (dualManager != null) dualManager.RouteGripperCommand(isR1, pct);
         }
 
+        // ══════════════════════════════════════════════════════════
+        // 카티시안 면 — 스위치 · 이동 · 회전
+        //
+        // 여기서 서버로 나가는 건 **계산 요청**뿐이다. 나온 관절 각도를 실제로
+        // 넣는 건 SOArmIKController 가 SOArmManager 를 거쳐서 한다. 그래야
+        // 속도 제한 · 소프트 리밋 · 비상정지 · 그리퍼 안전 게이트가 그대로 걸린다.
+        // ══════════════════════════════════════════════════════════
+
+        void EnsureIk()
+        {
+            ik1 = MakeIk("IK_R1", false, dualManager?.robot1);
+            ik2 = MakeIk("IK_R2", true, dualManager?.robot2);
+        }
+
+        SOArmIKController MakeIk(string name, bool useRobot2, SOArmManager m)
+        {
+            var t = transform.Find(name);
+            var go = t != null ? t.gameObject : new GameObject(name);
+            if (t == null) go.transform.SetParent(transform, false);
+
+            var c = go.GetComponent<SOArmIKController>();
+            if (c == null) c = go.AddComponent<SOArmIKController>();
+
+            c.dualManager = dualManager;
+            c.useRobot2 = useRobot2;
+            // 소켓을 명시해 둔다. 비워 두면 씬에서 아무 거나 잡는데, 이 프로젝트는
+            // 로봇마다 소켓이 따로라 어느 쪽을 잡았는지가 로그에서 안 보인다.
+            // (ik 명령 자체는 mode 가 없어 어느 소켓으로 가도 계산은 같다)
+            if (m != null && m.real != null && m.real.socketClient != null)
+                c.socketClient = m.real.socketClient;
+
+            return c;
+        }
+
+        SOArmIKController IkOf(string pre) => pre == "R1" ? ik1 : ik2;
+
+        void WireCart(string pre)
+        {
+            OnClick(pre + "ModeSw", () => ToggleCartMode(pre));
+
+            float Step() => CartSteps[cartStep.TryGetValue(pre, out var i) ? i : 1] * 0.001f;
+
+            OnClick(pre + "CartXPlus",  () => Jog(pre, 0, +Step()));
+            OnClick(pre + "CartXMinus", () => Jog(pre, 0, -Step()));
+            OnClick(pre + "CartYPlus",  () => Jog(pre, 1, +Step()));
+            OnClick(pre + "CartYMinus", () => Jog(pre, 1, -Step()));
+            OnClick(pre + "CartZPlus",  () => Jog(pre, 2, +Step()));
+            OnClick(pre + "CartZMinus", () => Jog(pre, 2, -Step()));
+
+            string[] ax = { "X", "Y", "Z" };
+            for (int i = 0; i < 3; i++)
+            {
+                int a = i;
+                OnClick($"{pre}Rot{ax[i]}Plus",  () => Rot(pre, a, +rotStepDeg));
+                OnClick($"{pre}Rot{ax[i]}Minus", () => Rot(pre, a, -rotStepDeg));
+            }
+
+            OnClick(pre + "CartRead", () => { var k = IkOf(pre); if (k != null) k.RefreshCurrentTcp(); });
+
+            for (int i = 0; i < CartSteps.Length; i++)
+            {
+                int idx = i;
+                OnClick($"{pre}CartStep{i}", () => { cartStep[pre] = idx; Log($"{pre} 스텝 {CartSteps[idx]:0}mm"); });
+            }
+        }
+
+        void ToggleCartMode(string pre)
+        {
+            bool on = !(cartMode.TryGetValue(pre, out var v) && v);
+            cartMode[pre] = on;
+
+            var jg = FindByName(pre + "JointGroup");
+            var cg = FindByName(pre + "CartGroup");
+            if (jg != null) jg.SetActive(!on);
+            if (cg != null) cg.SetActive(on);
+
+            // 좌표 면으로 들어올 때는 반드시 현재 위치를 먼저 읽는다.
+            // 묵은 목표를 들고 있으면 첫 버튼 한 번에 팔이 그리로 달려간다.
+            if (on)
+            {
+                var k = IkOf(pre);
+                // ⚠️ 순서가 중요하다. 먼저 스냅하면 아직 안 읽은 값(0,0,0)을 목표로
+                //    잡아 버리고, RefreshCurrentTcp 는 HasTarget 이 이미 true 라
+                //    목표를 안 고친다. 그 상태로 버튼을 누르면 팔이 원점으로 달려간다.
+                //    읽고 나서 스냅해야 한다.
+                if (k != null) k.RefreshCurrentTcp(ok => { if (ok) k.SnapTargetToCurrent(); });
+            }
+            Log($"{pre} {(on ? "카티시안" : "조인트")} 모드");
+        }
+
+        /// <summary>이름으로 찾는다. 꺼져 있는 것도 포함해야 면 전환이 된다.</summary>
+        GameObject FindByName(string name)
+        {
+            if (root == null) return null;
+            foreach (var rt in root.GetComponentsInChildren<RectTransform>(true))
+                if (rt.name == name) return rt.gameObject;
+            return null;
+        }
+
+        void Jog(string pre, int axis, float deltaM)
+        {
+            var k = IkOf(pre);
+            if (k == null) return;
+            if (!k.HasTarget) { k.RefreshCurrentTcp(); return; }
+
+            // ⚠️ 응답을 기다리는 중이면 목표를 **밀지도 않는다**.
+            //    밀어 놓고 SolveAndApply 가 inFlight 로 돌아가 버리면 그 거리가
+            //    목표에 남는다. 연타하면 그게 쌓였다가 한 번에 튄다.
+            if (k.IsBusy) return;
+
+            k.NudgeTarget(axis, deltaM);
+            k.SolveAndApply();
+        }
+
+        void Rot(string pre, int axis, float deltaDeg)
+        {
+            var k = IkOf(pre);
+            if (k == null) return;
+            if (!k.HasTarget) { k.RefreshCurrentTcp(); return; }
+            if (k.IsBusy) return;
+            k.JogRotation(axis, deltaDeg);
+        }
+
         void ToggleRecord()
         {
             recordOpen = !recordOpen;
@@ -541,6 +682,33 @@ namespace SOArmControl
             Set($"{p}GripValue", live ? $"{SafeGrip(m),5:F0}%" : NA, live ? TextMain : TextDim);
 
             if (live && !rangesApplied) ApplyJointRanges(p, m);
+
+            BindCart(p);
+        }
+
+        void BindCart(string p)
+        {
+            bool cart = cartMode.TryGetValue(p, out var v) && v;
+            // 스위치 글자는 **지금 무엇을 보고 있는지**를 쓴다. 누르면 바뀔 것을
+            // 쓰면(예: "카티시안") 지금 상태와 반대라 매번 헷갈린다.
+            // Btn 이 만드는 글자의 이름은 "<버튼이름>Label" 이다 (Btn 헬퍼 참고).
+            Set(p + "ModeSwLabel", cart ? "카티시안" : "조인트", cart ? Color.black : Accent);
+            if (buttons.TryGetValue(p + "ModeSw", out var sw) && sw != null)
+            {
+                var img = sw.GetComponent<Image>();
+                if (img != null) img.color = cart ? Accent : SubBg;
+            }
+            if (!cart) return;
+
+            Set(p + "CartStepNow", $"{CartSteps[cartStep.TryGetValue(p, out var si) ? si : 1]:0}mm", Accent);
+
+            var k = IkOf(p);
+            if (k == null) return;
+
+            var c = k.CurrentTcp * 1000f;
+            Set(p + "CartPos", $"위치  X {c.x,6:F1}  Y {c.y,6:F1}  Z {c.z,6:F1} mm", TextMain);
+            Set(p + "CartMsg", k.StatusMessage,
+                k.Blocked ? Bad : k.LastConverged ? TextDim : Warn);
         }
 
         /// <summary>실행 후 진짜 관절 범위를 슬라이더에 다시 씌운다. 그 과정이 명령으로 새면 안 된다.</summary>
@@ -1440,7 +1608,11 @@ namespace SOArmControl
             Rule(c); Frame(c, Edge);
             TitleIcon(c, pre + "CardIcon", 24f, new Vector2(12, -6));
             Label(c, pre + "Title", title, TextAnchor.MiddleLeft, titleFontSize - 2, Accent,
-                  new Vector2(0, 0.90f), new Vector2(0.5f, 0.99f), new Vector2(44, 0), Vector2.zero);
+                  new Vector2(0, 0.90f), new Vector2(0.29f, 0.99f), new Vector2(44, 0), Vector2.zero);
+
+            // 조인트 ↔ 카티시안 전환 스위치. 카드마다 따로 논다 —
+            // R1 은 관절로 잡고 R2 는 좌표로 미는 식이 실제로 자주 필요하다.
+            Btn(c, pre + "ModeSw", "조인트", new Vector2(0.295f, 0.90f), new Vector2(0.46f, 0.99f), SubBg, Accent);
             // 글자 ● 대신 실제 LED 를 찍는다. 계기판은 점 하나로 상태가 읽혀야 한다.
             Led(c, pre + "CardLed", new Vector2(0.475f, 0.945f), 13f);
             Label(c, pre + "State", "OFFLINE", TextAnchor.MiddleRight, baseFontSize - 4, Bad,
@@ -1448,39 +1620,105 @@ namespace SOArmControl
             Label(c, pre + "Teach", "🔒 유지", TextAnchor.MiddleRight, baseFontSize - 5, TextDim,
                   new Vector2(0.78f, 0.90f), new Vector2(1, 0.99f), Vector2.zero, new Vector2(-12, 0));
 
+            // 두 면은 카드 전체를 덮는 **투명** 그룹이다. 투명하면 raycastTarget 이
+            // 꺼지므로(Panel 참고) 제목줄 클릭을 안 가로챈다.
+            //
+            // ⚠️ 그룹으로 감싸도 기존 배선은 안 깨진다. CacheBindings 가
+            //    GetComponentsInChildren<T>(true) 로 **꺼져 있는 것까지** 이름으로
+            //    담기 때문이다. 그래서 안쪽 위젯의 앵커 숫자도 손대지 않는다.
+            var jg = Panel(c, pre + "JointGroup", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0));
+            var cg = Panel(c, pre + "CartGroup", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0));
+
             for (int i = 0; i < 5; i++)
             {
                 float top = 0.885f - i * 0.128f, bot = top - 0.108f;
                 // 이름은 하나만 쓴다. 모터 이름을 쓰는 이유는 서버 로그·문서와 같은
                 // 표기라서 문제가 났을 때 바로 대조되기 때문이다. (못 읽으면 J1~J5)
                 string nm = SafeName(m, i, "");
-                Label(c, $"{pre}J{i}Label", string.IsNullOrEmpty(nm) ? $"J{i + 1}" : nm,
+                Label(jg, $"{pre}J{i}Label", string.IsNullOrEmpty(nm) ? $"J{i + 1}" : nm,
                       TextAnchor.MiddleLeft, baseFontSize - 4, TextDim,
                       new Vector2(0.03f, bot), new Vector2(0.30f, top), Vector2.zero, Vector2.zero);
 
-                Btn(c, $"{pre}J{i}Minus", "−", new Vector2(0.30f, bot), new Vector2(0.38f, top), SubBg, Accent);
-                Btn(c, $"{pre}J{i}Plus", "+", new Vector2(0.385f, bot), new Vector2(0.465f, top), SubBg, Accent);
+                Btn(jg, $"{pre}J{i}Minus", "−", new Vector2(0.30f, bot), new Vector2(0.38f, top), SubBg, Accent);
+                Btn(jg, $"{pre}J{i}Plus", "+", new Vector2(0.385f, bot), new Vector2(0.465f, top), SubBg, Accent);
 
                 float lo = SafeMin(m, i), hi = SafeMax(m, i);
                 if (hi <= lo) { lo = -180f; hi = 180f; }
-                Sldr(c, $"{pre}J{i}", lo, hi, Mathf.Clamp(SafeAngle(m, i), lo, hi),
+                Sldr(jg, $"{pre}J{i}", lo, hi, Mathf.Clamp(SafeAngle(m, i), lo, hi),
                      new Vector2(0.47f, bot + 0.022f), new Vector2(0.76f, top - 0.022f));
 
                 // 각도는 **입력창 하나에만** 띄운다. 옆에 실측 라벨을 따로 두면
                 // 같은 줄에 숫자가 둘이라 어느 쪽이 진짜인지 헷갈린다.
-                Input(c, $"{pre}J{i}In", new Vector2(0.765f, bot), new Vector2(0.985f, top));
+                Input(jg, $"{pre}J{i}In", new Vector2(0.765f, bot), new Vector2(0.985f, top));
             }
 
             // 그리퍼 — 슬라이더 **와** 닫기/반/열기 버튼 둘 다
-            Label(c, pre + "GripLabel", "그리퍼", TextAnchor.MiddleLeft, baseFontSize - 5, Accent,
+            Label(jg, pre + "GripLabel", "그리퍼", TextAnchor.MiddleLeft, baseFontSize - 5, Accent,
                   new Vector2(0.03f, 0.135f), new Vector2(0.22f, 0.235f), Vector2.zero, Vector2.zero);
-            Sldr(c, pre + "Grip", 0f, 100f, 50f, new Vector2(0.23f, 0.155f), new Vector2(0.76f, 0.215f));
-            Label(c, pre + "GripValue", NA, TextAnchor.MiddleRight, baseFontSize - 5, TextMain,
+            Sldr(jg, pre + "Grip", 0f, 100f, 50f, new Vector2(0.23f, 0.155f), new Vector2(0.76f, 0.215f));
+            Label(jg, pre + "GripValue", NA, TextAnchor.MiddleRight, baseFontSize - 5, TextMain,
                   new Vector2(0.77f, 0.135f), new Vector2(0.985f, 0.235f), Vector2.zero, Vector2.zero);
 
-            Btn(c, pre + "GripClose", "닫기", new Vector2(0.03f, 0.02f), new Vector2(0.35f, 0.125f), SubBg, Accent);
-            Btn(c, pre + "GripHalf", "반", new Vector2(0.36f, 0.02f), new Vector2(0.66f, 0.125f), SubBg, Accent);
-            Btn(c, pre + "GripOpen", "열기", new Vector2(0.67f, 0.02f), new Vector2(0.985f, 0.125f), SubBg, Accent);
+            Btn(jg, pre + "GripClose", "닫기", new Vector2(0.03f, 0.02f), new Vector2(0.35f, 0.125f), SubBg, Accent);
+            Btn(jg, pre + "GripHalf", "반", new Vector2(0.36f, 0.02f), new Vector2(0.66f, 0.125f), SubBg, Accent);
+            Btn(jg, pre + "GripOpen", "열기", new Vector2(0.67f, 0.02f), new Vector2(0.985f, 0.125f), SubBg, Accent);
+
+            CartFace(cg, pre);
+            cg.gameObject.SetActive(false);   // 처음엔 조인트 면
+        }
+
+        /// <summary>
+        /// 카드의 카티시안 면. 슬라이더가 아니라 **방향 버튼**이다.
+        ///
+        /// 왜 버튼인가: 좌표 조작은 "여기서 5mm 만 왼쪽" 처럼 조금씩 미는 일이
+        /// 대부분이다. 슬라이더는 끝값을 정해야 하고 손이 떨리면 수십 mm 가 튄다.
+        ///
+        /// 축 이름은 로봇 기준(m)이다. 화면 방향이 아니다.
+        /// </summary>
+        void CartFace(RectTransform g, string pre)
+        {
+            // ── 이동 패드 ──────────────────────────────────────
+            Btn(g, pre + "CartZPlus",  "▲\nZ+", new Vector2(0.40f, 0.775f), new Vector2(0.60f, 0.885f), SubBg, Accent);
+            Btn(g, pre + "CartXPlus",  "↗ X+",  new Vector2(0.62f, 0.775f), new Vector2(0.79f, 0.885f), SubBg, Accent);
+            Btn(g, pre + "CartXMinus", "↙ X−",  new Vector2(0.21f, 0.775f), new Vector2(0.38f, 0.885f), SubBg, Accent);
+
+            Btn(g, pre + "CartYMinus", "◀ Y−", new Vector2(0.03f, 0.645f), new Vector2(0.28f, 0.760f), SubBg, Accent);
+            Btn(g, pre + "CartYPlus",  "Y+ ▶", new Vector2(0.72f, 0.645f), new Vector2(0.97f, 0.760f), SubBg, Accent);
+            Label(g, pre + "CartHint", "TCP", TextAnchor.MiddleCenter, baseFontSize - 5, TextDim,
+                  new Vector2(0.29f, 0.645f), new Vector2(0.71f, 0.760f), Vector2.zero, Vector2.zero);
+
+            Btn(g, pre + "CartZMinus", "Z−\n▼", new Vector2(0.40f, 0.515f), new Vector2(0.60f, 0.630f), SubBg, Accent);
+
+            // ── 회전 ───────────────────────────────────────────
+            Label(g, pre + "RotLabel", "회전 (공구 기준)", TextAnchor.MiddleLeft, baseFontSize - 6, TextDim,
+                  new Vector2(0.03f, 0.435f), new Vector2(0.60f, 0.500f), Vector2.zero, Vector2.zero);
+
+            string[] ax = { "X", "Y", "Z" };
+            for (int i = 0; i < 3; i++)
+            {
+                float x0 = 0.03f + i * 0.325f;
+                Btn(g, $"{pre}Rot{ax[i]}Minus", $"R{ax[i].ToLower()} −",
+                    new Vector2(x0, 0.310f), new Vector2(x0 + 0.305f, 0.420f), SubBg, Accent);
+                Btn(g, $"{pre}Rot{ax[i]}Plus", $"R{ax[i].ToLower()} +",
+                    new Vector2(x0, 0.185f), new Vector2(x0 + 0.305f, 0.295f), SubBg, Accent);
+            }
+
+            // ── 읽기 ───────────────────────────────────────────
+            Label(g, pre + "CartPos", "위치 --", TextAnchor.MiddleLeft, baseFontSize - 6, TextMain,
+                  new Vector2(0.03f, 0.120f), new Vector2(0.97f, 0.180f), Vector2.zero, Vector2.zero);
+            Label(g, pre + "CartMsg", "현재 위치를 읽는 중", TextAnchor.MiddleLeft, baseFontSize - 6, TextDim,
+                  new Vector2(0.03f, 0.062f), new Vector2(0.75f, 0.118f), Vector2.zero, Vector2.zero);
+            Btn(g, pre + "CartRead", "읽기", new Vector2(0.76f, 0.062f), new Vector2(0.97f, 0.118f), SubBg, TextDim);
+
+            // ── 스텝 (mm) ──────────────────────────────────────
+            Label(g, pre + "CartStepNow", "5mm", TextAnchor.MiddleLeft, baseFontSize - 6, Accent,
+                  new Vector2(0.03f, 0.005f), new Vector2(0.20f, 0.058f), Vector2.zero, Vector2.zero);
+            for (int i = 0; i < CartSteps.Length; i++)
+            {
+                float x0 = 0.21f + i * 0.195f;
+                Btn(g, $"{pre}CartStep{i}", $"{CartSteps[i]:0}mm",
+                    new Vector2(x0, 0.005f), new Vector2(x0 + 0.185f, 0.058f), SubBg, Accent);
+            }
         }
 
         void BuildCenter(RectTransform p)

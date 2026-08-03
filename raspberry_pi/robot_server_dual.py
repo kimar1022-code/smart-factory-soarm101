@@ -26,9 +26,14 @@ v4 → v5 변경사항:
   - set_speed: {"type":"set_speed", "mode":"...", "velocity":..., "acceleration":...}
   - 🆕 home: {"type":"home", "mode":"robot1|robot2|both"}
   - 🆕 set_home: {"type":"set_home", "mode":"robot1|robot2", "confirm":true}
-  - 🆕 ik:  {"type":"ik", "current":[deg×5], "target":[x,y,z]}
-            -> {"ok":true, "joints":[deg×5], "reached":[x,y,z], "error_mm":..., "converged":true}
-  - 🆕 fk:  {"type":"fk", "joints":[deg×5]}  -> {"ok":true, "position":[x,y,z]}
+  - 🆕 ik:  {"type":"ik", "current":[deg×5], "target":[x,y,z],
+             "rot_delta":[dRx,dRy,dRz] (선택, 공구 축 기준 증분 deg),
+             "orientation_weight":... (선택)}
+            -> {"ok":true, "joints":[deg×5], "reached":[x,y,z], "reached_rpy":[r,p,y],
+                "error_mm":..., "rot_error_deg":..., "converged":true}
+            rot_delta 를 빼면 현재 자세를 유지한 채 위치만 옮긴다(예전 동작).
+  - 🆕 fk:  {"type":"fk", "joints":[deg×5]}
+            -> {"ok":true, "position":[x,y,z], "rpy":[roll,pitch,yaw]}
 
   ⚠️ ik/fk 는 계산만 한다. 모터를 건드리지 않는다. 단위는 degree/meter 이고
      서버의 정규화값(-100~100)이 아니다. 실제 이동은 유니티가 기존 set 경로로
@@ -90,6 +95,30 @@ IK_TIP_FRAME = 'gripper_frame_link'
 # LeRobot 본체(lerobot/model/kinematics.py)도 같은 이유로 0.01 을 기본값으로 쓴다.
 # 0.0 으로 두면 자세를 아예 안 본다.
 IK_ORIENTATION_WEIGHT = 0.01
+
+# 자세를 **일부러 돌릴 때** 쓰는 가중치.
+#
+# 위 0.01 은 "자세는 대충 두고 위치만 맞춰라" 는 뜻이라, 자세 목표를 줘도
+# 솔버가 거의 무시한다. Rx/Ry/Rz 버튼을 눌렀는데 아무 일도 안 나는 이유가 된다.
+# 자세 목표(target_rpy)가 실제로 들어온 요청에만 이 값을 쓴다.
+#
+# ⚠️ 그래도 5축의 한계는 그대로다. J2·J3·J4 가 평행한 pitch 축이라
+#    yaw 는 J1 에 묶여 독립적으로 안 돈다. 실제로 따라오는 건 손목 쪽이고,
+#    나머지는 "가능한 만큼만" 맞춘다. converged 가 false 로 오면 그 경우다.
+IK_ORIENTATION_WEIGHT_ROT = 0.6
+
+# 회전을 시켰을 때 TCP 가 밀려나도 되는 한계(mm).
+#
+# 이 팔은 5축이라 회전과 위치를 동시에 다 못 맞춘다. 솔버는 자세를 맞추려고
+# 위치를 희생하는데, 실측하면 그 정도가 축마다 극단적으로 다르다:
+#   dRz(공구 롤) +5° → 0.6mm   — J5 만 돌면 되므로 사실상 공짜
+#   dRy        +5° → 1.2mm   — 손목으로 흡수된다
+#   dRx        +5° → 25mm    — yaw 가 J1 에 묶여 팔 전체가 돈다
+#   dRx       +30° → 151mm   — 그대로 넣으면 팔이 날아간다
+#
+# "돌려라" 라고 눌렀는데 팔이 15cm 옆으로 가면 그건 사고다. 한계를 넘으면
+# 결과를 주지 않고 거절한다. 유니티가 실수로 적용하는 경로 자체를 없앤다.
+IK_ROT_MAX_DRIFT_MM = 5.0
 
 # 수렴 조건. 라파4에서 1회 solve 가 0.11ms, 보통 4회면 0.1mm 밑으로 떨어진다.
 IK_MAX_ITERS = 40
@@ -427,8 +456,47 @@ def get_ik_solver():
     return _ik_solver
 
 
+def rpy_from_matrix(R):
+    """
+    회전행렬 → (roll, pitch, yaw) 도.
+
+    규약은 R = Rz(yaw) @ Ry(pitch) @ Rx(roll) 다. 유니티 쪽과 반드시 같아야
+    하므로 여기서 한 번만 정하고 양쪽이 이것만 쓴다.
+
+    pitch 가 ±90° 근처면 roll 과 yaw 가 같은 축이 되어(짐벌락) 나눌 수 없다.
+    그때는 roll 을 0 으로 두고 yaw 에 몰아준다 — 값이 튀는 것보다 낫다.
+    """
+    import numpy as np
+    sy = -float(R[2, 0])
+    sy = max(-1.0, min(1.0, sy))
+    pitch = np.arcsin(sy)
+
+    if abs(sy) > 0.99999:
+        roll = 0.0
+        yaw = np.arctan2(-float(R[0, 1]), float(R[1, 1]))
+    else:
+        roll = np.arctan2(float(R[2, 1]), float(R[2, 2]))
+        yaw = np.arctan2(float(R[1, 0]), float(R[0, 0]))
+
+    return [round(float(np.degrees(v)), 3) for v in (roll, pitch, yaw)]
+
+
+def matrix_from_rpy(rpy_deg):
+    """(roll, pitch, yaw) 도 → 회전행렬. rpy_from_matrix 의 역이다."""
+    import numpy as np
+    r, p, y = [np.radians(float(v)) for v in rpy_deg[:3]]
+    cr, sr = np.cos(r), np.sin(r)
+    cp, sp = np.cos(p), np.sin(p)
+    cy, sy = np.cos(y), np.sin(y)
+
+    Rx = np.array([[1, 0, 0], [0, cr, -sr], [0, sr, cr]], dtype=float)
+    Ry = np.array([[cp, 0, sp], [0, 1, 0], [-sp, 0, cp]], dtype=float)
+    Rz = np.array([[cy, -sy, 0], [sy, cy, 0], [0, 0, 1]], dtype=float)
+    return Rz @ Ry @ Rx
+
+
 def handle_fk(joints_deg):
-    """관절 각도(deg 5개) → TCP 위치(m)."""
+    """관절 각도(deg 5개) → TCP 위치(m) + 자세(rpy deg)."""
     solver = get_ik_solver()
     if solver is None:
         return {"ok": False, "type": "fk", "error": _ik_error}
@@ -442,16 +510,37 @@ def handle_fk(joints_deg):
     with _ik_lock:
         T = solver.forward_kinematics(q)
     p = T[:3, 3]
+    # 자세도 같이 준다. 유니티가 Rx/Ry/Rz 버튼의 시작값으로 쓴다 —
+    # 현재 자세에서 출발해야 첫 클릭에 손목이 안 튄다.
     return {"ok": True, "type": "fk",
-            "position": [round(float(v), 5) for v in p]}
+            "position": [round(float(v), 5) for v in p],
+            "rpy": rpy_from_matrix(T[:3, :3])}
 
 
-def handle_ik(current_deg, target_xyz, orientation_weight=None):
+def handle_ik(current_deg, target_xyz, orientation_weight=None, rot_delta=None):
     """
-    (현재 관절 deg, 목표 TCP xyz m) → 관절 deg.
+    (현재 관절 deg, 목표 TCP xyz m, 회전 증분 deg) → 관절 deg.
 
     placo 의 solve() 는 QP 한 스텝이라 한 번 부르면 목표로 조금 다가갈 뿐이다.
     수렴할 때까지 돌린다. 라파4에서 1회 0.11ms 라 40회를 돌아도 5ms 안쪽이다.
+
+    ■ 회전을 왜 **절대 자세(rpy)가 아니라 증분**으로 받나
+      두 가지 이유로 절대 rpy 는 이 팔에서 못 쓴다.
+
+      1) 짐벌락. 홈 자세(관절 전부 0)의 TCP 자세가 rpy = [90, 87, 90] 이다.
+         pitch 가 90° 코앞이라 roll 과 yaw 가 사실상 같은 축이 된다.
+         이 근처에서 roll 을 건드리면 엉뚱한 축이 돈다.
+
+      2) 목표가 너무 멀다. 절대값 [30,0,0] 을 주면 지금 자세에서 90° 가까이
+         떨어진 목표가 되고, 5축 팔은 그걸 못 만든다. 실측으로 관절이 한계에
+         박히고 위치가 272mm 벗어났다. 그대로 모터에 넣으면 팔이 날아간다.
+
+      그래서 "지금 자세에서 공구 축 기준으로 이만큼 더 돌려라" 로 받는다.
+      R_target = R_current @ Rz(dz) @ Ry(dy) @ Rx(dx)
+      목표가 항상 현재 근처라 솔버가 안정적이고, 못 돌면 조금만 돌고 만다.
+
+    rot_delta 를 빼면 예전과 똑같이 현재 자세를 유지한 채 위치만 옮긴다 —
+    기존 호출부는 아무것도 안 바꿔도 그대로 돈다.
     """
     solver = get_ik_solver()
     if solver is None:
@@ -464,17 +553,30 @@ def handle_ik(current_deg, target_xyz, orientation_weight=None):
         return {"ok": False, "type": "ik", "error": "target 은 [x,y,z] 여야 한다"}
 
     import numpy as np
-    ow = IK_ORIENTATION_WEIGHT if orientation_weight is None else float(orientation_weight)
+
+    want_rot = (isinstance(rot_delta, list) and len(rot_delta) >= 3
+                and any(abs(float(v)) > 1e-6 for v in rot_delta[:3]))
+    if orientation_weight is not None:
+        ow = float(orientation_weight)
+    else:
+        # 회전을 일부러 시킨 요청이면 자세를 실제로 따라가게 무게를 올린다.
+        ow = IK_ORIENTATION_WEIGHT_ROT if want_rot else IK_ORIENTATION_WEIGHT
 
     q = np.array(current_deg[:n], dtype=float)
+    q_start = q.copy()
     target = np.array(target_xyz[:3], dtype=float)
 
     with _ik_lock:
-        # 목표 4x4 행렬. 자세는 현재 자세를 그대로 물려준다 —
+        # 목표 4x4 행렬. 회전을 안 주면 현재 자세를 그대로 물려준다 —
         # 어차피 가중치가 낮아 구속이 약하고, 단위행렬을 넣으면
         # 솔버가 엉뚱한 자세로 끌려가려다 위치를 놓친다.
         T_target = solver.forward_kinematics(q).copy()
+        R_start = T_target[:3, :3].copy()
         T_target[:3, 3] = target
+        if want_rot:
+            # 공구 축 기준. 오른쪽에 곱해야 "지금 잡고 있는 자세에서
+            # 그 축으로" 가 된다. 왼쪽에 곱하면 베이스 축 기준이 된다.
+            T_target[:3, :3] = R_start @ matrix_from_rpy(rot_delta)
 
         iters = 0
         err = None
@@ -488,15 +590,48 @@ def handle_ik(current_deg, target_xyz, orientation_weight=None):
             if err < IK_TOLERANCE_M:
                 break
 
-        reached = solver.forward_kinematics(q)[:3, 3]
+        T_reached = solver.forward_kinematics(q)
+        reached = T_reached[:3, 3]
+        reached_rpy = rpy_from_matrix(T_reached[:3, :3])
+
+        # 자세 오차 — 목표 자세를 준 경우에만 뜻이 있다.
+        # 두 회전의 차이를 각도 하나로 줄인다: trace 로 회전각을 뽑는다.
+        rot_err_deg = 0.0
+        if want_rot:
+            R_err = T_target[:3, :3].T @ T_reached[:3, :3]
+            c = (float(np.trace(R_err)) - 1.0) / 2.0
+            rot_err_deg = round(float(np.degrees(np.arccos(max(-1.0, min(1.0, c))))), 2)
 
     err_mm = round(err * 1000.0, 3)
+
+    # 관절이 한 번에 얼마나 도는지. 팔이 거의 다 뻗은 자세(홈이 리치의 96%)에서는
+    # 자코비안이 나빠서 TCP 를 몇 mm 옮기는 데도 관절이 수십 도 돈다. 사용자가
+    # "조금 눌렀는데 팔이 확 움직인다" 고 느끼는 게 이것이라, 값을 같이 준다.
+    max_step_deg = round(float(np.max(np.abs(q[:n] - q_start[:n]))), 2)
+
+    # 회전 요청인데 팔이 밀려났으면 결과를 버린다.
+    # 5축으로는 그 회전이 안 되는 것이고, 억지로 넣으면 팔이 크게 움직인다.
+    if want_rot and err_mm > IK_ROT_MAX_DRIFT_MM:
+        return {
+            "ok": False,
+            "type": "ik",
+            "error": (f"그 축으로는 더 못 돈다 — 팔이 {err_mm:.0f}mm 밀려난다 "
+                      f"(한계 {IK_ROT_MAX_DRIFT_MM:.0f}mm). 5축이라 이 자세에서는 "
+                      f"그 회전이 안 된다."),
+            "error_mm": err_mm,
+            "rot_error_deg": rot_err_deg,
+            "blocked_by": "rot_drift",
+        }
+
     return {
         "ok": True,
         "type": "ik",
         "joints": [round(float(v), 3) for v in q[:n]],
         "reached": [round(float(v), 5) for v in reached],
+        "reached_rpy": reached_rpy,
+        "rot_error_deg": rot_err_deg,
         "error_mm": err_mm,
+        "max_joint_step_deg": max_step_deg,
         "iters": iters,
         # 목표에 못 닿았으면 유니티가 사용자에게 알려줄 수 있게 표시한다.
         # 팔 길이를 넘었거나, 5축으로는 그 자세가 안 되는 경우다.
@@ -803,6 +938,7 @@ def handle_client(conn, addr, robots, calibrations):
                             msg.get('current'),
                             msg.get('target'),
                             msg.get('orientation_weight'),
+                            msg.get('rot_delta'),
                         )
 
                     elif msg_type == 'fk':

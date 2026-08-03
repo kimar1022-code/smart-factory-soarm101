@@ -45,19 +45,43 @@ namespace SOArmControl
         [Range(0f, 1f)]
         public float orientationWeight = 0.01f;
 
+        [Header("경고 / 안전")]
+        [Tooltip("한 번의 조작으로 관절이 이만큼 넘게 돌면 경고를 띄운다.\n" +
+                 "홈 자세가 리치의 96% 라 뻗은 쪽에서는 5mm 에도 크게 돈다.")]
+        public float bigJointStepDeg = 10f;
+
+        [Tooltip("관절이 이만큼 넘게 돌아야 하는 해는 **적용하지 않는다**.\n\n" +
+                 "작업영역 경계에서 솔버가 팔꿈치를 리밋까지 꺾는 다른 자세로\n" +
+                 "뒤집히는 일이 있다. 실측: Z 를 5mm 씩 밀다가 16번째에\n" +
+                 "J2 가 +21.6°, J3 가 -40.5° 한 번에 튀었다(J3 는 리밋에 박힘).\n" +
+                 "그대로 넣으면 팔이 주저앉는다.")]
+        public float maxJointStepDeg = 20f;
+
         [Header("상태 (읽기 전용)")]
         [SerializeField] private Vector3 currentTcp;      // 현재 TCP 위치 (m)
         [SerializeField] private Vector3 targetTcp;       // 목표 TCP 위치 (m)
+        [SerializeField] private Vector3 currentRpy;      // 현재 TCP 자세 (roll/pitch/yaw, deg)
         [SerializeField] private string statusMessage = "대기";
         [SerializeField] private bool lastConverged = true;
         [SerializeField] private float lastErrorMm = 0f;
 
         public Vector3 CurrentTcp => currentTcp;
         public Vector3 TargetTcp => targetTcp;
+        public Vector3 CurrentRpy => currentRpy;
         public string StatusMessage => statusMessage;
         public bool LastConverged => lastConverged;
         public float LastErrorMm => lastErrorMm;
         public bool HasTarget { get; private set; }
+
+        /// <summary>
+        /// 응답을 기다리는 중. 이때 목표를 또 밀면 안 된다.
+        ///
+        /// 버튼을 연타하면 NudgeTarget 은 매번 목표를 밀어 놓는데 SolveAndApply 는
+        /// inFlight 라서 그냥 돌아가 버린다. 그러다 한 번 통과하는 순간 그동안
+        /// 쌓인 거리를 한 번에 간다 — 5mm 씩 다섯 번 누른 게 25mm 도약이 된다.
+        /// 부르는 쪽이 이걸 보고 아예 밀지 말아야 한다.
+        /// </summary>
+        public bool IsBusy => inFlight;
 
         /// <summary>지금 조작 대상인 로봇.</summary>
         public SOArmManager ActiveRobot =>
@@ -85,9 +109,13 @@ namespace SOArmControl
             public string error;
             public float[] joints;
             public float[] reached;
+            public float[] reached_rpy;
             public float error_mm;
+            public float rot_error_deg;
+            public float max_joint_step_deg;
             public int iters;
             public bool converged;
+            public string blocked_by;
         }
 
         [Serializable]
@@ -97,6 +125,7 @@ namespace SOArmControl
             public string type;
             public string error;
             public float[] position;
+            public float[] rpy;
         }
 #pragma warning restore 0649
 
@@ -136,7 +165,11 @@ namespace SOArmControl
             }
 
             float[] q = GetArmAngles();
-            string json = "{\"type\":\"fk\",\"joints\":[" + JoinF(q) + "]}";
+            // ⚠️ 끝에 \n 이 반드시 있어야 한다. 서버는 buffer 에 모아두고 '\n' 로 자른다
+            //    (robot_server_dual.py 의 while '\n' in buffer). 개행이 없으면 요청이
+            //    서버 버퍼에 갇혀 영영 처리되지 않는다. SendRaw 는 개행을 안 붙인다 —
+            //    붙이는 건 부르는 쪽 책임이다 (다른 호출부도 전부 그렇게 한다).
+            string json = "{\"type\":\"fk\",\"joints\":[" + JoinF(q) + "]}\n";
 
             socketClient.SendRaw(json, resp =>
             {
@@ -149,6 +182,8 @@ namespace SOArmControl
                 }
 
                 currentTcp = new Vector3(r.position[0], r.position[1], r.position[2]);
+                if (r.rpy != null && r.rpy.Length >= 3)
+                    currentRpy = new Vector3(r.rpy[0], r.rpy[1], r.rpy[2]);
                 if (!HasTarget)
                 {
                     targetTcp = currentTcp;   // 목표를 현재 위치에서 시작해야 팔이 안 튄다
@@ -218,8 +253,19 @@ namespace SOArmControl
             string json =
                 "{\"type\":\"ik\",\"current\":[" + JoinF(q) + "]," +
                 "\"target\":[" + F(targetTcp.x) + "," + F(targetTcp.y) + "," + F(targetTcp.z) + "]," +
-                "\"orientation_weight\":" + F(orientationWeight) + "}";
+                "\"orientation_weight\":" + F(orientationWeight) + "}\n";   // \n 필수 — 위 fk 주석 참고
 
+            SendIk(json, "이동");
+        }
+
+        /// <summary>
+        /// ik 요청을 보내고 결과를 관절에 적용한다. 이동·회전이 같은 경로를 쓴다.
+        ///
+        /// 적용은 반드시 SOArmManager 를 거친다. 컨트롤러를 직접 부르면
+        /// 속도 제한·소프트 리밋·비상정지를 건너뛴다.
+        /// </summary>
+        void SendIk(string json, string what, bool snapTargetToReached = false)
+        {
             inFlight = true;
             socketClient.SendRaw(json, resp =>
             {
@@ -228,7 +274,10 @@ namespace SOArmControl
                 var r = SafeParse<IkResponse>(resp);
                 if (r == null || !r.ok)
                 {
-                    statusMessage = "IK 실패: " + (r?.error ?? "응답 없음");
+                    // 서버가 거절한 경우(회전으로 팔이 밀려남 등)도 여기로 온다.
+                    // 사유가 그대로 오므로 감추지 않고 보여 준다.
+                    statusMessage = $"{what} 불가: " + (r?.error ?? "응답 없음");
+                    lastConverged = false;
                     return;
                 }
                 if (r.joints == null || r.joints.Length < 5)
@@ -244,10 +293,37 @@ namespace SOArmControl
                     return;
                 }
 
+                // ⚠️ 관절이 통째로 뒤집히는 해는 **넣지 않는다**.
+                //    작업영역 경계에서 솔버가 다른 자세로 건너뛰면, 몇 mm 를 요청한
+                //    한 번의 조작에 팔이 수십 도 돈다. 실측으로 J3 가 리밋(-96.8°)까지
+                //    꺾이고 J2 가 21.6° 튀었다 — 실제 팔에서는 주저앉는 것으로 보인다.
+                //    목표도 되돌려서, 다음에 눌러도 같은 자리로 다시 달려가지 않게 한다.
+                if (r.max_joint_step_deg > maxJointStepDeg)
+                {
+                    targetTcp = currentTcp;
+                    lastConverged = false;
+                    statusMessage = $"⛔ {ActiveRobotLabel} 여기서 막힌다 — 더 가려면 관절이 " +
+                                    $"{r.max_joint_step_deg:F0}° 튄다. 적용하지 않았다";
+                    return;
+                }
+
                 lastConverged = r.converged;
                 lastErrorMm = r.error_mm;
                 if (r.reached != null && r.reached.Length >= 3)
+                {
                     currentTcp = new Vector3(r.reached[0], r.reached[1], r.reached[2]);
+
+                    // 목표가 실제 도달점을 앞질러 가지 못하게 한다.
+                    //
+                    // 이게 없으면 팔이 못 닿는데도 누를 때마다 목표가 5mm 씩 계속
+                    // 나간다. 목표와 실제가 벌어질수록 솔버가 무리해서 풀다가
+                    // 결국 자세가 뒤집힌다(실측: 16번째 누름에서 J3 가 리밋까지).
+                    // 못 닿았으면 목표를 실제 자리로 되돌려, 다음 누름이 다시
+                    // "지금 자리에서 5mm" 가 되게 한다.
+                    if (snapTargetToReached || !r.converged) targetTcp = currentTcp;
+                }
+                if (r.reached_rpy != null && r.reached_rpy.Length >= 3)
+                    currentRpy = new Vector3(r.reached_rpy[0], r.reached_rpy[1], r.reached_rpy[2]);
 
                 var robot = ActiveRobot;
                 if (robot == null)
@@ -261,10 +337,67 @@ namespace SOArmControl
                 for (int i = 0; i < 5; i++)
                     robot.SetJointTarget(i, r.joints[i]);
 
-                statusMessage = r.converged
-                    ? $"{ActiveRobotLabel} 도달 (오차 {r.error_mm:F2}mm, {r.iters}회)"
-                    : $"⚠ {ActiveRobotLabel} 도달 불가 — {r.error_mm:F0}mm 벗어남";
+                // 관절이 크게 돌면 그걸 먼저 알린다. 팔이 다 뻗은 자세에서는
+                // 몇 mm 를 옮기는 데도 관절이 수십 도 돈다 — 눈에는 "확 튀는" 것으로
+                // 보이는데, 값을 안 보여 주면 고장으로 오해한다.
+                if (r.max_joint_step_deg >= bigJointStepDeg)
+                    statusMessage = $"⚠ {ActiveRobotLabel} 관절이 {r.max_joint_step_deg:F0}° 돌았다 " +
+                                    $"— 팔이 뻗은 자세라 조금만 움직여도 크게 돈다";
+                else
+                    statusMessage = r.converged
+                        ? $"{ActiveRobotLabel} {what} 완료 (오차 {r.error_mm:F2}mm, {r.iters}회)"
+                        : $"⚠ {ActiveRobotLabel} {what} 도달 불가 — {r.error_mm:F0}mm 벗어남";
             });
+        }
+
+        // ════════════════════════════════════════════════════
+        //  회전 조그 (Rx / Ry / Rz)
+        // ════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 공구를 축 하나 기준으로 조금 돌린다. 위치는 지금 자리를 지킨다.
+        ///
+        /// ■ 왜 목표를 currentTcp 로 보내나
+        ///   사용자가 누른 건 "돌려라" 지 "움직여라" 가 아니다. 카티시안 목표가
+        ///   실제 위치와 벌어져 있을 수 있는데(도달 불가로 목표만 튀어나간 경우)
+        ///   그걸 그대로 보내면 회전 명령 한 번에 팔이 그리로 달려간다.
+        ///
+        /// ■ 안 도는 축이 있다
+        ///   5축이라 Rx(팔이 놓인 평면을 도는 축)는 J1 에 묶여 있다. 그걸 돌리려면
+        ///   팔 전체가 돌아 TCP 가 수십 mm 밀려난다. 서버가 그걸 재서 한계를 넘으면
+        ///   ok:false 로 **거절**한다 — 여기서는 그 사유를 그대로 보여 주기만 한다.
+        ///   (실측: dRz 5° → 0.6mm, dRy 5° → 1.2mm, dRx 5° → 25mm)
+        /// </summary>
+        public void JogRotation(int axis, float deltaDeg)
+        {
+            if (Blocked)
+            {
+                statusMessage = "🛑 비상정지 중";
+                return;
+            }
+            if (socketClient == null || !socketClient.IsConnected)
+            {
+                statusMessage = "서버 미연결";
+                return;
+            }
+            if (!HasTarget)
+            {
+                statusMessage = "먼저 현재 위치를 읽으세요";
+                return;
+            }
+            if (inFlight) return;
+
+            float dx = axis == 0 ? deltaDeg : 0f;
+            float dy = axis == 1 ? deltaDeg : 0f;
+            float dz = axis == 2 ? deltaDeg : 0f;
+
+            float[] q = GetArmAngles();
+            string json =
+                "{\"type\":\"ik\",\"current\":[" + JoinF(q) + "]," +
+                "\"target\":[" + F(currentTcp.x) + "," + F(currentTcp.y) + "," + F(currentTcp.z) + "]," +
+                "\"rot_delta\":[" + F(dx) + "," + F(dy) + "," + F(dz) + "]}\n";
+
+            SendIk(json, "회전", snapTargetToReached: true);
         }
 
         /// <summary>목표를 현재 실제 위치로 되돌린다. 도달 불가로 목표가 튀어나갔을 때.</summary>
