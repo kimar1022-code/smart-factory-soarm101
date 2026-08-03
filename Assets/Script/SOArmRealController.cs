@@ -508,6 +508,13 @@ namespace SOArmControl
 
         public void SetJointTarget(int i, float angleDeg)
         {
+            // 🛑 정지 중에는 목표 변경 자체를 막는다 (SOArmSimController 와 같은 규칙).
+            //    Update() 의 송신 루프가 이미 막혀 있어 팔은 안 움직이지만, 여기를 열어두면
+            //    정지 중에 들어온 목표가 targetAngles 에 쌓인다. 재생이 SOArmManager 를
+            //    직접 부르는 경로가 정확히 그렇다 — SOArmDualManager 의 라우팅 게이트를
+            //    지나가지 않는다. 해제 시 AdoptRealPose 가 덮어써서 사고로 이어지진 않지만,
+            //    "정지 중에 받은 목표" 라는 상태를 남기지 않는 편이 추적하기 쉽다.
+            if (EmergencyStopped) return;
             if (i < 0 || i >= joints.Length) return;
             targetAngles[i] = Mathf.Clamp(angleDeg, joints[i].ClampMin, joints[i].ClampMax);
         }
@@ -534,6 +541,7 @@ namespace SOArmControl
         /// </summary>
         public void SetGripperTarget(float percent)
         {
+            if (EmergencyStopped) return;   // 🛑 SetJointTarget 과 같은 이유
             gripperPercent = Mathf.Clamp(percent, 0f, 100f);
             if (joints == null || joints.Length == 0) return;
 

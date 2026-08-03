@@ -27,8 +27,51 @@ namespace SOArmControl
         public int CurrentStepIndex => currentStepIndex;
         public string StatusMessage => statusMessage;
 
+        /// <summary>
+        /// 비상정지가 걸려 있는가.
+        ///
+        /// 재생은 `SOArmManager` 를 직접 부른다. 즉 `SOArmDualManager.RouteJointCommand` 의
+        /// 비상정지 게이트를 **지나가지 않는다**. 그 게이트는 UI 슬라이더 경로에만 있다.
+        /// 그래서 재생 쪽에서 따로 봐야 한다.
+        ///
+        /// 구버전 `SOArmMotionRecorder` 에는 이 검사가 있었는데(재생 루프에서
+        /// `real.EmergencyStopped` 확인), `RecordManager` 로 옮겨오면서 딸려오지 않았다.
+        /// </summary>
+        public bool EmergencyStopped => dualManager != null && dualManager.EmergencyStopped;
+
         // ── 재생 코루틴 핸들 (정지용) ──
         private Coroutine playbackCoroutine;
+
+        /// <summary>
+        /// 🛑 비상정지로 재생을 접는다.
+        ///
+        /// 코루틴 뒤쪽의 정리 코드(`isPlaying = false` …)를 `yield break` 로 건너뛰게 되므로
+        /// 여기서 같은 정리를 한다. 완료 메시지를 남기면 안 된다 — 끝난 게 아니라 잘린 것이다.
+        /// </summary>
+        void AbortForEstop()
+        {
+            isPlaying = false;
+            currentStepIndex = -1;
+            playbackCoroutine = null;
+            statusMessage = "🛑 비상정지 — 재생 중단";
+            Debug.LogWarning($"[Record] {statusMessage}");
+        }
+
+        /// <summary>
+        /// 대기하되 정지·비상정지가 걸리면 즉시 빠져나온다.
+        ///
+        /// `WaitForSeconds` 는 한 번 걸리면 중간에 깨울 수 없다. 10초짜리 대기 스텝에서
+        /// 비상정지를 눌러도 10초를 다 세고 나서야 반응한다. 그래서 직접 센다.
+        /// </summary>
+        IEnumerator WaitSeconds(float seconds)
+        {
+            float until = Time.time + seconds;
+            while (Time.time < until)
+            {
+                if (!isPlaying || EmergencyStopped) yield break;
+                yield return null;
+            }
+        }
 
         // ── 저장 폴더 경로 ──
         // 관제 화면이 "어디에 저장되는지"를 보여줘야 해서 공개로 바꿨다.
@@ -323,6 +366,12 @@ namespace SOArmControl
         public void StartPlayback()
         {
             if (isPlaying) { Debug.LogWarning("[Record] 이미 재생 중"); return; }
+            if (EmergencyStopped)
+            {
+                statusMessage = "🛑 비상정지 중 — 해제 후 재생하세요";
+                Debug.LogWarning($"[Record] {statusMessage}");
+                return;
+            }
             if (CurrentProject == null || CurrentProject.waypoints.Count == 0)
             {
                 statusMessage = "❌ 재생할 스텝 없음";
@@ -355,6 +404,16 @@ namespace SOArmControl
             int i = 0;
             while (i < CurrentProject.waypoints.Count && isPlaying)
             {
+                // 🛑 비상정지가 걸리면 재생을 즉시 접는다.
+                //
+                //    송신은 이미 막혀 있다(SOArmRealController.Update). 그래서 팔은 선다.
+                //    문제는 재생이 계속 돈다는 것이다. 정지 중에는 팔이 안 움직이니
+                //    WaitUntilArrived 의 도착 판정이 영영 참이 되지 않고, 스텝마다
+                //    arriveTimeoutSec 를 통째로 소모하며 "도착 확인 실패" 로 넘어간다.
+                //    비상정지를 걸어둔 사이에 루틴이 끝까지 흘러가고, 해제하면 엉뚱한
+                //    지점에서 이어지거나 이미 끝나 있다.
+                if (EmergencyStopped) { AbortForEstop(); yield break; }
+
                 currentStepIndex = i;
                 var wp = CurrentProject.waypoints[i];
                 statusMessage = $"▶ Step {wp.stepNumber}: {wp.GetDisplayText()}";
@@ -367,7 +426,7 @@ namespace SOArmControl
                         break;
 
                     case "wait":
-                        yield return new WaitForSeconds(wp.duration);
+                        yield return WaitSeconds(wp.duration);
                         break;
 
                     case "loop_start":
@@ -409,6 +468,12 @@ namespace SOArmControl
             if (index < 0 || index >= CurrentProject.waypoints.Count)
             { Debug.LogWarning($"[Record] 스텝 번호가 범위를 벗어났다: {index}"); return; }
             if (isPlaying) { Debug.LogWarning("[Record] 재생 중에는 단독 실행을 받지 않는다"); return; }
+            if (EmergencyStopped)
+            {
+                statusMessage = "🛑 비상정지 중 — 해제 후 실행하세요";
+                Debug.LogWarning($"[Record] {statusMessage}");
+                return;
+            }
 
             playbackCoroutine = StartCoroutine(SingleStepRoutine(index));
         }
@@ -428,7 +493,7 @@ namespace SOArmControl
                     yield return ExecuteMotion(wp);
                     break;
                 case "wait":
-                    yield return new WaitForSeconds(wp.duration);
+                    yield return WaitSeconds(wp.duration);
                     break;
                 default:
                     // 반복 시작/끝은 표식일 뿐이라 혼자 실행할 동작이 없다.
@@ -436,6 +501,9 @@ namespace SOArmControl
                     Debug.Log($"[Record] {statusMessage}");
                     break;
             }
+
+            // 정지 중에 잘린 것을 "완료" 로 적으면 안 된다.
+            if (EmergencyStopped) { AbortForEstop(); yield break; }
 
             isPlaying = false;
             currentStepIndex = -1;
@@ -450,6 +518,7 @@ namespace SOArmControl
         IEnumerator ExecuteMotion(Waypoint wp)
         {
             if (dualManager == null) yield break;
+            if (EmergencyStopped) yield break;   // 🛑 정지 중에는 새 목표를 던지지 않는다
 
             // Robot1
             if (wp.target == "robot1" || wp.target == "both")
@@ -485,7 +554,7 @@ namespace SOArmControl
             {
                 // 멈춰 있는 동안 화면이 "정지한 것"처럼 보이지 않게 남은 시간을 보여준다.
                 statusMessage = $"⏸ Step {wp.stepNumber} 완료 — 다음까지 {gap:F1}초";
-                yield return new WaitForSeconds(gap);
+                yield return WaitSeconds(gap);
             }
         }
 
@@ -509,7 +578,7 @@ namespace SOArmControl
             float leadIn = Time.time + 0.35f;
             while (Time.time < leadIn)
             {
-                if (!isPlaying) yield break;
+                if (!isPlaying || EmergencyStopped) yield break;
                 yield return null;
             }
 
@@ -519,7 +588,7 @@ namespace SOArmControl
 
             while (Time.time < deadline)
             {
-                if (!isPlaying) yield break;
+                if (!isPlaying || EmergencyStopped) yield break;
                 yield return null;
 
                 float now = GripReading(wp);
@@ -570,7 +639,7 @@ namespace SOArmControl
 
             while (Time.time < deadline)
             {
-                if (!isPlaying) yield break;          // 정지 누르면 즉시 중단
+                if (!isPlaying || EmergencyStopped) yield break;   // 정지·비상정지면 즉시 중단
                 if (Arrived(wp)) yield break;
                 yield return null;
             }
