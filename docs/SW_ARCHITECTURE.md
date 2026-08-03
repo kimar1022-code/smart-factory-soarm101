@@ -955,7 +955,7 @@ ADR-09는 "프로세스 경계를 **인터페이스 경계**로" 한 번 더 감
 
 | ID | 심각도 | 항목 | 위치 | 상세 | 권고 조치 |
 |---|:---:|---|---|---|---|
-| TD-01 | 🔴 | **비상 정지가 아무것도 안 한다** | `SOArmRealController.StopMotion()`<br/>`SOArmSimController.StopMotion()` | Real 쪽은 `Debug.Log` 한 줄, Sim 쪽은 빈 메서드. UI의 「⏸ 정지」·「⏸ 전체 정지」 버튼이 실효 없음 | 서버에 `{"type":"stop"}` 추가 + 현재 위치를 목표로 고정(freeze) |
+| TD-01 | ✅ | ~~**비상 정지가 아무것도 안 한다**~~ → 2026-08-02~03 해소 | `SOArmDualManager.StopAll()`<br/>`SOArmSimController.StopMotion()`<br/>`SOArmRealController.StopMotion()`<br/>`RecordManager` | 현재 위치를 목표로 고정(freeze)하는 방식으로 구현했다. 토크는 끄지 않는다 — 12V 팔은 토크를 끄면 떨어진다. 정지 중 송신·목표설정·슬라이더·루틴 재생을 모두 차단하고 읽기는 유지한다 | 남은 것: 서버 `{"type":"stop"}`. 지금은 관절별 `Goal_Position` 송신이라 **소켓이 끊기면 정지가 못 나간다** |
 | TD-02 | 🔴 | **UI의 서버 명령이 항상 robot1의 소켓을 통해 나간다** | `SmartFactoryUI_v3_4.SendToServer()` L295<br/>`SendSetHome()` L271 | `dualManager.robot1?.real` 을 하드코딩. `SendSetHome("robot2")` 도 robot1 유무를 검사한다. 소켓이 씬에 1개뿐이라 기능은 동작하지만, robot1이 없으면 robot2 명령까지 실패 | 소켓 참조를 `SOArmDualManager` 로 올리거나, `robotName` 에 맞는 매니저를 찾아 쓰도록 수정 |
 | TD-03 | 🟡 | **응답 매칭이 FIFO 가정에 의존 + `OK` 응답 미소비** | `SOArmSocketClient` `pendingCallbacks` | 요청에 ID가 없다. `SendMotorCommand` 는 콜백을 등록하지 않는데 서버는 `OK\n` 을 보낸다(`HANDOFF` §4). 그 `OK` 가 `incomingResponses` 에 쌓였다가 **바로 뒤 `get` 요청의 콜백에 잘못 매칭될 수 있다** | 요청/응답에 `id` 필드 추가, 또는 서버가 `OK` 를 안 보내도록 통일 |
 | TD-04 | 🔴 | **그리퍼 안전 게이트 우회 경로** | `SOArmRealController.Update()` 전송 루프 | J6 각도 슬라이더 → `SetJointTarget(5, …)` → `motorName="gripper"` 로 전송. `PincOpenSafety` 를 거치지 않음. 자세한 분석은 `REQUIREMENTS.md` §6.3 | 전송 루프에서 `motorName == "gripper"` 를 게이트 통과시키거나, UI에서 J6 슬라이더를 그리지 않음 |

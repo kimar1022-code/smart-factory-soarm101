@@ -193,7 +193,7 @@ Unity로 만든 **디지털 트윈(Digital Twin)** 환경에서 시각화하고 
 | FR-18 | 두 로봇을 독립(Independent) 제어할 수 있어야 한다 | ✅ | `SOArmDualManager.RouteJointCommand()` |
 | FR-19 | 두 로봇을 미러(Mirror) 제어할 수 있어야 한다 | ✅ | `SetJointBoth()` / `SetGripperBoth()` |
 | FR-20 | 로봇별로 사용 여부(채널 on/off)를 켜고 끌 수 있어야 한다 | ✅ | `robot1Enabled` / `robot2Enabled` |
-| FR-21 | 전체 홈 이동 / 전체 정지 / 전체 재연결 버튼이 있어야 한다 | 🔵 | `DrawBottomBar()`. 단, 전체 정지는 SR-10 결함 참조 |
+| FR-21 | 전체 홈 이동 / 전체 정지 / 전체 재연결 버튼이 있어야 한다 | ✅ | 전체 정지(`StopAll`)는 채널 on/off 와 무관하게 항상 두 로봇 모두 세운다 — 꺼둔 채널이라고 안 세우면 그 로봇이 이미 움직이는 중일 때 못 멈춘다 |
 | FR-22 | 두 로봇 협동 작업 시퀀스 (Cooperative) | ⬜ | 현재 `ControlMode` 는 `Independent`/`Mirror` 2개뿐. `PROJECT_NOTES.md` 의 5개 모드 기술은 **구버전** |
 
 ### 4.4 동작 녹화·재생 (Record / Play)
@@ -229,6 +229,28 @@ Unity로 만든 **디지털 트윈(Digital Twin)** 환경에서 시각화하고 
 | FR-39 | TCP(공구 중심점)를 PincOpen 손끝으로 이동 | ⬜ | `PINCOPEN_INTEGRATION` §10: 현재 `gripper_frame_link` 는 순정 조 끝 기준 |
 | FR-40 | 리더 암 2대 추가 (텔레오퍼레이션) | ⬜ | `HANDOFF` §9 |
 | FR-41 | AI 비전 기반 pick & place | ⬜ | `HANDOFF` §9 |
+
+### 4.7 작업 큐 (Task Queue)
+
+전부 미착수. 상세 명세는 [`docs/TASK_QUEUE.md`](TASK_QUEUE.md) (2026-08-03).
+작업 1개는 `Recordings/*.json` 루틴 1개다. 스텝 단위가 아니다 — 그쪽은 FR-23~FR-30 이 덮는다.
+
+| ID | 요구사항 | 상태 | 비고 |
+|---|---|:---:|---|
+| FR-42 | 저장된 루틴 여러 개를 큐에 줄 세워 연속 실행할 수 있어야 한다 | ⬜ | `LoadProject` → `StartPlayback` → `IsPlaying` 감시를 항목마다 반복 |
+| FR-43 | 큐 항목을 추가 / 삭제 / 순서 변경할 수 있어야 한다 | ⬜ | 같은 루틴을 여러 번 넣는 것을 허용 |
+| FR-44 | 항목별 반복 횟수와 사용 여부(on/off)를 지정할 수 있어야 한다 | ⬜ | 끈 항목은 `skipped` 로 지나간다 |
+| FR-45 | 다음 항목은 이전 재생이 실제로 끝난 뒤에 시작해야 한다 | ⬜ | 고정 시간 대기 금지. 2026-08-02 "스텝 건너뜀" 과 같은 부류 |
+| FR-46 | 큐를 JSON 으로 저장·복원할 수 있어야 한다 | ⬜ | `Recordings/Queues/*.json`. 루틴과 같은 폴더에 두면 `ListSavedFiles()` 가 큐를 루틴으로 읽는다 |
+| FR-47 | 실행 중 항목을 하이라이트하고 진행(`n/m` 스텝)을 표시해야 한다 | ⬜ | `RecordManager.currentStepIndex` 를 읽어 표시 |
+| FR-48 | 일시정지(항목 경계) / 건너뛰기 / 중단이 가능해야 한다 | ⬜ | `StopPlayback()` 은 재개 지점을 남기지 않아 스텝 중간 일시정지가 불가. 미결 O-2 |
+
+**구현 전 선결 조건 2가지** (`docs/TASK_QUEUE.md` §9)
+
+| | 내용 |
+|---|---|
+| O-1 | `PlaybackRoutine()` 에 실패라는 개념이 없다. 끝까지 돌면 항상 `"✅ 재생 완료"` 다. 재생이 실패를 알리지 않으면 큐도 `failed` 를 못 만들고 `stopOnError` 가 죽은 옵션이 된다 |
+| 안전 | ~~비상 정지가 실효 없는 상태다~~ → **2026-08-03 해소.** SR-10 참조. 다만 서버 `{"type":"stop"}` 이 없어 소켓이 끊기면 정지 명령이 못 나간다. 무인 연속 운전을 실제로 돌리기 전에 이건 마저 막는 편이 좋다 |
 
 ---
 
@@ -313,7 +335,7 @@ TCP 세그먼트 경계에서 줄이 깨지고 `Extra data` 예외가 발생했�
 | **SR-07** | 모든 관절 명령은 소프트 리밋으로 클램프한다 | ✅ | `SOArmSimController.SetJointTarget()`, `SOArmRealController.SetJointTarget()`, `SOArmMotorMapper.AngleToServerValue()` 3중 |
 | **SR-08** | 모터 펌웨어에 하드 각도 리밋과 과부하 보호를 굽는다 | ⬜ | `PincOpenSafety.GetFirmwareSetupSnippet()` 이 코드를 출력만 함. **라파에서 실행 안 됨**<br>값: `min −147° / max 0° / torque_limit 1000 / overload 40 / protective 5 / protection_time 7(70 ms) / accel 200` |
 | **SR-09** | 그리퍼로 나가는 **모든** 명령 경로가 안전 게이트를 거쳐야 한다 | 🔴 | **결함 발견.** §6.3 참조 |
-| **SR-10** | 비상 정지 시 로봇이 즉시 멈춰야 한다 | 🔴 | **미구현.** `SOArmRealController.StopMotion()` 은 `Debug.Log` 만 출력, `SOArmSimController.StopMotion()` 은 빈 메서드. 「⏸ 정지」 버튼은 **실효 없음** |
+| **SR-10** | 비상 정지 시 로봇이 즉시 멈춰야 한다 | ✅ | 2026-08-02~03 구현. 토크는 끄지 않고 **현재 위치로 고정**한다 — 12V 팔은 토크를 끄면 떨어진다. Sim 은 물리 각도를 `xDrive.target` 에, Real 은 마지막 폴링 값을 `Goal_Position` 에 쓴다. 정지 중 송신·목표설정·슬라이더·**루틴 재생**을 모두 막고, 읽기는 유지한다. ESC 단축키. 해제는 `AdoptRealPose` 로 튐 없이 재개. ⚠️ 남은 것: 서버 `{"type":"stop"}` 미구현 — **소켓이 끊긴 상태에서는 정지 명령이 못 나간다** |
 | **SR-11** | 장착 오프셋 덮어쓰기(`applyMountOffset`)는 기본 OFF여야 한다 | ✅ | 기본값 `false`, `SCENE` L1171 `applyMountOffset: 0`. 켠 채 값이 0이면 그리퍼가 손목 원점으로 튐 |
 | **SR-12** | 커플링 배율이 잘못 저장돼 좌우 비대칭으로 닫히지 않아야 한다 | ✅ | 마이그레이터가 `preset = MJCF_Full` 강제 (`PincOpenMainSceneMigrator.cs` L127). `SCENE` L1165 `preset: 0` (= MJCF_Full) 확인 |
 

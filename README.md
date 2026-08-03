@@ -141,6 +141,7 @@ Unity UI → DualManager → Manager A/B ─┬→ SimController  (ArticulationB
 | [`docs/SETUP.md`](docs/SETUP.md) | 설치 가이드. 라파 초기 설정부터 Unity 씬 구성까지 |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | 브랜치 전략, 커밋 규칙, 코드 스타일 |
 | [`CHANGELOG.md`](CHANGELOG.md) | 버전별 변경 이력 |
+| [`docs/TASK_QUEUE.md`](docs/TASK_QUEUE.md) | 작업 큐 기능 명세. 구현 전 단계 |
 | `docs/spec/` | 표준 스펙. User/System Requirement, H/W·S/W Architecture |
 | `docs/` | 장문 엔지니어링 문서. 요구사항, HW·SW 아키텍처, PincOpen 이식기 |
 | `docs/v2/` | 위 문서의 Confluence 형식 판 |
@@ -311,9 +312,10 @@ norm = ((raw − range_min) / (range_max − range_min)) × 200 − 100
 - [x] 수동 모드 (직접교시)
 - [x] 모션 녹화 / 재생 (JSON)
 - [x] 관제 화면 (Control Tower)
-- [ ] 협동 작업 (Pick & Place 전달)
-- [ ] 작업 큐 관리 UI
-- [ ] 카메라 비전 통합
+- [ ] 협동 작업 (Pick & Place 전달) — `SR_19` / `FR-22`
+- [ ] 작업 큐 관리 UI — `SR_21` / `FR-42`~`FR-48`. 명세 완료([`docs/TASK_QUEUE.md`](docs/TASK_QUEUE.md)), 구현 미착수
+- [ ] 카티시안 좌표 제어 (역기구학 IK) — `SR_20` / `FR-38`. 자매 프로젝트 FR5 의 DLS 솔버를 이식 검토
+- [ ] 카메라 비전 통합 — `SR_18` / `FR-37`
 
 ### 알려진 이슈
 
