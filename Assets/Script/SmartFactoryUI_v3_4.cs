@@ -452,11 +452,12 @@ namespace SOArmControl
         /// </summary>
         void SendGoHome(string mode)
         {
-            string json = $"{{\"type\":\"home\",\"mode\":\"{mode}\"}}";
-            SendToServer(json);
-            Debug.Log($"[Home] {mode} 홈으로 이동 명령 전송");
+            // 서버의 type:"home" 은 쓰지 않는다. 그건 무조건 전관절 0° 로 보내는데,
+            // 2026-08-04 에 홈을 접힌 자세로 바꾼 뒤로는 그게 홈이 아니다.
+            // 매니저의 GoToHome() 이 시뮬과 실물을 같은 homePose 로 함께 보내므로
+            // 두 화면의 홈이 갈리지 않고, 속도 제한·소프트 리밋·비상정지도 그대로 걸린다.
+            Debug.Log($"[Home] {mode} 홈으로 이동");
 
-            // 시뮬도 홈으로
             if (mode == "robot1" || mode == "both") {
                 dualManager.robot1?.GoToHome();
                 InitSlidersFromRobot(r1Sliders, dualManager.robot1);
