@@ -220,17 +220,39 @@ Unity로 만든 **디지털 트윈(Digital Twin)** 환경에서 시각화하고 
 | FR-35 | 그리퍼 장착 정확도를 수치로 검증할 수 있어야 한다 | ✅ | `Editor/PincOpenCapture.cs` — 자체검증/대칭/중력/렌더 비교 |
 | FR-36 | 실물 PincOpen 을 명령할 수 있어야 한다 | ⬜ | **SR-03 에 의해 의도적으로 잠금** |
 
-### 4.6 미착수 기능 (로드맵)
+### 4.6 카티시안 좌표 제어 (역기구학)
+
+| ID | 요구사항 | 상태 | 구현 근거 |
+|---|---|:---:|---|
+| FR-38 | 역기구학(IK)으로 XYZ 좌표 직접 제어 | ✅ | 서버 `handle_ik()` (placo) + `Script/SOArmIKController.cs` + `ControlTowerCanvas.CartFace()` |
+
+`HANDOFF` §9 는 DLS(Damped Least Squares) 이식을 검토 중이라고 적고 있으나, 실제로는
+LeRobot 본체(`lerobot/model/kinematics.py`)의 placo 솔버를 서버에서 쓰는 쪽으로 정해졌다.
+이 하드웨어에 맞춰 유지보수되는 구현을 쓰는 편이 낫다고 판단했다.
+
+서버의 `ik` 명령은 **계산만** 한다. 나온 관절 각도를 적용하는 것은 Unity 가
+`SOArmManager` 를 거쳐서 하므로 SR-06(가동범위 제한)·SR-07(소프트 리밋 클램프)·
+비상정지가 그대로 걸린다. 서버가 직접 모터를 돌리면 그 방어선을 우회하게 된다.
+
+5축(J1~J5, J6 은 그리퍼)이라 임의의 6D 자세는 만들 수 없다. J2·J3·J4 가 서로 평행한
+pitch 축이어서 공구의 yaw 가 J1 에 묶인다. 자세 가중치를 0.01 로 낮춰 위치를 맞추고
+자세는 근사한다. 회전 요청으로 TCP 가 5mm 넘게 밀리면 서버가 결과를 버린다
+(`IK_ROT_MAX_DRIFT_MM`).
+
+기구학 전용 URDF `so101_kin.urdf` 와 그 생성기 `make_kin_urdf.py` 는 `raspberry_pi/ik/`
+에 있다. 라파의 `/home/sw/ik/` 와 같은 내용이며, 생성 원본은 저장소의
+`Assets/SO101_unity/so101.urdf` 다.
+
+### 4.7 미착수 기능 (로드맵)
 
 | ID | 요구사항 | 상태 | 비고 |
 |---|---|:---:|---|
 | FR-37 | 손목 카메라 영상을 Unity 화면에 표시 | ⬜ | `HANDOFF` §1: 카메라는 물리적으로 부착됨. 개수·연결 위치 **⚠️ 미확인** |
-| FR-38 | 역기구학(IK)으로 XYZ 좌표 직접 제어 | ⬜ | `HANDOFF` §9: DLS(Damped Least Squares) 방식 검토 중 |
-| FR-39 | TCP(공구 중심점)를 PincOpen 손끝으로 이동 | ⬜ | `PINCOPEN_INTEGRATION` §10: 현재 `gripper_frame_link` 는 순정 조 끝 기준 |
+| FR-39 | TCP(공구 중심점)를 PincOpen 손끝으로 이동 | ⬜ | `PINCOPEN_INTEGRATION` §10: 현재 `gripper_frame_link` 는 순정 조 끝 기준. FR-38 이 이 기준점을 그대로 쓴다 |
 | FR-40 | 리더 암 2대 추가 (텔레오퍼레이션) | ⬜ | `HANDOFF` §9 |
 | FR-41 | AI 비전 기반 pick & place | ⬜ | `HANDOFF` §9 |
 
-### 4.7 작업 큐 (Task Queue)
+### 4.8 작업 큐 (Task Queue)
 
 전부 미착수. 상세 명세는 [`docs/TASK_QUEUE.md`](TASK_QUEUE.md) (2026-08-03).
 작업 1개는 `Recordings/*.json` 루틴 1개다. 스텝 단위가 아니다 — 그쪽은 FR-23~FR-30 이 덮는다.
@@ -431,6 +453,9 @@ for (int i = 0; i < Mathf.Min(sliders.Length, robot.JointCount); i++)
 | `Script/SmartFactoryRecordUI.cs` | FR-23~FR-30 |
 | `Script/RecordManager.cs` | FR-23~FR-28 |
 | `Script/RecordProject.cs`, `Waypoint.cs` | FR-27 |
+| `Script/SOArmIKController.cs` | FR-38, SR-06, SR-07 |
+| `Script/ControlTowerCanvas.cs` | FR-38 (카티시안 면), NFR-16~NFR-19 |
+| `raspberry_pi/robot_server_dual.py` | FR-08~FR-11, FR-38, SR-06 |
 | `Script/PincOpenCoupling.cs` | FR-31~FR-33, SR-05, SR-11, SR-12, CON-04 |
 | `Script/PincOpenSafety.cs` | SR-03, SR-04, SR-08 |
 | `Editor/PincOpenSetupMenu.cs` | FR-34, CON-07 |

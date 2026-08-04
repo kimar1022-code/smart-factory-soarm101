@@ -229,7 +229,13 @@ J1에 묶여 임의의 6D 자세를 만들 수 없다. 자세 가중치를 0.01�
 | `pincopen_apply_manual.py` | 눈으로 확인한 그리퍼 양 끝을 캘리브+펌웨어에 기록 |
 | `pincopen_calibrate_gripper.py` | 그리퍼 대화식 캘리브레이션 |
 
-IK가 읽는 기구학 전용 URDF는 라파의 `/home/sw/ik/so101_kin.urdf`에 있고 저장소에는 없다.
+`ik/`는 라파의 `/home/sw/ik/`와 같은 내용이다.
+
+| 파일 | 역할 |
+|---|---|
+| `ik/so101_kin.urdf` | 기구학 전용 URDF. placo 가 읽는다 |
+| `ik/make_kin_urdf.py` | 위 파일 생성기. `Assets/SO101_unity/so101.urdf`에서 visual/collision 을 걷어낸다 |
+| `ik/ik_probe.py` / `ik/ik_client_test.py` | 솔버 단독 검증 / TCP 왕복 검증 |
 
 ### 문서
 
@@ -433,7 +439,6 @@ norm = ((raw − range_min) / (range_max − range_min)) × 200 − 100
 - `elbow_flex` 소프트 리밋이 로봇마다 다른데(70° / 64°) 근거가 문서·커밋 어디에도 없다
 - 카티시안 UI에 `Rx` 버튼이 그대로 있다. 대부분 거절당하므로 지우거나 비활성 표시할지 미정
 - 카티시안 TCP가 순정 조 끝 기준이라 PincOpen 손끝과 다르다 (`FR-39`)
-- `so101_kin.urdf`가 라파에만 있고 저장소에 없다. 라파를 다시 만들면 IK가 죽는데 복원할 원본이 없다
 
 ---
 
