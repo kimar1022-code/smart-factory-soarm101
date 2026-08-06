@@ -254,24 +254,32 @@ pitch 축이어서 공구의 yaw 가 J1 에 묶인다. 자세 가중치를 0.01 
 
 ### 4.8 작업 큐 (Task Queue)
 
-전부 미착수. 상세 명세는 [`docs/TASK_QUEUE.md`](TASK_QUEUE.md) (2026-08-03).
+2026-08-04 구현. 상세 명세는 [`docs/TASK_QUEUE.md`](TASK_QUEUE.md) (2026-08-03 작성).
 작업 1개는 `Recordings/*.json` 루틴 1개다. 스텝 단위가 아니다 — 그쪽은 FR-23~FR-30 이 덮는다.
 
-| ID | 요구사항 | 상태 | 비고 |
-|---|---|:---:|---|
-| FR-42 | 저장된 루틴 여러 개를 큐에 줄 세워 연속 실행할 수 있어야 한다 | ⬜ | `LoadProject` → `StartPlayback` → `IsPlaying` 감시를 항목마다 반복 |
-| FR-43 | 큐 항목을 추가 / 삭제 / 순서 변경할 수 있어야 한다 | ⬜ | 같은 루틴을 여러 번 넣는 것을 허용 |
-| FR-44 | 항목별 반복 횟수와 사용 여부(on/off)를 지정할 수 있어야 한다 | ⬜ | 끈 항목은 `skipped` 로 지나간다 |
-| FR-45 | 다음 항목은 이전 재생이 실제로 끝난 뒤에 시작해야 한다 | ⬜ | 고정 시간 대기 금지. 2026-08-02 "스텝 건너뜀" 과 같은 부류 |
-| FR-46 | 큐를 JSON 으로 저장·복원할 수 있어야 한다 | ⬜ | `Recordings/Queues/*.json`. 루틴과 같은 폴더에 두면 `ListSavedFiles()` 가 큐를 루틴으로 읽는다 |
-| FR-47 | 실행 중 항목을 하이라이트하고 진행(`n/m` 스텝)을 표시해야 한다 | ⬜ | `RecordManager.currentStepIndex` 를 읽어 표시 |
-| FR-48 | 일시정지(항목 경계) / 건너뛰기 / 중단이 가능해야 한다 | ⬜ | `StopPlayback()` 은 재개 지점을 남기지 않아 스텝 중간 일시정지가 불가. 미결 O-2 |
+구현 파일은 셋이다. `QueueItem.cs`(항목 1개) · `TaskQueue.cs`(큐 자료구조·항목 조작) ·
+`TaskQueueRunner.cs`(실행 코루틴·저장/불러오기). 화면은 `ControlTowerCanvas` 의
+`BuildQueue()` / `WireQueue()` / `BindQueue()` 다.
 
-**구현 전 선결 조건 2가지** (`docs/TASK_QUEUE.md` §9)
+| ID | 요구사항 | 상태 | 구현 근거 |
+|---|---|:---:|---|
+| FR-42 | 저장된 루틴 여러 개를 큐에 줄 세워 연속 실행할 수 있어야 한다 | ✅ | `TaskQueueRunner.RunRoutine()` → `RunOnce()` 가 항목마다 `LoadProject` → `StartPlayback` → `IsPlaying` 감시를 반복 |
+| FR-43 | 큐 항목을 추가 / 삭제 / 순서 변경할 수 있어야 한다 | ✅ | `TaskQueue.Add/Remove/MoveUp/MoveDown`. 같은 `fileName` 이 여러 번 들어가도 `QueueItem` 은 별개다 |
+| FR-44 | 항목별 반복 횟수와 사용 여부(on/off)를 지정할 수 있어야 한다 | ✅ | `QueueItem.repeatCount` / `enabled`. 끈 항목은 `RunRoutine()` 에서 `MarkSkipped()` 로 지나간다 |
+| FR-45 | 다음 항목은 이전 재생이 실제로 끝난 뒤에 시작해야 한다 | ✅ | `RunOnce()` 의 `while (recordManager.IsPlaying)`. 고정 시간 대기가 없다 |
+| FR-46 | 큐를 JSON 으로 저장·복원할 수 있어야 한다 | ✅ | `TaskQueueRunner.SaveQueue/LoadQueue`, `QueuesFolder` = `Recordings/Queues/`. 루틴 폴더와 분리한 이유는 `ListSavedFiles()` 가 비재귀라서다 |
+| FR-47 | 실행 중 항목을 하이라이트하고 진행(`n/m` 스텝)을 표시해야 한다 | ✅ | `BindQueue()` 가 실행 중인 줄에 옅은 옐로를 깔고, `TaskQueueRunner.ProgressText` 가 `CurrentStepIndex` 를 읽어 «현재 n/m 스텝 · 남은 k건» 을 만든다 |
+| FR-48 | 일시정지(항목 경계) / 건너뛰기 / 중단이 가능해야 한다 | ✅ | `RequestPause`(→`HoldWhilePaused`) / `SkipCurrent` / `AbortQueue`. 스텝 중간 일시정지는 여전히 불가 — 미결 O-2 는 열려 있다 |
+
+상태는 이 문서 §0.1 의 기준(코드가 있고 경로가 끊김 없이 이어짐)으로 매겼다.
+Unity 에서 「관제 화면 생성」을 다시 눌러 패널을 만들고 실물로 연속 운전을 돌려 본
+검증은 **아직 하지 않았다.**
+
+**구현 전 선결 조건 — 해소됨** (`docs/TASK_QUEUE.md` §9)
 
 | | 내용 |
 |---|---|
-| O-1 | `PlaybackRoutine()` 에 실패라는 개념이 없다. 끝까지 돌면 항상 `"✅ 재생 완료"` 다. 재생이 실패를 알리지 않으면 큐도 `failed` 를 못 만들고 `stopOnError` 가 죽은 옵션이 된다 |
+| O-1 | ~~`PlaybackRoutine()` 에 실패라는 개념이 없다~~ → **2026-08-04 해소.** `RecordManager.LastPlaybackFailed` / `LastFailureReason` 를 추가했다. 도착 확인 실패·그리퍼 미정지·비상정지 중단이 실패로 기록된다. 재생 동작 자체는 바꾸지 않았다(여전히 경고를 찍고 다음 스텝으로 간다) — 판단은 큐가 한다 |
 | 안전 | ~~비상 정지가 실효 없는 상태다~~ → **2026-08-03 해소.** SR-10 참조. 다만 서버 `{"type":"stop"}` 이 없어 소켓이 끊기면 정지 명령이 못 나간다. 무인 연속 운전을 실제로 돌리기 전에 이건 마저 막는 편이 좋다 |
 
 ---

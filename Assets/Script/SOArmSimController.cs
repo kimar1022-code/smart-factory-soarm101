@@ -122,6 +122,25 @@ namespace SOArmControl
         public float GetJointMaxAngle(int i) => Valid(i) ? joints[i].maxAngle : 180f;
         public float GetJointAngle(int i) => Valid(i) ? targetAngles[i] : 0f;
 
+        /// <summary>
+        /// 시뮬이 **지금 실제로 가 있는** 각도. ArticulationBody 에서 직접 읽는다.
+        ///
+        /// `GetJointAngle`(=`targetAngles`)은 던진 즉시 최종 목표라 도착 판정에 못 쓴다.
+        /// 물리 각도를 `StopMotion` 과 같은 방식으로 논리 각도(부호·오프셋)로 되돌린다.
+        /// 드라이브가 없으면 목표값으로 돌아간다.
+        /// </summary>
+        public float GetMeasuredJointAngle(int i)
+        {
+            if (!Valid(i)) return 0f;
+
+            var ab = joints[i].articulationBody;
+            if (ab == null || ab.jointPosition.dofCount == 0) return targetAngles[i];
+
+            float cur = ab.jointPosition[0] * Mathf.Rad2Deg;
+            float logical = joints[i].invertSign ? -cur : cur;
+            return logical - joints[i].angleOffset;
+        }
+
         [Header("디버그")]
         [Tooltip("관절 목표가 바뀔 때마다 로그를 남긴다.\n" +
                  "⚠️ 양방향 동기화(30Hz × 2대 × 6관절 = 360회/초)에서 켜면\n" +

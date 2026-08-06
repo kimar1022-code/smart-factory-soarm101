@@ -232,6 +232,9 @@ namespace SOArmControl
         public float GetJointMaxAngle(int i) => PrimaryReader.GetJointMaxAngle(i);
         public float GetJointAngle(int i) => PrimaryReader.GetJointAngle(i);
 
+        /// <summary>실제로 가 있는 각도. 도착 판정은 반드시 이걸 쓴다 (`GetJointAngle` 은 목표값).</summary>
+        public float GetMeasuredJointAngle(int i) => PrimaryReader.GetMeasuredJointAngle(i);
+
         public void SetJointTarget(int i, float angleDeg)
         {
             if (SimActive) sim.SetJointTarget(i, angleDeg);

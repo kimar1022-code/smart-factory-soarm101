@@ -1130,11 +1130,11 @@
             },
             "oMin": {
                 "x": 10.0,
-                "y": -1.399993896484375
+                "y": -1.3999099731445313
             },
             "oMax": {
                 "x": -6.0,
-                "y": -5.399993896484375
+                "y": -5.399894714355469
             },
             "pivot": {
                 "x": 0.5,
@@ -1936,6 +1936,92 @@
             }
         },
         {
+            "path": "LeftColumn/R1Card/R1ModeSw",
+            "aMin": {
+                "x": 0.29499998688697817,
+                "y": 0.8999999761581421
+            },
+            "aMax": {
+                "x": 0.46000000834465029,
+                "y": 0.9900000095367432
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1ModeSw/R1ModeSwLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Joint",
+            "fontSize": 20,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 2,
+            "maxSize": 20,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
             "path": "LeftColumn/R1Card/R1CardLed",
             "aMin": {
                 "x": 0.4749999940395355,
@@ -2065,7 +2151,50 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0Label",
+            "path": "LeftColumn/R1Card/R1JointGroup",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.7770000100135803
@@ -2108,7 +2237,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0Minus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.7770000100135803
@@ -2118,12 +2247,12 @@
                 "y": 0.8849999904632568
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -2151,7 +2280,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0Minus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -2194,7 +2323,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0Minus/R1J0MinusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0Minus/R1J0MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -2237,7 +2366,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0Plus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.7770000100135803
@@ -2247,12 +2376,12 @@
                 "y": 0.8849999904632568
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -2280,7 +2409,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0Plus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -2323,7 +2452,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0Plus/R1J0PlusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0Plus/R1J0PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -2366,7 +2495,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.7990000247955322
@@ -2376,12 +2505,12 @@
                 "y": 0.8629999756813049
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -2409,7 +2538,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0/Background",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -2452,7 +2581,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0/Fill Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -2495,7 +2624,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0/Fill Area/Fill",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -2538,7 +2667,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0/Handle Slide Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -2581,7 +2710,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0/Handle Slide Area/Handle",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -2624,7 +2753,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0In",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.7770000100135803
@@ -2634,12 +2763,12 @@
                 "y": 0.8849999904632568
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -2667,7 +2796,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J0In/R1J0InText",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J0In/R1J0InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -2710,7 +2839,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1Label",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.6489999890327454
@@ -2753,7 +2882,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1Minus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.6489999890327454
@@ -2763,12 +2892,12 @@
                 "y": 0.7569999694824219
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -2796,7 +2925,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1Minus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -2839,7 +2968,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1Minus/R1J1MinusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1Minus/R1J1MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -2882,7 +3011,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1Plus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.6489999890327454
@@ -2892,12 +3021,12 @@
                 "y": 0.7569999694824219
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -2925,7 +3054,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1Plus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -2968,7 +3097,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1Plus/R1J1PlusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1Plus/R1J1PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3011,7 +3140,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.6710000038146973
@@ -3021,12 +3150,12 @@
                 "y": 0.73499995470047
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -3054,7 +3183,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1/Background",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -3097,7 +3226,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1/Fill Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -3140,7 +3269,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1/Fill Area/Fill",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3183,7 +3312,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1/Handle Slide Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3226,7 +3355,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1/Handle Slide Area/Handle",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -3269,7 +3398,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1In",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.6489999890327454
@@ -3279,12 +3408,12 @@
                 "y": 0.7569999694824219
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -3312,7 +3441,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J1In/R1J1InText",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J1In/R1J1InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3355,7 +3484,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2Label",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.5209999680519104
@@ -3398,7 +3527,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2Minus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.5209999680519104
@@ -3408,12 +3537,12 @@
                 "y": 0.6289999485015869
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -3441,7 +3570,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2Minus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -3484,7 +3613,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2Minus/R1J2MinusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2Minus/R1J2MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3527,7 +3656,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2Plus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.5209999680519104
@@ -3537,12 +3666,12 @@
                 "y": 0.6289999485015869
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -3570,7 +3699,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2Plus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -3613,7 +3742,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2Plus/R1J2PlusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2Plus/R1J2PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3656,7 +3785,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.5429999828338623
@@ -3666,12 +3795,12 @@
                 "y": 0.606999933719635
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -3699,7 +3828,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2/Background",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -3742,7 +3871,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2/Fill Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -3785,7 +3914,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2/Fill Area/Fill",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3828,7 +3957,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2/Handle Slide Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -3871,7 +4000,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2/Handle Slide Area/Handle",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -3914,7 +4043,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2In",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.5209999680519104
@@ -3924,12 +4053,12 @@
                 "y": 0.6289999485015869
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -3957,7 +4086,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J2In/R1J2InText",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J2In/R1J2InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4000,7 +4129,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3Label",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.3929999768733978
@@ -4043,7 +4172,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3Minus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.3929999768733978
@@ -4053,12 +4182,12 @@
                 "y": 0.5009999871253967
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -4086,7 +4215,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3Minus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -4129,7 +4258,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3Minus/R1J3MinusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3Minus/R1J3MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4172,7 +4301,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3Plus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.3929999768733978
@@ -4182,12 +4311,12 @@
                 "y": 0.5009999871253967
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -4215,7 +4344,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3Plus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -4258,7 +4387,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3Plus/R1J3PlusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3Plus/R1J3PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4301,7 +4430,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.41499996185302737
@@ -4311,12 +4440,12 @@
                 "y": 0.4789999723434448
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -4344,7 +4473,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3/Background",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -4387,7 +4516,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3/Fill Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -4430,7 +4559,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3/Fill Area/Fill",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4473,7 +4602,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3/Handle Slide Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4516,7 +4645,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3/Handle Slide Area/Handle",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -4559,7 +4688,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3In",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.3929999768733978
@@ -4569,12 +4698,12 @@
                 "y": 0.5009999871253967
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -4602,7 +4731,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J3In/R1J3InText",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J3In/R1J3InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4645,7 +4774,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4Label",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.26499995589256289
@@ -4688,7 +4817,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4Minus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.26499995589256289
@@ -4698,12 +4827,12 @@
                 "y": 0.37299996614456179
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -4731,7 +4860,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4Minus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -4774,7 +4903,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4Minus/R1J4MinusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4Minus/R1J4MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4817,7 +4946,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4Plus",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.26499995589256289
@@ -4827,12 +4956,12 @@
                 "y": 0.37299996614456179
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -4860,7 +4989,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4Plus/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -4903,7 +5032,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4Plus/R1J4PlusLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4Plus/R1J4PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -4946,7 +5075,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.2869999408721924
@@ -4956,12 +5085,12 @@
                 "y": 0.35099995136260989
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -4989,7 +5118,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4/Background",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -5032,7 +5161,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4/Fill Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -5075,7 +5204,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4/Fill Area/Fill",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5118,7 +5247,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4/Handle Slide Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5161,7 +5290,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4/Handle Slide Area/Handle",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.4912499785423279,
                 "y": 0.0
@@ -5204,7 +5333,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4In",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.26499995589256289
@@ -5214,12 +5343,12 @@
                 "y": 0.37299996614456179
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -5247,7 +5376,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1J4In/R1J4InText",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1J4In/R1J4InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5290,7 +5419,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripLabel",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.13500000536441804
@@ -5333,7 +5462,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1Grip",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1Grip",
             "aMin": {
                 "x": 0.23000000417232514,
                 "y": 0.1550000011920929
@@ -5376,7 +5505,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1Grip/Background",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1Grip/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -5419,7 +5548,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1Grip/Fill Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1Grip/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -5462,7 +5591,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1Grip/Fill Area/Fill",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1Grip/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5505,7 +5634,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1Grip/Handle Slide Area",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1Grip/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5548,7 +5677,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1Grip/Handle Slide Area/Handle",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1Grip/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -5591,7 +5720,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripValue",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripValue",
             "aMin": {
                 "x": 0.7699999809265137,
                 "y": 0.13500000536441804
@@ -5601,12 +5730,12 @@
                 "y": 0.23499999940395356
             },
             "oMin": {
-                "x": -83.0,
-                "y": 1.0
+                "x": 0.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -83.0,
-                "y": 1.0
+                "x": 0.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -5634,7 +5763,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripClose",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripClose",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.019999999552965165
@@ -5677,7 +5806,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripClose/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripClose/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -5720,7 +5849,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripClose/R1GripCloseLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripClose/R1GripCloseLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5763,7 +5892,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripHalf",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripHalf",
             "aMin": {
                 "x": 0.36000001430511477,
                 "y": 0.019999999552965165
@@ -5806,7 +5935,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripHalf/R1GripHalfLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripHalf/R1GripHalfLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5828,7 +5957,7 @@
                 "y": 0.5
             },
             "hasText": true,
-            "text": "Half",
+            "text": "HAlf",
             "fontSize": 20,
             "color": {
                 "r": 1.0,
@@ -5849,7 +5978,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripOpen",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripOpen",
             "aMin": {
                 "x": 0.6700000166893005,
                 "y": 0.019999999552965165
@@ -5892,7 +6021,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripOpen/Icon",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripOpen/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -5935,7 +6064,7 @@
             }
         },
         {
-            "path": "LeftColumn/R1Card/R1GripOpen/R1GripOpenLabel",
+            "path": "LeftColumn/R1Card/R1JointGroup/R1GripOpen/R1GripOpenLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -5978,6 +6107,1726 @@
             }
         },
         {
+            "path": "LeftColumn/R1Card/R1CartGroup",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartZPlus",
+            "aMin": {
+                "x": 0.4000000059604645,
+                "y": 0.7749999761581421
+            },
+            "aMax": {
+                "x": 0.6000000238418579,
+                "y": 0.8849999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartZPlus/R1CartZPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "▲\nZ+",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartXPlus",
+            "aMin": {
+                "x": 0.6200000047683716,
+                "y": 0.7749999761581421
+            },
+            "aMax": {
+                "x": 0.7900000214576721,
+                "y": 0.8849999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartXPlus/R1CartXPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "↗ X+",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartXMinus",
+            "aMin": {
+                "x": 0.20999999344348908,
+                "y": 0.7749999761581421
+            },
+            "aMax": {
+                "x": 0.3799999952316284,
+                "y": 0.8849999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartXMinus/R1CartXMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "↙ X−",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartYMinus",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.6449999809265137
+            },
+            "aMax": {
+                "x": 0.2800000011920929,
+                "y": 0.7599999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartYMinus/R1CartYMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "◀ Y−",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartYPlus",
+            "aMin": {
+                "x": 0.7200000286102295,
+                "y": 0.6449999809265137
+            },
+            "aMax": {
+                "x": 0.9700000286102295,
+                "y": 0.7599999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartYPlus/R1CartYPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Y+ ▶",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartHint",
+            "aMin": {
+                "x": 0.28999999165534975,
+                "y": 0.6449999809265137
+            },
+            "aMax": {
+                "x": 0.7099999785423279,
+                "y": 0.7599999904632568
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "TCP",
+            "fontSize": 19,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartZMinus",
+            "aMin": {
+                "x": 0.4000000059604645,
+                "y": 0.5149999856948853
+            },
+            "aMax": {
+                "x": 0.6000000238418579,
+                "y": 0.6299999952316284
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartZMinus/R1CartZMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Z−\n▼",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotLabel",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.4350000023841858
+            },
+            "aMax": {
+                "x": 0.6000000238418579,
+                "y": 0.5
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "회전 (공구 기준)",
+            "fontSize": 18,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotXMinus",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.3100000023841858
+            },
+            "aMax": {
+                "x": 0.33500000834465029,
+                "y": 0.41999998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotXMinus/R1RotXMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rx −",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotXPlus",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.1850000023841858
+            },
+            "aMax": {
+                "x": 0.33500000834465029,
+                "y": 0.29499998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotXPlus/R1RotXPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rx +",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotYMinus",
+            "aMin": {
+                "x": 0.35499998927116396,
+                "y": 0.3100000023841858
+            },
+            "aMax": {
+                "x": 0.6599999666213989,
+                "y": 0.41999998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotYMinus/R1RotYMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Ry −",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotYPlus",
+            "aMin": {
+                "x": 0.35499998927116396,
+                "y": 0.1850000023841858
+            },
+            "aMax": {
+                "x": 0.6599999666213989,
+                "y": 0.29499998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotYPlus/R1RotYPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Ry +",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotZMinus",
+            "aMin": {
+                "x": 0.6799999475479126,
+                "y": 0.3100000023841858
+            },
+            "aMax": {
+                "x": 0.98499995470047,
+                "y": 0.41999998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotZMinus/R1RotZMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rz −",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotZPlus",
+            "aMin": {
+                "x": 0.6799999475479126,
+                "y": 0.1850000023841858
+            },
+            "aMax": {
+                "x": 0.98499995470047,
+                "y": 0.29499998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1RotZPlus/R1RotZPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rz +",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartPos",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.11999999731779099
+            },
+            "aMax": {
+                "x": 0.9700000286102295,
+                "y": 0.18000000715255738
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "위치 --",
+            "fontSize": 18,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartMsg",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.06199999898672104
+            },
+            "aMax": {
+                "x": 0.75,
+                "y": 0.11800000071525574
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "현재 위치를 읽는 중",
+            "fontSize": 18,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartRead",
+            "aMin": {
+                "x": 0.7599999904632568,
+                "y": 0.06199999898672104
+            },
+            "aMax": {
+                "x": 0.9700000286102295,
+                "y": 0.11800000071525574
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartRead/R1CartReadLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "읽기",
+            "fontSize": 24,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStepNow",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.20000000298023225,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "5mm",
+            "fontSize": 18,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep0",
+            "aMin": {
+                "x": 0.20999999344348908,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.39499998092651369,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep0/R1CartStep0Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "1mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep1",
+            "aMin": {
+                "x": 0.4049999713897705,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.5899999737739563,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep1/R1CartStep1Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "5mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep2",
+            "aMin": {
+                "x": 0.5999999642372131,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.7849999666213989,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep2/R1CartStep2Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "10mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep3",
+            "aMin": {
+                "x": 0.7949999570846558,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.9799999594688416,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R1Card/R1CartGroup/R1CartStep3/R1CartStep3Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "50mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
             "path": "LeftColumn/R2Card",
             "aMin": {
                 "x": 0.0,
@@ -5989,11 +7838,11 @@
             },
             "oMin": {
                 "x": 10.0,
-                "y": -4.0000152587890629
+                "y": -3.9999961853027345
             },
             "oMax": {
                 "x": -6.0,
-                "y": -10.000015258789063
+                "y": -10.000003814697266
             },
             "pivot": {
                 "x": 0.5,
@@ -6290,11 +8139,11 @@
             },
             "oMin": {
                 "x": 45.0,
-                "y": 1.9999868869781495
+                "y": 1.9999901056289673
             },
             "oMax": {
                 "x": 31.0,
-                "y": 2.0000131130218508
+                "y": 2.0000100135803224
             },
             "pivot": {
                 "x": 0.5,
@@ -6313,6 +8162,92 @@
             "bestFit": false,
             "minSize": 2,
             "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2ModeSw",
+            "aMin": {
+                "x": 0.29499998688697817,
+                "y": 0.8999999761581421
+            },
+            "aMax": {
+                "x": 0.46000000834465029,
+                "y": 0.9900000095367432
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2ModeSw/R2ModeSwLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Joint",
+            "fontSize": 20,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 2,
+            "maxSize": 20,
             "hasImage": false,
             "imgColor": {
                 "r": 0.0,
@@ -6451,7 +8386,50 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0Label",
+            "path": "LeftColumn/R2Card/R2JointGroup",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.7770000100135803
@@ -6494,7 +8472,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0Minus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.7770000100135803
@@ -6504,12 +8482,12 @@
                 "y": 0.8849999904632568
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -6537,7 +8515,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0Minus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -6580,7 +8558,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0Minus/R2J0MinusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0Minus/R2J0MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -6623,7 +8601,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0Plus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.7770000100135803
@@ -6633,12 +8611,12 @@
                 "y": 0.8849999904632568
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -6666,7 +8644,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0Plus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -6709,7 +8687,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0Plus/R2J0PlusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0Plus/R2J0PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -6752,7 +8730,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.7990000247955322
@@ -6762,12 +8740,12 @@
                 "y": 0.8629999756813049
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -6795,7 +8773,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0/Background",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -6838,7 +8816,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0/Fill Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -6881,7 +8859,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0/Fill Area/Fill",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -6924,7 +8902,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0/Handle Slide Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -6967,7 +8945,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0/Handle Slide Area/Handle",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -7010,7 +8988,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0In",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.7770000100135803
@@ -7020,12 +8998,12 @@
                 "y": 0.8849999904632568
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -7053,7 +9031,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J0In/R2J0InText",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J0In/R2J0InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -7096,7 +9074,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1Label",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.6489999890327454
@@ -7139,7 +9117,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1Minus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.6489999890327454
@@ -7149,12 +9127,12 @@
                 "y": 0.7569999694824219
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -7182,7 +9160,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1Minus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -7225,7 +9203,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1Minus/R2J1MinusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1Minus/R2J1MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -7268,7 +9246,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1Plus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.6489999890327454
@@ -7278,12 +9256,12 @@
                 "y": 0.7569999694824219
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -7311,7 +9289,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1Plus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -7354,7 +9332,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1Plus/R2J1PlusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1Plus/R2J1PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -7397,7 +9375,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.6710000038146973
@@ -7407,12 +9385,12 @@
                 "y": 0.73499995470047
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -7440,7 +9418,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1/Background",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -7483,7 +9461,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1/Fill Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -7526,7 +9504,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1/Fill Area/Fill",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -7569,7 +9547,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1/Handle Slide Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -7612,7 +9590,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1/Handle Slide Area/Handle",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -7655,7 +9633,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1In",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.6489999890327454
@@ -7665,12 +9643,12 @@
                 "y": 0.7569999694824219
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -7698,7 +9676,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J1In/R2J1InText",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J1In/R2J1InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -7741,7 +9719,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2Label",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.5209999680519104
@@ -7784,7 +9762,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2Minus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.5209999680519104
@@ -7794,12 +9772,12 @@
                 "y": 0.6289999485015869
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -7827,7 +9805,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2Minus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -7870,7 +9848,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2Minus/R2J2MinusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2Minus/R2J2MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -7913,7 +9891,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2Plus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.5209999680519104
@@ -7923,12 +9901,12 @@
                 "y": 0.6289999485015869
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -7956,7 +9934,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2Plus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -7999,7 +9977,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2Plus/R2J2PlusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2Plus/R2J2PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8042,7 +10020,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.5429999828338623
@@ -8052,12 +10030,12 @@
                 "y": 0.606999933719635
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -8085,7 +10063,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2/Background",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -8128,7 +10106,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2/Fill Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -8171,7 +10149,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2/Fill Area/Fill",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8214,7 +10192,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2/Handle Slide Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8257,7 +10235,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2/Handle Slide Area/Handle",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -8300,7 +10278,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2In",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.5209999680519104
@@ -8310,12 +10288,12 @@
                 "y": 0.6289999485015869
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -8343,7 +10321,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J2In/R2J2InText",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J2In/R2J2InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8386,7 +10364,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3Label",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.3929999768733978
@@ -8429,7 +10407,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3Minus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.3929999768733978
@@ -8439,12 +10417,12 @@
                 "y": 0.5009999871253967
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -8472,7 +10450,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3Minus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -8515,7 +10493,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3Minus/R2J3MinusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3Minus/R2J3MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8558,7 +10536,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3Plus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.3929999768733978
@@ -8568,12 +10546,12 @@
                 "y": 0.5009999871253967
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -8601,7 +10579,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3Plus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -8644,7 +10622,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3Plus/R2J3PlusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3Plus/R2J3PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8687,7 +10665,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.41499996185302737
@@ -8697,12 +10675,12 @@
                 "y": 0.4789999723434448
             },
             "oMin": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 1.0
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -8730,7 +10708,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3/Background",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -8773,7 +10751,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3/Fill Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -8816,7 +10794,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3/Fill Area/Fill",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8859,7 +10837,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3/Handle Slide Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -8902,7 +10880,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3/Handle Slide Area/Handle",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -8945,7 +10923,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3In",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.3929999768733978
@@ -8955,12 +10933,12 @@
                 "y": 0.5009999871253967
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -8988,7 +10966,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J3In/R2J3InText",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J3In/R2J3InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9031,7 +11009,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4Label",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4Label",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.26499995589256289
@@ -9074,7 +11052,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4Minus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4Minus",
             "aMin": {
                 "x": 0.30000001192092898,
                 "y": 0.26499995589256289
@@ -9084,12 +11062,12 @@
                 "y": 0.37299996614456179
             },
             "oMin": {
-                "x": -80.99999237060547,
-                "y": 3.0
+                "x": -76.99999237060547,
+                "y": 2.0
             },
             "oMax": {
-                "x": -84.99999237060547,
-                "y": -1.0
+                "x": -80.99999237060547,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -9117,7 +11095,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4Minus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4Minus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -9160,7 +11138,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4Minus/R2J4MinusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4Minus/R2J4MinusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9203,7 +11181,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4Plus",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4Plus",
             "aMin": {
                 "x": 0.38499999046325686,
                 "y": 0.26499995589256289
@@ -9213,12 +11191,12 @@
                 "y": 0.37299996614456179
             },
             "oMin": {
-                "x": -81.0,
-                "y": 3.0
+                "x": -77.0,
+                "y": 2.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -1.0
+                "x": -81.0,
+                "y": -2.0
             },
             "pivot": {
                 "x": 0.5,
@@ -9246,7 +11224,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4Plus/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4Plus/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -9289,7 +11267,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4Plus/R2J4PlusLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4Plus/R2J4PlusLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9332,7 +11310,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4",
             "aMin": {
                 "x": 0.4699999988079071,
                 "y": 0.2869999408721924
@@ -9342,12 +11320,12 @@
                 "y": 0.35099995136260989
             },
             "oMin": {
-                "x": -60.0,
-                "y": 0.999969482421875
+                "x": -52.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -60.0,
-                "y": 0.999969482421875
+                "x": -52.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -9375,7 +11353,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4/Background",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -9418,7 +11396,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4/Fill Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -9461,7 +11439,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4/Fill Area/Fill",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9504,7 +11482,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4/Handle Slide Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9547,7 +11525,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4/Handle Slide Area/Handle",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.4912499785423279,
                 "y": 0.0
@@ -9590,7 +11568,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4In",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4In",
             "aMin": {
                 "x": 0.7649999856948853,
                 "y": 0.26499995589256289
@@ -9600,12 +11578,12 @@
                 "y": 0.37299996614456179
             },
             "oMin": {
-                "x": -81.0,
-                "y": 4.0
+                "x": 2.0,
+                "y": 3.0
             },
             "oMax": {
-                "x": -85.0,
-                "y": -2.0
+                "x": -2.0,
+                "y": -3.0
             },
             "pivot": {
                 "x": 0.5,
@@ -9633,7 +11611,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2J4In/R2J4InText",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2J4In/R2J4InText",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9676,7 +11654,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripLabel",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.13500000536441804
@@ -9719,7 +11697,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2Grip",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2Grip",
             "aMin": {
                 "x": 0.23000000417232514,
                 "y": 0.1550000011920929
@@ -9762,7 +11740,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2Grip/Background",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2Grip/Background",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -9805,7 +11783,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2Grip/Fill Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2Grip/Fill Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.30000001192092898
@@ -9848,7 +11826,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2Grip/Fill Area/Fill",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2Grip/Fill Area/Fill",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9891,7 +11869,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2Grip/Handle Slide Area",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2Grip/Handle Slide Area",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -9934,7 +11912,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2Grip/Handle Slide Area/Handle",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2Grip/Handle Slide Area/Handle",
             "aMin": {
                 "x": 0.5,
                 "y": 0.0
@@ -9977,7 +11955,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripValue",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripValue",
             "aMin": {
                 "x": 0.7699999809265137,
                 "y": 0.13500000536441804
@@ -9987,12 +11965,12 @@
                 "y": 0.23499999940395356
             },
             "oMin": {
-                "x": -83.0,
-                "y": 1.0
+                "x": 0.0,
+                "y": 0.0
             },
             "oMax": {
-                "x": -83.0,
-                "y": 1.0
+                "x": 0.0,
+                "y": 0.0
             },
             "pivot": {
                 "x": 0.5,
@@ -10020,7 +11998,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripClose",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripClose",
             "aMin": {
                 "x": 0.029999999329447748,
                 "y": 0.019999999552965165
@@ -10063,7 +12041,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripClose/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripClose/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -10106,7 +12084,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripClose/R2GripCloseLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripClose/R2GripCloseLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -10149,7 +12127,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripHalf",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripHalf",
             "aMin": {
                 "x": 0.36000001430511477,
                 "y": 0.019999999552965165
@@ -10192,7 +12170,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripHalf/R2GripHalfLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripHalf/R2GripHalfLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -10235,7 +12213,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripOpen",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripOpen",
             "aMin": {
                 "x": 0.6700000166893005,
                 "y": 0.019999999552965165
@@ -10278,7 +12256,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripOpen/Icon",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripOpen/Icon",
             "aMin": {
                 "x": 0.0,
                 "y": 0.5
@@ -10321,7 +12299,7 @@
             }
         },
         {
-            "path": "LeftColumn/R2Card/R2GripOpen/R2GripOpenLabel",
+            "path": "LeftColumn/R2Card/R2JointGroup/R2GripOpen/R2GripOpenLabel",
             "aMin": {
                 "x": 0.0,
                 "y": 0.0
@@ -10355,6 +12333,1726 @@
             "bestFit": true,
             "minSize": 2,
             "maxSize": 20,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartZPlus",
+            "aMin": {
+                "x": 0.4000000059604645,
+                "y": 0.7749999761581421
+            },
+            "aMax": {
+                "x": 0.6000000238418579,
+                "y": 0.8849999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartZPlus/R2CartZPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "▲\nZ+",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartXPlus",
+            "aMin": {
+                "x": 0.6200000047683716,
+                "y": 0.7749999761581421
+            },
+            "aMax": {
+                "x": 0.7900000214576721,
+                "y": 0.8849999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartXPlus/R2CartXPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "↗ X+",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartXMinus",
+            "aMin": {
+                "x": 0.20999999344348908,
+                "y": 0.7749999761581421
+            },
+            "aMax": {
+                "x": 0.3799999952316284,
+                "y": 0.8849999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartXMinus/R2CartXMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "↙ X−",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartYMinus",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.6449999809265137
+            },
+            "aMax": {
+                "x": 0.2800000011920929,
+                "y": 0.7599999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartYMinus/R2CartYMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "◀ Y−",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartYPlus",
+            "aMin": {
+                "x": 0.7200000286102295,
+                "y": 0.6449999809265137
+            },
+            "aMax": {
+                "x": 0.9700000286102295,
+                "y": 0.7599999904632568
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartYPlus/R2CartYPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Y+ ▶",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartHint",
+            "aMin": {
+                "x": 0.28999999165534975,
+                "y": 0.6449999809265137
+            },
+            "aMax": {
+                "x": 0.7099999785423279,
+                "y": 0.7599999904632568
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "TCP",
+            "fontSize": 19,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartZMinus",
+            "aMin": {
+                "x": 0.4000000059604645,
+                "y": 0.5149999856948853
+            },
+            "aMax": {
+                "x": 0.6000000238418579,
+                "y": 0.6299999952316284
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartZMinus/R2CartZMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Z−\n▼",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotLabel",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.4350000023841858
+            },
+            "aMax": {
+                "x": 0.6000000238418579,
+                "y": 0.5
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "회전 (공구 기준)",
+            "fontSize": 18,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotXMinus",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.3100000023841858
+            },
+            "aMax": {
+                "x": 0.33500000834465029,
+                "y": 0.41999998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotXMinus/R2RotXMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rx −",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotXPlus",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.1850000023841858
+            },
+            "aMax": {
+                "x": 0.33500000834465029,
+                "y": 0.29499998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotXPlus/R2RotXPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rx +",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotYMinus",
+            "aMin": {
+                "x": 0.35499998927116396,
+                "y": 0.3100000023841858
+            },
+            "aMax": {
+                "x": 0.6599999666213989,
+                "y": 0.41999998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotYMinus/R2RotYMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Ry −",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotYPlus",
+            "aMin": {
+                "x": 0.35499998927116396,
+                "y": 0.1850000023841858
+            },
+            "aMax": {
+                "x": 0.6599999666213989,
+                "y": 0.29499998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotYPlus/R2RotYPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Ry +",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotZMinus",
+            "aMin": {
+                "x": 0.6799999475479126,
+                "y": 0.3100000023841858
+            },
+            "aMax": {
+                "x": 0.98499995470047,
+                "y": 0.41999998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotZMinus/R2RotZMinusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rz −",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotZPlus",
+            "aMin": {
+                "x": 0.6799999475479126,
+                "y": 0.1850000023841858
+            },
+            "aMax": {
+                "x": 0.98499995470047,
+                "y": 0.29499998688697817
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2RotZPlus/R2RotZPlusLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "Rz +",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartPos",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.11999999731779099
+            },
+            "aMax": {
+                "x": 0.9700000286102295,
+                "y": 0.18000000715255738
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "위치 --",
+            "fontSize": 18,
+            "color": {
+                "r": 1.0,
+                "g": 1.0,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartMsg",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.06199999898672104
+            },
+            "aMax": {
+                "x": 0.75,
+                "y": 0.11800000071525574
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "현재 위치를 읽는 중",
+            "fontSize": 18,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartRead",
+            "aMin": {
+                "x": 0.7599999904632568,
+                "y": 0.06199999898672104
+            },
+            "aMax": {
+                "x": 0.9700000286102295,
+                "y": 0.11800000071525574
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartRead/R2CartReadLabel",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "읽기",
+            "fontSize": 24,
+            "color": {
+                "r": 0.6901960968971252,
+                "g": 0.7058823704719544,
+                "b": 0.7372549176216126,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStepNow",
+            "aMin": {
+                "x": 0.029999999329447748,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.20000000298023225,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "5mm",
+            "fontSize": 18,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 3,
+            "bestFit": false,
+            "minSize": 10,
+            "maxSize": 40,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep0",
+            "aMin": {
+                "x": 0.20999999344348908,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.39499998092651369,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep0/R2CartStep0Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "1mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep1",
+            "aMin": {
+                "x": 0.4049999713897705,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.5899999737739563,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep1/R2CartStep1Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "5mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep2",
+            "aMin": {
+                "x": 0.5999999642372131,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.7849999666213989,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep2/R2CartStep2Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "10mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
+            "hasImage": false,
+            "imgColor": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep3",
+            "aMin": {
+                "x": 0.7949999570846558,
+                "y": 0.004999999888241291
+            },
+            "aMax": {
+                "x": 0.9799999594688416,
+                "y": 0.057999998331069949
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 2.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": -2.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": false,
+            "text": "",
+            "fontSize": 0,
+            "color": {
+                "r": 0.0,
+                "g": 0.0,
+                "b": 0.0,
+                "a": 0.0
+            },
+            "alignment": 0,
+            "bestFit": false,
+            "minSize": 0,
+            "maxSize": 0,
+            "hasImage": true,
+            "imgColor": {
+                "r": 0.11764705926179886,
+                "g": 0.12156862765550614,
+                "b": 0.1411764770746231,
+                "a": 1.0
+            }
+        },
+        {
+            "path": "LeftColumn/R2Card/R2CartGroup/R2CartStep3/R2CartStep3Label",
+            "aMin": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "aMax": {
+                "x": 1.0,
+                "y": 1.0
+            },
+            "oMin": {
+                "x": 2.0,
+                "y": 0.0
+            },
+            "oMax": {
+                "x": -2.0,
+                "y": 0.0
+            },
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "hasText": true,
+            "text": "50mm",
+            "fontSize": 24,
+            "color": {
+                "r": 1.0,
+                "g": 0.7686274647712708,
+                "b": 0.0,
+                "a": 1.0
+            },
+            "alignment": 4,
+            "bestFit": true,
+            "minSize": 11,
+            "maxSize": 24,
             "hasImage": false,
             "imgColor": {
                 "r": 0.0,
@@ -13771,7 +17469,7 @@
                 "y": 0.18000000715255738
             },
             "oMin": {
-                "x": -15.900039672851563,
+                "x": -15.900032043457032,
                 "y": 0.0
             },
             "oMax": {
@@ -13814,7 +17512,7 @@
                 "y": 0.1899999976158142
             },
             "oMin": {
-                "x": 4.900077819824219,
+                "x": 4.900081634521484,
                 "y": 0.0
             },
             "oMax": {
@@ -14847,11 +18545,11 @@
             },
             "oMin": {
                 "x": 17.330995559692384,
-                "y": 1.6000723838806153
+                "y": 1.6000785827636719
             },
             "oMax": {
                 "x": 9.068998336791993,
-                "y": -4.399877071380615
+                "y": -4.399883270263672
             },
             "pivot": {
                 "x": 0.5,

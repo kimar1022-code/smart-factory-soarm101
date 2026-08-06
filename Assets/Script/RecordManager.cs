@@ -28,6 +28,24 @@ namespace SOArmControl
         public string StatusMessage => statusMessage;
 
         /// <summary>
+        /// 마지막 재생이 실패로 끝났는가.
+        ///
+        /// 원래 재생에는 실패라는 개념이 없었다. 도착을 못 봐도, 그리퍼가 안 멈춰도
+        /// 경고만 찍고 다음 스텝으로 갔고 끝까지 돌면 무조건 "✅ 재생 완료" 였다.
+        /// 사람이 보고 있을 때는 로그로 알아채면 됐지만, 작업 큐(`SR_21`)는 이 신호가
+        /// 없으면 `failed` 항목을 만들 수 없고 `stopOnError` 가 죽은 옵션이 된다.
+        /// 팔이 목표에 못 간 채로 다음 루틴이 이어지는 것이 무인 연속 운전에서
+        /// 제일 위험한 경우다.
+        ///
+        /// 재생 동작 자체는 바꾸지 않았다 — 여전히 경고를 찍고 다음 스텝으로 간다.
+        /// 여기에 흔적만 남긴다. 판단은 큐가 한다.
+        /// </summary>
+        public bool LastPlaybackFailed { get; private set; }
+
+        /// <summary><see cref="LastPlaybackFailed"/> 일 때의 사유. 성공하면 빈 문자열.</summary>
+        public string LastFailureReason { get; private set; } = "";
+
+        /// <summary>
         /// 비상정지가 걸려 있는가.
         ///
         /// 재생은 `SOArmManager` 를 직접 부른다. 즉 `SOArmDualManager.RouteJointCommand` 의
@@ -42,6 +60,22 @@ namespace SOArmControl
         // ── 재생 코루틴 핸들 (정지용) ──
         private Coroutine playbackCoroutine;
 
+        /// <summary>실패 흔적을 남긴다. 첫 번째 사유를 남기고 뒤엣것으로 덮지 않는다 —
+        /// 한 재생에서 여러 스텝이 어긋나면 원인은 대개 제일 먼저 어긋난 곳이다.</summary>
+        void MarkFailure(string reason)
+        {
+            if (LastPlaybackFailed) return;
+            LastPlaybackFailed = true;
+            LastFailureReason = reason ?? "";
+        }
+
+        /// <summary>재생을 시작할 때 지난 실패 흔적을 지운다.</summary>
+        void ClearFailure()
+        {
+            LastPlaybackFailed = false;
+            LastFailureReason = "";
+        }
+
         /// <summary>
         /// 🛑 비상정지로 재생을 접는다.
         ///
@@ -54,6 +88,7 @@ namespace SOArmControl
             currentStepIndex = -1;
             playbackCoroutine = null;
             statusMessage = "🛑 비상정지 — 재생 중단";
+            MarkFailure("비상정지로 중단됨");
             Debug.LogWarning($"[Record] {statusMessage}");
         }
 
@@ -395,6 +430,7 @@ namespace SOArmControl
         IEnumerator PlaybackRoutine()
         {
             isPlaying = true;
+            ClearFailure();
             statusMessage = "▶ 재생 시작";
             Debug.Log($"[Record] {statusMessage}");
 
@@ -481,6 +517,7 @@ namespace SOArmControl
         IEnumerator SingleStepRoutine(int index)
         {
             isPlaying = true;
+            ClearFailure();
             currentStepIndex = index;
 
             var wp = CurrentProject.waypoints[index];
@@ -520,18 +557,11 @@ namespace SOArmControl
             if (dualManager == null) yield break;
             if (EmergencyStopped) yield break;   // 🛑 정지 중에는 새 목표를 던지지 않는다
 
-            // Robot1
+            // 관절 먼저 던진다. 그리퍼는 팔이 다 간 뒤다(아래).
             if (wp.target == "robot1" || wp.target == "both")
-            {
                 ApplyJoints(dualManager.robot1, wp.joints);
-                ApplyGripper(dualManager.robot1, wp.gripper);
-            }
-            // Robot2
             if (wp.target == "robot2" || wp.target == "both")
-            {
                 ApplyJoints(dualManager.robot2, R2Joints(wp));
-                ApplyGripper(dualManager.robot2, wp.gripper2);
-            }
 
             // ⚠️ 목표만 던지고 고정 시간만 기다리면 안 된다.
             //    팔은 초당 6~7° 정도로 움직이는데 0.5초마다 다음 스텝이 목표를 덮어써서,
@@ -539,6 +569,23 @@ namespace SOArmControl
             //    "스텝을 다 진행하지 않는다" 의 정체가 이것이었다.
             //    실제 도착을 확인하고 넘어간다.
             yield return WaitUntilArrived(wp);
+
+            // 🤏 그리퍼는 팔이 도착한 **뒤에** 움직인다.
+            //
+            // 예전에는 관절과 같은 프레임에 던졌다. 그런데 팔은 6~7°/초로 느리고
+            // 그리퍼는 빨라서, 이동을 시작하자마자 그리퍼가 먼저 다 열려 버렸다.
+            // 물건을 든 채 옮기는 스텝에서 가는 도중에 놓치는 것 —
+            // **"오면서 펴진다" 가 이 증상이다.**
+            //
+            // 집으러 갈 때 미리 벌리고 접근해야 한다면, 벌리는 스텝을 따로
+            // 앞에 두면 된다. 그리퍼 목표는 다음 명령까지 유지되므로
+            // 이동 중에는 직전 스텝의 벌린 상태가 그대로 간다.
+            if (!isPlaying || EmergencyStopped) yield break;   // 정지 중엔 새 목표를 안 던진다
+
+            if (wp.target == "robot1" || wp.target == "both")
+                ApplyGripper(dualManager.robot1, wp.gripper);
+            if (wp.target == "robot2" || wp.target == "both")
+                ApplyGripper(dualManager.robot2, wp.gripper2);
 
             // 그리퍼도 다 움직인 뒤에 넘어간다.
             //
@@ -600,6 +647,7 @@ namespace SOArmControl
             }
 
             statusMessage = $"⚠ Step {wp.stepNumber} 그리퍼가 계속 움직입니다 — 다음으로 넘어갑니다";
+            MarkFailure($"Step {wp.stepNumber} 그리퍼가 {gripperTimeoutSec:F0}초 안에 멈추지 않음");
             Debug.LogWarning($"[Record] {statusMessage}");
         }
 
@@ -612,11 +660,17 @@ namespace SOArmControl
             return sum;
         }
 
-        /// <summary>그리퍼는 마지막 관절이다. 목표값이 아니라 실제로 읽힌 각도를 본다.</summary>
+        /// <summary>
+        /// 그리퍼는 마지막 관절이다. 목표값이 아니라 실제로 읽힌 각도를 본다.
+        ///
+        /// ⚠️ 여기가 `GetJointAngle` 이면 안 된다. 그건 최종 목표라 명령을 던진
+        ///    순간 이미 끝값이고, 그 뒤로 변하지 않는다. "값이 더 안 변하면 멈춘 것"
+        ///    으로 판정하는 WaitGripperDone 이 언제나 즉시 통과해 버린다.
+        /// </summary>
         static float GripAngle(SOArmManager robot)
         {
             if (robot == null) return 0f;
-            try { return robot.GetJointAngle(robot.JointCount - 1); }
+            try { return robot.GetMeasuredJointAngle(robot.JointCount - 1); }
             catch { return 0f; }
         }
 
@@ -645,6 +699,7 @@ namespace SOArmControl
             }
 
             statusMessage = $"⚠ Step {wp.stepNumber} 도착 확인 실패 — 다음으로 넘어갑니다";
+            MarkFailure($"Step {wp.stepNumber} 목표 자세에 {arriveTimeoutSec:F0}초 안에 도달하지 못함");
             Debug.LogWarning($"[Record] {statusMessage}");
         }
 
@@ -665,10 +720,14 @@ namespace SOArmControl
 
             // 그리퍼(마지막)는 제외한다. 물건을 물면 목표까지 안 닫혀 영영 도착이 안 된다.
             // 대신 WaitGripperDone 이 "더 이상 안 움직임" 으로 그리퍼를 따로 기다린다.
-            for (int i = 0; i < Mathf.Min(target.Length, 5); i++)
+            for (int i = 0; i < Mathf.Min(target.Length, ArmJointCount); i++)
             {
                 float cur;
-                try { cur = robot.GetJointAngle(i); }
+                // ⚠️ GetJointAngle 이 아니라 GetMeasuredJointAngle 이다.
+                //    앞의 것은 **최종 목표**를 돌려준다. ApplyJoints 가 방금 그 목표를
+                //    넣었으니 비교하는 두 값이 늘 같아서, 도착 판정이 첫 프레임에
+                //    통과해 버렸다 — 대기가 통째로 무의미했다.
+                try { cur = robot.GetMeasuredJointAngle(i); }
                 catch { continue; }
                 if (Mathf.Abs(cur - target[i]) > arriveToleranceDeg) return false;
             }
@@ -711,12 +770,26 @@ namespace SOArmControl
             catch { return 50f; }
         }
 
+        /// <summary>
+        /// 팔 관절만 목표로 보낸다. **그리퍼(마지막, index 5)는 건드리지 않는다.**
+        ///
+        /// ⚠️ 예전에는 여기가 `Min(joints.Length, 6)` 이었다. wp.joints 는 6개짜리고
+        ///    마지막이 그리퍼라, 이동 명령에 그리퍼가 딸려 나갔다. 그래서
+        ///    ExecuteMotion 이 그리퍼를 도착 뒤로 미뤄도 소용이 없었다 —
+        ///    출발과 동시에 벌어졌다가 도착해서야 제 모양으로 돌아왔다.
+        ///    **물건을 든 채 옮기면 출발하자마자 놓쳤다.**
+        ///
+        ///    바로 아래 NearPose 는 처음부터 5로 그리퍼를 빼고 있었다. 여기만 6이었다.
+        /// </summary>
         void ApplyJoints(SOArmManager robot, float[] joints)
         {
             if (robot == null || joints == null) return;
-            for (int i = 0; i < Mathf.Min(joints.Length, 6); i++)
+            for (int i = 0; i < Mathf.Min(joints.Length, ArmJointCount); i++)
                 robot.SetJointTarget(i, joints[i]);
         }
+
+        /// <summary>그리퍼를 뺀 팔 관절 수. 6축 중 마지막이 그리퍼다.</summary>
+        const int ArmJointCount = 5;
 
         void ApplyGripper(SOArmManager robot, float gripper)
         {

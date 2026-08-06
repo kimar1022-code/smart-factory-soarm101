@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -506,6 +507,24 @@ namespace SOArmControl
         public float GetJointMaxAngle(int i) => joints[i].maxAngle;
         public float GetJointAngle(int i) => targetAngles[i];
 
+        /// <summary>
+        /// 실물이 **지금 실제로 가 있는** 각도. 30Hz 폴링으로 받은 `LastReadAngles` 를 쓴다.
+        ///
+        /// `GetJointAngle`(=`targetAngles`)은 던진 즉시 최종 목표가 되어 버려서
+        /// 도착 판정에 쓸 수 없다. 아직 한 번도 못 읽었으면 목표값을 돌려준다 —
+        /// 모르는 것을 "안 왔다"로 단정해 재생을 멈춰 세우는 것보다 낫다.
+        /// </summary>
+        public float GetMeasuredJointAngle(int i)
+        {
+            if (joints == null || i < 0 || i >= joints.Length) return 0f;
+
+            if (LastReadAngles != null &&
+                LastReadAngles.TryGetValue(joints[i].motorName, out float here))
+                return here;
+
+            return targetAngles != null && i < targetAngles.Length ? targetAngles[i] : 0f;
+        }
+
         public void SetJointTarget(int i, float angleDeg)
         {
             // 🛑 정지 중에는 목표 변경 자체를 막는다 (SOArmSimController 와 같은 규칙).
@@ -622,7 +641,77 @@ namespace SOArmControl
             Debug.Log($"[SOArmReal-{robotServerMode}] ▶ 비상정지 해제 — 현재 자세부터 재개");
         }
 
-        public void GoToHome() => SetAllJointTargets(homePose);
+        [Header("홈 복귀")]
+        [Tooltip("홈 관절 도착으로 인정할 오차(도). 이 안에 들어오면 그리퍼를 움직인다.")]
+        public float homeArriveToleranceDeg = 3f;
+
+        [Tooltip("홈 도착을 기다리는 최대 시간(초). 넘으면 포기하고 그리퍼를 움직인다.\n" +
+                 "무한 대기로 그리퍼가 영영 안 돌아오는 것을 막는다.")]
+        public float homeArriveTimeoutSec = 30f;
+
+        private Coroutine homeRoutine;
+
+        /// <summary>
+        /// 🏠 홈 복귀. **관절이 다 간 뒤에 그리퍼를 움직인다.**
+        ///
+        /// 예전에는 `SetAllJointTargets(homePose)` 한 줄이었다. homePose 는 그리퍼까지
+        /// 포함한 6개라 관절과 그리퍼가 같은 프레임에 목표를 받았고, 그리퍼가 훨씬
+        /// 빨라서 팔이 출발하자마자 홈 그리퍼 상태로 벌어졌다. 물건을 든 채 홈으로
+        /// 돌아오면 오는 길에 놓친다 — 재생의 "오면서 펴진다" 와 같은 원인이다.
+        /// </summary>
+        public void GoToHome()
+        {
+            if (homeRoutine != null) { StopCoroutine(homeRoutine); homeRoutine = null; }
+
+            // 꺼져 있는 오브젝트에서는 코루틴이 안 돈다. 그때는 예전처럼 한 번에 보낸다.
+            if (!isActiveAndEnabled) { SetAllJointTargets(homePose); return; }
+
+            homeRoutine = StartCoroutine(GoHomeThenGripper());
+        }
+
+        IEnumerator GoHomeThenGripper()
+        {
+            if (joints == null || joints.Length == 0 || homePose == null) { homeRoutine = null; yield break; }
+
+            int last = joints.Length - 1;
+            bool hasGripper = joints[last].motorName == "gripper";
+            int armCount = hasGripper ? last : joints.Length;
+
+            // 1) 팔 관절만 먼저 보낸다.
+            for (int i = 0; i < armCount && i < homePose.Length; i++)
+                SetJointTarget(i, homePose[i]);
+
+            // 그리퍼가 없는 구성이면 여기서 끝이다.
+            if (!hasGripper || last >= homePose.Length) { homeRoutine = null; yield break; }
+
+            // 2) 실제로 도착할 때까지 기다린다 (실측값으로 본다).
+            float deadline = Time.time + homeArriveTimeoutSec;
+            while (Time.time < deadline)
+            {
+                if (EmergencyStopped) { homeRoutine = null; yield break; }   // 🛑 정지 중엔 새 목표 없음
+
+                bool near = true;
+                for (int i = 0; i < armCount && i < homePose.Length; i++)
+                {
+                    if (Mathf.Abs(GetMeasuredJointAngle(i) - homePose[i]) > homeArriveToleranceDeg)
+                    { near = false; break; }
+                }
+                if (near) break;
+
+                yield return null;
+            }
+
+            if (EmergencyStopped) { homeRoutine = null; yield break; }
+
+            // 3) 도착한 뒤에 그리퍼를 움직인다.
+            //    SetJointTarget 으로 직접 쓰지 않는다 — gripperPercent 가 어긋나고
+            //    PincOpenSafety 게이트도 건너뛴다. 정식 통로로 보낸다.
+            float pct = Mathf.InverseLerp(
+                joints[last].ClampMin, joints[last].ClampMax, homePose[last]) * 100f;
+            SetGripperTarget(pct);
+
+            homeRoutine = null;
+        }
 
         public void SetHomeFromCurrent()
         {

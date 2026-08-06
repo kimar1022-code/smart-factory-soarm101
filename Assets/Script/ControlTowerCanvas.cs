@@ -39,6 +39,7 @@ namespace SOArmControl
         public SOArmDualManager dualManager;
         public RobotViewCamera viewCamera;
         public RecordManager recordManager;
+        public TaskQueueRunner queueRunner;
 
         [Header("표시")]
         public string projectName = "SO-ARM SYSTEM";
@@ -89,6 +90,30 @@ namespace SOArmControl
         public string wordRecordOpen = "Recorder ◀";
         public string wordRecordClosed = "Recorder ▶";
         [Space(2)]
+        [Tooltip("리코더 제목줄의 면 스위치. 지금 보고 있는 면의 이름을 쓴다.")]
+        public string wordModeRoutine = "루틴";
+        public string wordModeScenario = "Scenario";
+        [Tooltip("리코더 제목. 면에 따라 바뀐다.")]
+        public string wordTitleRoutine = "Recorder";
+        public string wordTitleScenario = "Scenario";
+
+        // ── 시나리오 면 — 상태에 따라 바뀌는 버튼 ────────────────
+        //
+        // ⚠️ 이 세 버튼은 원래 화면에서 글자를 고쳐도 Play 하는 순간 되돌아갔다.
+        //    BindQueue / BindPicker 가 매 프레임 다시 쓰는데, 위의 문구들과 달리
+        //    인스펙터 필드가 없어 코드에 박힌 글자로 덮였기 때문이다.
+        //    다른 상태 버튼(비상정지·수동모드·재생)과 같은 방식으로 필드를 뒀다.
+        [Space(2)]
+        [Tooltip("시나리오 면 «Start» 버튼. 큐가 도는 동안에는 아래 글자로 바뀐다.")]
+        public string wordQStart = "Start";
+        public string wordQRunning = "Running";
+        [Tooltip("시나리오 면 «Pause» 버튼. 멈춰 있을 때는 아래 글자로 바뀐다.")]
+        public string wordQPause = "Pause";
+        public string wordQResume = "Resume";
+        [Tooltip("고르기 창의 확정 버튼. 루틴을 고를 때와 큐를 열 때가 다르다.")]
+        public string wordPickAdd = "Add";
+        public string wordPickLoad = "Load";
+        [Space(2)]
         public string wordPlay = "재생";
         public string wordPlayAll = "ALL";
         public string wordStop = "정지";
@@ -130,6 +155,9 @@ namespace SOArmControl
         const string RootName = "ControlTowerCanvas";
         const int TopH = 66, LeftW = 470, RecW = 430;
         const string NA = "--";
+
+        // 상단 바 버튼이 차지하는 가로 구간. 제목(SO-ARM SYSTEM) 오른쪽부터 끝까지.
+        const float TopBtnX0 = 0.20f, TopBtnX1 = 0.987f, TopBtnGap = 0.004f;
         static readonly string[] PKeys = { "Top", "Side", "Front" };
 
         Font uiFont;
@@ -171,6 +199,50 @@ namespace SOArmControl
         string[] loadFiles = new string[0];
         const int LoadRows = 10;
 
+        // ── 시나리오(작업 큐) 면 ────────────────────────────────
+        // 리코더 패널 안의 그룹이다. 제목줄의 스위치로 루틴 면과 갈아 낀다.
+        GameObject queuePanel;
+        bool scenarioMode;
+        int queueSel, queueFrom;
+        const int QueueRows = 10;
+
+        /// <summary>
+        /// 시나리오 면 버튼 글씨의 최대 크기.
+        ///
+        /// bestFit 은 그대로 둔다 — 끄면 「Stop on Error」 처럼 긴 라벨이 좁은 버튼에서
+        /// 잘린다. 상한만 20 으로 잡아 넓은 버튼이 제각각 커지는 것을 막는다.
+        /// 한 줄에 놓인 버튼끼리 크기가 어긋나 보이던 것도 이 상한이 같아서 맞는다.
+        /// </summary>
+        const int QLabelMax = 20;
+
+        // 「항목 추가」와 「큐 불러오기」는 하는 일이 같다 — 파일 목록에서 하나를
+        // 고르는 것. 창을 둘로 만들면 같은 코드가 두 벌이 되므로 하나를 돌려 쓴다.
+        bool pickOpen;
+        int pickFrom, pickSel;
+        const int PickRows = 10;
+
+        /// <summary>
+        /// 고르기 창의 한 줄.
+        ///
+        /// 루틴과 큐를 한 목록에 섞어 놓으므로 파일명만으로는 무엇인지 알 수 없다.
+        /// 사는 폴더가 다르고(`Recordings/` ↔ `Recordings/Queues/`) 고른 뒤에 할 일도
+        /// 다르다(항목 추가 ↔ 큐 통째로 열기). 그래서 종류를 줄마다 들고 다닌다.
+        /// </summary>
+        struct PickEntry
+        {
+            public string file;         // 파일명 (확장자 포함)
+            public bool isQueue;        // true = Recordings/Queues/ 의 큐 파일
+            public DateTime modified;   // 최근 고친 순 정렬용
+        }
+        PickEntry[] pickFiles = new PickEntry[0];
+
+        /// <summary>지금 고른 줄이 큐인가. 확정 버튼 글자와 경고가 이걸 따라간다.</summary>
+        bool PickedIsQueue =>
+            pickSel >= 0 && pickSel < pickFiles.Length && pickFiles[pickSel].isQueue;
+
+        /// <summary>큐가 팔을 잡고 있는 동안 관절 입력을 막았는가. 매 프레임 다시 씌우지 않으려고 기억한다.</summary>
+        bool jointLocked;
+
         bool wired, uiReady, rangesApplied;
         int readyFrames;
         float lastSpeedSend, lastStatusPoll;
@@ -189,6 +261,7 @@ namespace SOArmControl
             if (dualManager == null) dualManager = FindAnyObjectByType<SOArmDualManager>();
             if (viewCamera == null) viewCamera = FindAnyObjectByType<RobotViewCamera>();
             if (recordManager == null) recordManager = FindAnyObjectByType<RecordManager>();
+            EnsureQueueRunner();
             CacheBindings();
             AdoptSceneWords();
             WireUp();
@@ -212,9 +285,18 @@ namespace SOArmControl
             Take("BtnEstopLabel",    ref wordEstop);
             Take("BtnTeachAllLabel", ref wordTeach);
             Take("BtnRecordLabel",   ref wordRecordClosed);
+            Take("RecModeSwLabel",   ref wordModeRoutine);
+            Take("RoutineTitle",     ref wordTitleRoutine);
             Take("BtnPlayLabel",     ref wordPlay);
             Take("BtnPlayAllLabel",  ref wordPlayAll);
             Take("BtnLoopLabel",     ref wordLoopStart);
+
+            // 시나리오 면은 꺼진 채로 시작하지만 여기서도 읽힌다 —
+            // CacheBindings 가 GetComponentsInChildren<Text>(true) 로 꺼진 것까지 담는다.
+            // 이 셋이 빠져 있어서 화면에서 고친 글자가 Play 하는 순간 되돌아갔다.
+            Take("BtnQStartLabel",   ref wordQStart);
+            Take("BtnQPauseLabel",   ref wordQPause);
+            Take("BtnPickOkLabel",   ref wordPickAdd);
 
             // 로봇 상태는 처음엔 연결 전이라 OFFLINE / 유지 / 끊김 이 떠 있다
             Take("R1State", ref wordOffline);
@@ -288,6 +370,7 @@ namespace SOArmControl
                 Log("홈으로 이동");
             });
             OnClick("BtnRecord", ToggleRecord);
+            OnClick("RecModeSw", ToggleRecordMode);
             // 레코더 안의 ✕ 닫기는 없앴다 — 위 Recorder 버튼이 여닫는 토글이라 중복이었다.
 
             // 스텝 크기
@@ -364,15 +447,132 @@ namespace SOArmControl
             OnClick("BtnLoadOk",     ConfirmLoad);
             OnClick("BtnLoadCancel", CloseLoadPicker);
 
-            // 이름 입력 — Enter 를 치면 프로젝트 이름이 바뀌고 저장 경로도 따라 바뀐다
+            // 이름 입력 — Enter 를 치면 이름이 바뀌고 저장 경로도 따라 바뀐다.
+            // 칸 하나를 두 면이 같이 쓰므로 지금 면에 맞는 쪽에 넣는다.
             OnSubmit("RoutineNameIn", s =>
             {
-                if (recordManager == null) return;
                 s = (s ?? "").Trim();
                 if (s.Length == 0) { Log("이름이 비어 있어 바꾸지 않았습니다"); return; }
+
+                if (scenarioMode)
+                {
+                    if (queueRunner == null) return;
+                    queueRunner.SetQueueName(s);
+                    Log($"시나리오 이름 → {s}");
+                    return;
+                }
+                if (recordManager == null) return;
                 recordManager.SetProjectName(s);
                 Log($"루틴 이름 → {s}");
             });
+
+            WireQueue();
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // 작업 큐 배선
+        // ══════════════════════════════════════════════════════════
+
+        void WireQueue()
+        {
+            // 목록 줄 클릭 = 선택
+            for (int i = 0; i < QueueRows; i++)
+            {
+                int row = i;
+                OnClick("QueueRow" + i, () => queueSel = queueFrom + row);
+            }
+
+            // 편집 — 실행 중에는 Runner 쪽에서 막는다(CanEdit). 인덱스가 밀리면
+            // 돌고 있는 항목의 다음 차례가 엉뚱한 루틴이 된다.
+            // «Add» 와 «Open» 은 같은 창을 연다. 루틴과 큐가 한 목록에 있어서
+            // 문을 나눌 이유가 없다 — 어느 쪽으로 들어와도 고른 줄이 할 일을 정한다.
+            OnClick("BtnQAdd", OpenPicker);
+            OnClick("BtnQDel", () =>
+            {
+                var q = queueRunner; if (q == null) return;
+                if (!q.CanEdit) { Log("큐 실행 중에는 목록을 바꿀 수 없습니다"); return; }
+                q.RemoveItem(queueSel);
+                queueSel = Mathf.Max(0, queueSel - 1);
+            });
+            OnClick("BtnQUp", () =>
+            {
+                var q = queueRunner; if (q == null || !q.CanEdit) return;
+                q.MoveItemUp(queueSel); queueSel--;
+            });
+            OnClick("BtnQDown", () =>
+            {
+                var q = queueRunner; if (q == null || !q.CanEdit) return;
+                q.MoveItemDown(queueSel); queueSel++;
+            });
+
+            OnClick("BtnQRepMinus", () => Repeat(-1));
+            OnClick("BtnQRepPlus",  () => Repeat(+1));
+            OnClick("BtnQToggle", () =>
+            {
+                var q = queueRunner; if (q == null || !q.CanEdit) return;
+                q.ToggleEnabled(queueSel);
+            });
+
+            // 실행
+            OnClick("BtnQStart", () =>
+            {
+                var q = queueRunner; if (q == null) return;
+                if (q.IsBusy) { Log("이미 실행 중입니다. 멈추려면 «중단»"); return; }
+                // 수동모드에서는 토크가 꺼져 있어 명령이 조용히 씹힌다.
+                // 재생과 같은 이유로 먼저 끄고 한 번 멈춘다.
+                if (EndTeachIfOn("큐 시작")) return;
+                q.StartQueue();
+            });
+            OnClick("BtnQPause", () => queueRunner?.TogglePause());
+            OnClick("BtnQSkip",  () => queueRunner?.SkipCurrent());
+            OnClick("BtnQAbort", () => queueRunner?.AbortQueue());
+
+            // 파일
+            OnClick("BtnQNew", () =>
+            {
+                var q = queueRunner; if (q == null) return;
+                if (q.IsBusy) { Log("큐 실행 중에는 새 큐를 만들 수 없습니다"); return; }
+                q.NewQueue("Untitled"); queueSel = 0;
+            });
+            OnClick("BtnQSave", () =>
+            {
+                var q = queueRunner; if (q?.Current == null) return;
+                q.SaveQueue(q.Current.queueName);
+            });
+            OnClick("BtnQOpen", OpenPicker);
+
+            // 옵션
+            OnClick("BtnQLoop", () =>
+            {
+                var q = queueRunner?.Current; if (q == null) return;
+                q.loopQueue = !q.loopQueue; q.Touch();
+                Log("큐 반복 " + (q.loopQueue ? "ON" : "OFF"));
+            });
+            OnClick("BtnQOnErr", () =>
+            {
+                var q = queueRunner?.Current; if (q == null) return;
+                q.stopOnError = !q.stopOnError; q.Touch();
+                Log("실패 시 정지 " + (q.stopOnError ? "ON" : "OFF"));
+            });
+
+            // 고르는 창
+            for (int i = 0; i < PickRows; i++)
+            {
+                int row = i;
+                OnClick("PickRow" + i, () => pickSel = pickFrom + row);
+            }
+            OnClick("BtnPickPrev",   () => pickSel--);
+            OnClick("BtnPickNext",   () => pickSel++);
+            OnClick("BtnPickOk",     ConfirmPick);
+            OnClick("BtnPickCancel", ClosePicker);
+
+        }
+
+        void Repeat(int delta)
+        {
+            var q = queueRunner; if (q?.Current == null || !q.CanEdit) return;
+            var it = q.Current.At(queueSel); if (it == null) return;
+            q.SetRepeat(queueSel, it.repeatCount + delta);
         }
 
         /// <summary>
@@ -413,12 +613,15 @@ namespace SOArmControl
             for (int i = 0; i < 5; i++)
             {
                 int idx = i;
-                OnSlider($"{pre}J{i}", v => { if (uiReady && dualManager != null) dualManager.RouteJointCommand(isR1, idx, v); });
+                // ⚠️ 큐가 도는 동안에는 관절 명령을 내보내지 않는다. 버튼을 꺼 두기도
+                //    하지만(ApplyQueueLock), 명령이 나가는 길목에서도 한 번 막는다 —
+                //    슬라이더 값은 코드가 옮길 수도 있어 잠금만으로는 새어 나갈 수 있다.
+                OnSlider($"{pre}J{i}", v => { if (uiReady && !QueueBusy && dualManager != null) dualManager.RouteJointCommand(isR1, idx, v); });
                 OnClick($"{pre}J{i}Minus", () => Nudge(pre, idx, isR1, -stepDeg));
                 OnClick($"{pre}J{i}Plus", () => Nudge(pre, idx, isR1, +stepDeg));
                 OnSubmit($"{pre}J{i}In", s => TypeAngle(pre, idx, isR1, s));
             }
-            OnSlider(pre + "Grip", v => { if (uiReady && dualManager != null) dualManager.RouteGripperCommand(isR1, v); });
+            OnSlider(pre + "Grip", v => { if (uiReady && !QueueBusy && dualManager != null) dualManager.RouteGripperCommand(isR1, v); });
             OnClick(pre + "GripClose", () => SetGrip(pre, isR1, 0f));
             OnClick(pre + "GripHalf", () => SetGrip(pre, isR1, 50f));
             OnClick(pre + "GripOpen", () => SetGrip(pre, isR1, 100f));
@@ -580,6 +783,47 @@ namespace SOArmControl
             Log(recordOpen ? "Recorder 열림" : "Recorder 닫힘");
         }
 
+        /// <summary>루틴 ↔ 시나리오 전환. 카드의 조인트 ↔ 카티시안과 같은 조작감이다.</summary>
+        void ToggleRecordMode()
+        {
+            scenarioMode = !scenarioMode;
+
+            // 면을 바꾸면 그 면에 딸린 창은 닫는다. 안 닫으면 다시 돌아왔을 때
+            // 엉뚱한 목록이 덮여 있다.
+            CloseLoadPicker();
+            ClosePicker();
+
+            ApplyRecordMode();
+            Log(scenarioMode ? "시나리오 면" : "루틴 면");
+        }
+
+        /// <summary>
+        /// 지금 면에 맞게 위젯을 켜고 끈다.
+        ///
+        /// 루틴 쪽 위젯은 `RecordPanel` 의 직계 자식 그대로 뒀다. 그룹으로 감싸면
+        /// 경로가 바뀌어 저장해 둔 배치(`control_tower_layout.json`)가 전부 어긋난다.
+        /// 그래서 "공용으로 남길 것만 빼고 끈다" 로 처리한다.
+        /// </summary>
+        void ApplyRecordMode()
+        {
+            if (recordPanel == null) return;
+
+            foreach (Transform c in recordPanel.transform)
+            {
+                if (Array.IndexOf(RecShared, c.name) >= 0) continue;
+                c.gameObject.SetActive(!scenarioMode);
+            }
+            if (queuePanel != null) queuePanel.SetActive(scenarioMode);
+
+            // 두 창은 열림 상태가 따로 있다. 면 전환에 딸려 켜지면 안 된다.
+            var lp = LoadPanel; if (lp != null) lp.gameObject.SetActive(loadOpen && !scenarioMode);
+            var pp = PickPanel; if (pp != null) pp.gameObject.SetActive(pickOpen && scenarioMode);
+        }
+
+        /// <summary>면이 바뀌어도 계속 보이는 것들. 제목줄과 테두리다.</summary>
+        static readonly string[] RecShared =
+        { "Rule", "Edge", "RoutineTitle", "RecModeSw", "RoutineNameIn", "RoutineCount", "ScenarioGroup", "LoadPanel" };
+
         void OnClick(string n, UnityEngine.Events.UnityAction a)
         { if (buttons.TryGetValue(n, out var b) && b != null) { b.onClick.RemoveAllListeners(); b.onClick.AddListener(a); } }
 
@@ -613,10 +857,20 @@ namespace SOArmControl
             recordPanel = rp != null ? rp.gameObject : null;
             if (recordPanel != null) recordPanel.SetActive(recordOpen);
 
+            var qp = root.Find("RecordPanel/ScenarioGroup");
+            queuePanel = qp != null ? qp.gameObject : null;
+
             // 불러오기 창은 항상 닫힌 상태에서 시작한다.
             // 화면을 다시 만들면 목록이 비어 있는데 창만 떠 있을 수 있다.
             loadOpen = false;
             var lp = LoadPanel; if (lp != null) lp.gameObject.SetActive(false);
+            pickOpen = false;
+            var pp = PickPanel; if (pp != null) pp.gameObject.SetActive(false);
+
+            ApplyRecordMode();
+
+            // 관절 잠금은 화면을 다시 만들면 풀린 상태에서 다시 판단한다
+            jointLocked = false;
         }
 
         void Set(string k, string v, Color? c = null)
@@ -656,8 +910,16 @@ namespace SOArmControl
             if (sliders.TryGetValue("VelSlider", out var vs) && vs != null) Set("VelValue", $"{vs.value:F0}", Accent);
             if (sliders.TryGetValue("AccSlider", out var acs) && acs != null) Set("AccValue", $"{acs.value:F0}", Accent);
 
-            if (recordOpen) BindRoutine();
-            if (recordOpen && loadOpen) BindLoadPicker();
+            if (recordOpen) BindRecordHeader();
+            if (recordOpen && !scenarioMode) BindRoutine();
+            if (recordOpen && !scenarioMode && loadOpen) BindLoadPicker();
+
+            if (recordOpen && scenarioMode) BindQueue();
+            if (recordOpen && scenarioMode && pickOpen) BindPicker();
+
+            // 잠금은 패널이 닫혀 있어도 걸려 있어야 한다. 큐를 켜 두고 창을 닫은 뒤
+            // 왼쪽 슬라이더를 미는 것이 제일 흔한 사고 경로다.
+            ApplyQueueLock();
         }
 
         void BindRobot(string p, SOArmManager m, bool conn, bool teach)
@@ -940,17 +1202,51 @@ namespace SOArmControl
             }
         }
 
+        /// <summary>
+        /// 두 면이 같이 쓰는 제목줄. 제목·스위치·이름칸·개수는 면에 따라 뜻이 바뀐다.
+        /// </summary>
+        void BindRecordHeader()
+        {
+            Set("RoutineTitle", scenarioMode ? wordTitleScenario : wordTitleRoutine, Accent);
+
+            // 스위치 글자는 **지금 무엇을 보고 있는지**를 쓴다. 누르면 바뀔 것을 쓰면
+            // 지금 상태와 반대라 매번 헷갈린다. 카드의 조인트/카티시안과 같은 규칙이다.
+            Set("RecModeSwLabel", scenarioMode ? wordModeScenario : wordModeRoutine,
+                scenarioMode ? Color.black : Accent);
+            if (buttons.TryGetValue("RecModeSw", out var sw) && sw != null)
+            {
+                var img = sw.GetComponent<Image>();
+                if (img != null) img.color = scenarioMode ? Accent : SubBg;
+            }
+
+            // 편집 중에는 건드리지 않는다. 덮어쓰면 이름을 지울 수가 없다.
+            if (inputs.TryGetValue("RoutineNameIn", out var nameIn) && nameIn != null && !nameIn.isFocused)
+            {
+                string name = scenarioMode
+                    ? queueRunner?.Current?.queueName
+                    : recordManager?.CurrentProject?.projectName;
+                nameIn.text = name ?? "";
+            }
+
+            if (scenarioMode)
+            {
+                int n = queueRunner?.Current?.Count ?? 0;
+                Set("RoutineCount", n > 0 ? $"{n} 건" : "", TextDim);
+            }
+            else
+            {
+                int n = recordManager?.CurrentProject?.waypoints?.Count ?? 0;
+                Set("RoutineCount", $"{n} 스텝", TextDim);
+            }
+        }
+
         void BindRoutine()
         {
             if (recordManager == null || recordManager.CurrentProject == null)
             { Set("RoutineEmpty", "RecordManager 없음", Bad); ClearRows(); return; }
 
             var wp = recordManager.CurrentProject.waypoints;
-            Set("RoutineCount", $"{wp.Count} 스텝", TextDim);
 
-            // 편집 중에는 건드리지 않는다. 덮어쓰면 이름을 지울 수가 없다.
-            if (inputs.TryGetValue("RoutineNameIn", out var nameIn) && nameIn != null && !nameIn.isFocused)
-                nameIn.text = recordManager.CurrentProject.projectName ?? "";
             // 재생 = 선택 스텝 하나, ALL = 전체. 재생 중에는 둘 다 정지 버튼이 된다.
             Set("BtnPlayLabel", recordManager.IsPlaying ? wordStop : wordPlay);
             Set("BtnPlayAllLabel", recordManager.IsPlaying ? wordStop : wordPlayAll);
@@ -996,6 +1292,9 @@ namespace SOArmControl
 
         static bool Live(SOArmManager m) => m != null && m.real != null && m.real.IsConnected;
         void Log(string s) => Debug.Log("[관제] " + s);
+
+        /// <summary>큐가 팔을 잡고 있는가. 일시정지 중에도 참이다.</summary>
+        bool QueueBusy => queueRunner != null && queueRunner.IsBusy;
 
         static float SafeAngle(SOArmManager m, int i, float f = 0f) { try { return m != null ? m.GetJointAngle(i) : f; } catch { return f; } }
         static float SafeMin(SOArmManager m, int i, float f = -180f) { try { return m != null ? m.GetJointMinAngle(i) : f; } catch { return f; } }
@@ -1259,6 +1558,304 @@ namespace SOArmControl
             }
         }
 
+        // ── 작업 큐 ──────────────────────────────────────────────
+
+        Transform PickPanel => root != null ? root.Find("RecordPanel/ScenarioGroup/QueuePickPanel") : null;
+
+        /// <summary>
+        /// 큐 실행기를 찾아 둔다. 씬에 없으면 이 오브젝트에 붙인다.
+        ///
+        /// 씬 파일을 손으로 고쳐 컴포넌트를 심어 두는 방식은 씬을 다시 만들 때마다
+        /// 사라진다. 관제 화면이 필요할 때 알아서 갖추는 편이 확실하다.
+        /// </summary>
+        void EnsureQueueRunner()
+        {
+            if (queueRunner == null) queueRunner = FindAnyObjectByType<TaskQueueRunner>();
+            if (queueRunner == null)
+            {
+                queueRunner = gameObject.AddComponent<TaskQueueRunner>();
+                Debug.Log("[관제] TaskQueueRunner 를 붙였습니다");
+            }
+            if (queueRunner.recordManager == null) queueRunner.recordManager = recordManager;
+            if (queueRunner.dualManager == null) queueRunner.dualManager = dualManager;
+        }
+
+        /// <summary>
+        /// 고르기 창을 연다. **루틴과 큐를 한 목록에 같이 담는다.**
+        ///
+        /// 목록을 둘로 나눠 띄우면 "지금 보고 있는 게 어느 쪽인지" 를 사용자가 기억해야
+        /// 한다. 어차피 하는 일은 목록에서 하나를 고르는 것으로 같으므로 한 창에 놓고,
+        /// **고른 줄의 종류에 따라** 할 일을 정한다 — 루틴이면 큐에 넣고, 큐면 통째로 연다.
+        /// 그래서 확정 버튼 글자도 고른 줄을 따라 «Add» ↔ «Load» 로 바뀐다.
+        /// </summary>
+        void OpenPicker()
+        {
+            var q = queueRunner; if (q == null) return;
+            if (q.IsBusy) { Log("큐 실행 중에는 목록을 열 수 없습니다"); return; }
+
+            var list = new List<PickEntry>();
+            CollectPicks(list, q.ListRoutineCandidates(), recordManager?.RecordingsFolder, false);
+            CollectPicks(list, q.ListSavedQueues(), q.QueuesFolder, true);
+
+            // 최근에 고친 것이 위로. 방금 저장한 것을 찾아 내려가지 않아도 된다.
+            // 종류로 묶지 않는 이유는, 방금 만든 것이 무엇이든 맨 위에 있는 편이
+            // 실제로 찾는 순서에 가깝기 때문이다.
+            list.Sort((a, b) => b.modified.CompareTo(a.modified));
+
+            pickFiles = list.ToArray();
+            pickSel = 0; pickFrom = 0;
+            pickOpen = true;
+            var pp = PickPanel; if (pp != null) pp.gameObject.SetActive(true);
+        }
+
+        void CollectPicks(List<PickEntry> into, string[] files, string folder, bool isQueue)
+        {
+            if (files == null) return;
+            foreach (var f in files)
+            {
+                var e = new PickEntry { file = f, isQueue = isQueue, modified = DateTime.MinValue };
+                try
+                {
+                    if (!string.IsNullOrEmpty(folder))
+                        e.modified = System.IO.File.GetLastWriteTime(System.IO.Path.Combine(folder, f));
+                }
+                catch { /* 정렬은 편의일 뿐이다. 시각을 못 읽어도 목록에는 올린다 */ }
+                into.Add(e);
+            }
+        }
+
+        void ClosePicker()
+        {
+            pickOpen = false;
+            var pp = PickPanel; if (pp != null) pp.gameObject.SetActive(false);
+        }
+
+        void ConfirmPick()
+        {
+            var q = queueRunner;
+            if (q == null || pickFiles.Length == 0) { ClosePicker(); return; }
+
+            pickSel = Mathf.Clamp(pickSel, 0, pickFiles.Length - 1);
+            var e = pickFiles[pickSel];
+
+            // 창을 열어 둔 채로 큐가 시작될 수 있다. 목록이 그때 바뀌면 돌고 있는
+            // 항목의 인덱스가 밀려 다음 차례가 엉뚱한 루틴이 된다.
+            if (q.IsBusy) { Log("큐 실행 중에는 목록을 바꿀 수 없습니다"); return; }
+
+            if (e.isQueue)
+            {
+                if (q.LoadQueue(e.file)) { queueSel = 0; ClosePicker(); }
+                // 실패하면 창을 열어 둔다. 닫아 버리면 왜 안 됐는지 볼 곳이 없다.
+                return;
+            }
+
+            q.AddItem(e.file);
+            // 창을 닫지 않는다 — 큐를 짤 때는 루틴을 여러 개 이어서 넣는 것이 보통이다.
+            // 다 넣었으면 «Cancel» 로 닫는다.
+        }
+
+        void BindQueue()
+        {
+            var q = queueRunner;
+            if (q == null || q.Current == null)
+            { Set("QueueEmpty", "TaskQueueRunner 없음", Bad); ClearQueueRows(); return; }
+
+            var tq = q.Current;
+
+            // 이름칸·개수는 제목줄이 그린다 (BindRecordHeader). 두 면이 같이 쓴다.
+            Set("QueueProgress", q.ProgressText, q.IsBusy ? Accent : TextDim);
+            Set("QueueStatus", q.StatusMessage, TextDim);
+
+            // 일시정지 버튼은 상태에 따라 하는 일이 반대가 된다
+            Set("BtnQPauseLabel", q.State == TaskQueueRunner.QueueState.Paused ? wordQResume : wordQPause,
+                q.State == TaskQueueRunner.QueueState.Paused ? Warn : Accent);
+            Set("BtnQStartLabel", q.IsBusy ? wordQRunning : wordQStart, Color.black);
+
+            SetToggleBtn("BtnQLoop", tq.loopQueue);
+            SetToggleBtn("BtnQOnErr", tq.stopOnError);
+
+            var sel = tq.At(queueSel);
+            Set("QueueRepeat", sel != null ? $"{sel.repeatCount}x" : "--",
+                sel != null && sel.repeatCount > 1 ? Accent : TextMain);
+
+            if (tq.Count == 0)
+            {
+                Set("QueueEmpty", "큐가 비어 있습니다 — «Add» 로 저장된 루틴을 넣으세요", TextDim);
+                ClearQueueRows();
+                return;
+            }
+            Set("QueueEmpty", "");
+
+            queueSel = Mathf.Clamp(queueSel, 0, tq.Count - 1);
+
+            // 실행 중에는 돌고 있는 항목이 보이게, 아니면 선택이 보이게 창을 굴린다
+            int focus = q.IsBusy && tq.currentIndex >= 0 ? tq.currentIndex : queueSel;
+            queueFrom = Mathf.Clamp(focus - QueueRows / 2, 0, Mathf.Max(0, tq.Count - QueueRows));
+
+            for (int r = 0; r < QueueRows; r++)
+            {
+                int idx = queueFrom + r;
+                bool has = idx < tq.Count;
+                bool selRow = has && idx == queueSel;
+
+                if (!has) { ClearQueueRow(r); continue; }
+
+                var it = tq.items[idx];
+                string line = $"{it.StateMark} {idx + 1,2}. {it.Title}   {it.repeatCount}회  {it.StateText}";
+
+                // 실패한 항목은 사유까지 보여야 손볼 수 있다
+                if (it.IsFailed && !string.IsNullOrEmpty(it.lastError)) line += $"  ({it.lastError})";
+
+                Color fg = selRow ? Color.black
+                         : it.IsRunning ? Accent
+                         : it.IsFailed ? Bad
+                         : !it.enabled || it.IsSkipped ? TextDim
+                         : TextMain;
+
+                Set($"QueueRow{r}Label", line, fg);
+
+                if (buttons.TryGetValue("QueueRow" + r, out var rb) && rb != null)
+                {
+                    var im = rb.GetComponent<Image>();
+                    // 선택은 옐로 바탕, 실행 중인 줄은 옅게 깔아 둘을 구분한다
+                    if (im != null)
+                        im.color = selRow ? Accent
+                                 : it.IsRunning ? new Color(1f, 0.77f, 0f, 0.18f)
+                                 : new Color(0, 0, 0, 0);
+                }
+            }
+        }
+
+        /// <summary>켜짐/꺼짐 버튼. 켜지면 옐로 바탕에 검은 글씨가 된다.</summary>
+        void SetToggleBtn(string name, bool on)
+        {
+            if (buttons.TryGetValue(name, out var b) && b != null)
+            {
+                var im = b.GetComponent<Image>();
+                if (im != null) im.color = on ? Accent : SubBg;
+            }
+            if (texts.TryGetValue(name + "Label", out var t) && t != null)
+                t.color = on ? Color.black : Accent;
+        }
+
+        void ClearQueueRows() { for (int r = 0; r < QueueRows; r++) ClearQueueRow(r); }
+
+        void ClearQueueRow(int r)
+        {
+            Set($"QueueRow{r}Label", "");
+            if (buttons.TryGetValue("QueueRow" + r, out var rb) && rb != null)
+            {
+                var im = rb.GetComponent<Image>();
+                if (im != null) im.color = new Color(0, 0, 0, 0);
+            }
+        }
+
+        void BindPicker()
+        {
+            int n = pickFiles.Length;
+
+            // 확정 버튼은 **고른 줄에 따라** 하는 일이 달라진다.
+            // 누르기 전에 무슨 일이 일어날지 버튼에 적혀 있어야 한다.
+            Set("PickTitle", "Routines & Queues", Accent);
+            Set("BtnPickOkLabel", PickedIsQueue ? wordPickLoad : wordPickAdd, Color.black);
+
+            int nq = 0;
+            for (int i = 0; i < n; i++) if (pickFiles[i].isQueue) nq++;
+            Set("PickCount", n > 0 ? $"루틴 {n - nq} · 큐 {nq}" : "", TextDim);
+
+            if (n == 0)
+            {
+                Set("PickEmpty", "저장된 루틴도 큐도 없습니다.\nRecorder 에서 루틴을 만들어 저장하세요.", TextDim);
+                Set("PickPage", "");
+                Set("PickWarn", "");
+                for (int r = 0; r < PickRows; r++) ClearPickRow(r);
+                return;
+            }
+            Set("PickEmpty", "");
+
+            pickSel = Mathf.Clamp(pickSel, 0, n - 1);
+            pickFrom = Mathf.Clamp(pickFrom, 0, Mathf.Max(0, n - PickRows));
+            if (pickSel < pickFrom) pickFrom = pickSel;
+            if (pickSel >= pickFrom + PickRows) pickFrom = pickSel - PickRows + 1;
+
+            for (int r = 0; r < PickRows; r++)
+            {
+                int idx = pickFrom + r;
+                if (idx >= n) { ClearPickRow(r); continue; }
+
+                bool sel = idx == pickSel;
+                var e = pickFiles[idx];
+
+                // 한 목록에 두 종류가 섞여 있으므로 줄마다 무엇인지 표시한다.
+                // 파일명만으로는 구분이 안 된다 — 둘 다 그냥 .json 이다.
+                Set($"PickRow{r}Label",
+                    (e.isQueue ? "  ≡ " : "  ▶ ") + System.IO.Path.GetFileNameWithoutExtension(e.file),
+                    sel ? Color.black : TextMain);
+                if (buttons.TryGetValue("PickRow" + r, out var rb) && rb != null)
+                {
+                    var im = rb.GetComponent<Image>();
+                    if (im != null) im.color = sel ? Accent : new Color(0, 0, 0, 0);
+                }
+            }
+
+            Set("PickPage", n > PickRows ? $"{pickSel + 1} / {n}" : $"{n} 개", TextDim);
+
+            // 큐를 고르면 지금 짜 둔 큐가 통째로 바뀐다. 루틴 추가는 덧붙이는 것이라 경고가 없다.
+            // 경고가 없을 때는 그 자리에 기호 설명을 둔다 — ▶ 와 ≡ 를 처음 보면 알 수 없다.
+            int cur = queueRunner?.Current?.Count ?? 0;
+            if (PickedIsQueue && cur > 0)
+                Set("PickWarn", $"⚠ 큐를 열면 지금 큐의 {cur}건이 사라집니다. 필요하면 «Cancel» 후 «Save».", Warn);
+            else
+                Set("PickWarn", "▶ 루틴 = 큐에 넣는다    ≡ 큐 = 통째로 연다", TextDim);
+        }
+
+        void ClearPickRow(int r)
+        {
+            Set($"PickRow{r}Label", "");
+            if (buttons.TryGetValue("PickRow" + r, out var rb) && rb != null)
+            {
+                var im = rb.GetComponent<Image>();
+                if (im != null) im.color = new Color(0, 0, 0, 0);
+            }
+        }
+
+        /// <summary>
+        /// 큐 실행 중에는 관절 입력을 막는다 (명세 6절 1번).
+        ///
+        /// 안 막으면 재생 목표와 사람 입력이 서로를 덮어쓴다. 2026-08-02 의 J2/J3
+        /// 문제(유니티가 관절 목표를 33ms 만에 덮어쓴 건)와 같은 구조다. 일시정지
+        /// 중에도 막는다 — 항목 경계에서 잠깐 선 것뿐이라, 그 틈에 팔을 옮겨 두면
+        /// 다음 루틴이 엉뚱한 자세에서 시작한다.
+        ///
+        /// 비상정지는 이 잠금과 무관하게 언제나 눌린다. 상단 바 버튼은 건드리지 않는다.
+        /// </summary>
+        void ApplyQueueLock()
+        {
+            bool busy = queueRunner != null && queueRunner.IsBusy;
+            if (busy == jointLocked) return;      // 바뀔 때만 씌운다
+            jointLocked = busy;
+
+            foreach (var pre in new[] { "R1", "R2" })
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    if (sliders.TryGetValue($"{pre}J{i}", out var s) && s != null) s.interactable = !busy;
+                    SetBtnEnabled($"{pre}J{i}Minus", !busy);
+                    SetBtnEnabled($"{pre}J{i}Plus", !busy);
+                    if (inputs.TryGetValue($"{pre}J{i}In", out var f) && f != null) f.interactable = !busy;
+                }
+                if (sliders.TryGetValue(pre + "Grip", out var g) && g != null) g.interactable = !busy;
+                SetBtnEnabled(pre + "GripOpen", !busy);
+                SetBtnEnabled(pre + "GripClose", !busy);
+                SetBtnEnabled(pre + "GripHalf", !busy);
+            }
+
+            Log(busy ? "큐 실행 중 — 관절 입력을 잠급니다" : "관절 입력 잠금 해제");
+        }
+
+        void SetBtnEnabled(string n, bool on)
+        { if (buttons.TryGetValue(n, out var b) && b != null) b.interactable = on; }
+
         // ══════════════════════════════════════════════════════════
         // 생성 — 모양만. 동작은 WireUp() 이 실행 시에 붙인다.
         // ══════════════════════════════════════════════════════════
@@ -1284,6 +1881,7 @@ namespace SOArmControl
             if (dualManager == null) dualManager = FindAnyObjectByType<SOArmDualManager>();
             if (viewCamera == null) viewCamera = FindAnyObjectByType<RobotViewCamera>();
             if (recordManager == null) recordManager = FindAnyObjectByType<RecordManager>();
+            EnsureQueueRunner();
 
             uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             if (uiFont == null) uiFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
@@ -1304,7 +1902,7 @@ namespace SOArmControl
             sc.matchWidthOrHeight = 0.5f;
 
             var rt = go.GetComponent<RectTransform>();
-            BuildTop(rt); BuildLeft(rt); BuildCenter(rt); BuildRecord(rt);
+            BuildTop(rt); BuildLeft(rt); BuildCenter(rt); BuildRecord(rt); BuildQueue(rt);
 
             CacheBindings();
             ApplyIcons();          // 인스펙터에 끼워 둔 아이콘이 있으면 붙인다
@@ -1351,6 +1949,23 @@ namespace SOArmControl
         public string LayoutPath =>
             System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath, "..", "control_tower_layout.json"));
 
+        /// <summary>
+        /// 위치를 코드가 정하는 자리들. 저장된 배치로 되씌우면 안 되는 것만 적는다.
+        ///
+        /// 리코더 제목줄은 「루틴 ↔ 시나리오」 스위치가 들어오면서 폭이 나뉘었다.
+        /// 스위치가 없던 시절의 좌표를 되씌우면 제목·이름칸이 넓은 채로 남아
+        /// 스위치를 덮는다. 이 줄은 세 칸이 서로 맞물린 하나의 띠라서 사람이 한 칸만
+        /// 옮기면 어차피 어긋난다 — 코드가 잡는 편이 맞다.
+        ///
+        /// 자식(Icon / …Label)은 부모 안쪽 비율 좌표라 해당 없다.
+        /// </summary>
+        static readonly string[] ComputedRects =
+        {
+            "RecordPanel/RoutineTitle", "RecordPanel/RecModeSw", "RecordPanel/RoutineNameIn",
+        };
+
+        static bool IsComputedRect(string path) => Array.IndexOf(ComputedRects, path) >= 0;
+
         static string PathOf(Transform t, Transform root)
         {
             var sb = new System.Text.StringBuilder(t.name);
@@ -1378,6 +1993,11 @@ namespace SOArmControl
                 { "BtnLoad", iconLoad }, { "BtnDel", iconDelete },
                 { "BtnLoadOk", iconLoad }, { "BtnLoadCancel", iconDelete },
                 { "BtnLoop", iconLoop },
+                // 작업 큐 — 같은 일을 하는 버튼에는 리코더와 같은 아이콘을 쓴다
+                { "BtnQAdd", iconAdd }, { "BtnQDel", iconDelete },
+                { "BtnQStart", iconPlay }, { "BtnQNew", iconNew },
+                { "BtnQSave", iconSave }, { "BtnQOpen", iconLoad },
+                { "BtnPickOk", iconLoad }, { "BtnPickCancel", iconDelete },
                 { "BtnAddR1", iconAdd }, { "BtnAddR2", iconAdd },
                 { "BtnAddBoth", iconAdd }, { "BtnAddWait", iconAdd },
             };
@@ -1513,9 +2133,14 @@ namespace SOArmControl
             {
                 if (string.IsNullOrEmpty(it.path) || !map.TryGetValue(it.path, out var rt)) continue;
 
-                rt.anchorMin = it.aMin; rt.anchorMax = it.aMax;
-                rt.offsetMin = it.oMin; rt.offsetMax = it.oMax;
-                rt.pivot = it.pivot;
+                // ⚠️ 코드가 좌표를 계산하는 자리는 **위치만** 복원하지 않는다.
+                //    글자·색은 그대로 되살린다 — 그건 사람이 고치는 것이 맞다.
+                if (!IsComputedRect(it.path))
+                {
+                    rt.anchorMin = it.aMin; rt.anchorMax = it.aMax;
+                    rt.offsetMin = it.oMin; rt.offsetMax = it.oMax;
+                    rt.pivot = it.pivot;
+                }
 
                 if (it.hasText)
                 {
@@ -1561,7 +2186,7 @@ namespace SOArmControl
             var m = FindAnyObjectByType<SmartFactoryUI_v3_4>(); if (m != null) m.enabled = true;
             var r = FindAnyObjectByType<SmartFactoryRecordUI>(); if (r != null) r.enabled = true;
             texts.Clear(); sliders.Clear(); inputs.Clear(); buttons.Clear();
-            root = null; recordPanel = null; wired = false;
+            root = null; recordPanel = null; queuePanel = null; wired = false;
         }
 
         void BuildTop(RectTransform p)
@@ -1573,12 +2198,16 @@ namespace SOArmControl
 
             string[] id = { "BtnTeachAll", "BtnR1Only", "BtnR2Only", "BtnMirror", "BtnEstop", "BtnHome", "BtnRecord" };
             string[] tx = { "수동모드", "R1 only", "R2 only", "Mirror", "비상정지", "홈", "Recorder ▶" };
+
+            // 폭을 손으로 적지 않고 개수에서 뽑는다. 손으로 적으면 버튼이 하나 늘 때마다
+            // 좌표를 전부 다시 계산해야 한다. 지금 값(0.113 / 0.109)이 이 식에서 그대로 나온다.
+            float bw = (TopBtnX1 - TopBtnX0 - TopBtnGap * (id.Length - 1)) / id.Length;
             for (int i = 0; i < id.Length; i++)
             {
-                float x0 = 0.20f + i * 0.113f;
+                float x0 = TopBtnX0 + i * (bw + TopBtnGap);
                 bool danger = id[i] == "BtnEstop";
                 bool primary = id[i] == "BtnRecord";
-                Btn(bar, id[i], tx[i], new Vector2(x0, 0.14f), new Vector2(x0 + 0.109f, 0.86f),
+                Btn(bar, id[i], tx[i], new Vector2(x0, 0.14f), new Vector2(x0 + bw, 0.86f),
                     danger ? Bad : primary ? Accent : SubBg, danger || primary ? Color.black : Accent);
             }
             var rule = Panel(bar, "Rule", new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, -2), Vector2.zero, Accent);
@@ -1856,12 +2485,21 @@ namespace SOArmControl
             Rule(v); Frame(v, Edge);
             // 제목은 상단 바 버튼과 같은 말(Recorder)로 맞춘다. 같은 것을 두 이름으로 부르면 헷갈린다.
             Label(v, "RoutineTitle", "Recorder", TextAnchor.MiddleLeft, titleFontSize, Accent,
-                  new Vector2(0, 0.955f), new Vector2(0.30f, 1), new Vector2(18, 0), Vector2.zero);
+                  new Vector2(0, 0.955f), new Vector2(0.21f, 1), new Vector2(18, 0), Vector2.zero);
 
-            // 루틴 이름 = 저장 파일명.
-            // 입력칸이 없으면 언제나 Untitled.json 하나만 덮어쓰게 되어 루틴을 여러 개 못 만든다.
-            Input(v, "RoutineNameIn", new Vector2(0.30f, 0.957f), new Vector2(0.80f, 0.998f));
+            // 루틴 ↔ 시나리오 스위치. 카드의 「조인트 ↔ 카티시안」과 같은 관용구다.
+            //
+            // 리코더는 두 가지를 만든다. **루틴**은 자세를 스텝으로 쌓은 동작 하나이고,
+            // **시나리오**는 그 루틴들을 줄 세운 작업 큐다. 만드는 결이 같아서 —
+            // 목록에 항목을 쌓고, 순서를 바꾸고, 돌려 본다 — 한 패널에서 면만 바꾼다.
+            Btn(v, "RecModeSw", "루틴", new Vector2(0.215f, 0.957f), new Vector2(0.40f, 0.998f), SubBg, Accent);
 
+            // 이름 = 저장 파일명. **두 면이 같이 쓴다** — 루틴 면에서는 루틴 이름,
+            // 시나리오 면에서는 큐 이름이다. 칸을 둘로 두면 제목줄이 넘친다.
+            // 입력칸이 없으면 언제나 Untitled.json 하나만 덮어쓰게 되어 여러 개를 못 만든다.
+            Input(v, "RoutineNameIn", new Vector2(0.405f, 0.957f), new Vector2(0.80f, 0.998f));
+
+            // 개수도 두 면이 같이 쓴다. 루틴 면은 «n 스텝», 시나리오 면은 «n 건».
             Label(v, "RoutineCount", "", TextAnchor.MiddleRight, baseFontSize - 4, TextDim,
                   new Vector2(0.80f, 0.955f), new Vector2(1, 1), Vector2.zero, new Vector2(-18, 0));
 
@@ -1930,6 +2568,148 @@ namespace SOArmControl
             }, labelMax: 18);
 
             BuildLoadPicker(v);
+            BuildQueue(v);          // 시나리오 면. 같은 패널 안에 그룹으로 얹는다
+
+            v.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 시나리오 면 — 저장된 루틴 여러 개를 줄 세워 연속 실행한다 (`SR_21`).
+        ///
+        /// 리코더 패널 **안의 그룹**이다. 별도 창을 만들지 않는다. 제목·이름칸·개수는
+        /// 두 면이 같이 쓰므로 여기서 다시 만들지 않는다.
+        ///
+        /// ⚠️ 투명 그룹으로 감싸도 배선은 안 깨진다. `CacheBindings` 가
+        ///    `GetComponentsInChildren&lt;T&gt;(true)` 로 **꺼져 있는 것까지** 이름으로
+        ///    담기 때문이다. 카드의 조인트/카티시안 그룹과 같은 방식이다.
+        /// </summary>
+        void BuildQueue(RectTransform p)
+        {
+            var v = Panel(p, "ScenarioGroup", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0));
+
+            // 목록 — 줄마다 버튼. 리코더 스텝 목록과 같은 조작감으로 맞춘다.
+            var lb = Panel(v, "QueueListBg", new Vector2(0.03f, 0.44f), new Vector2(0.97f, 0.945f), Vector2.zero, Vector2.zero, SubBg);
+            for (int i = 0; i < QueueRows; i++)
+            {
+                float h = 1f / QueueRows;
+                float top = 1f - i * h, bot = top - h;
+                var rb = Btn(lb, "QueueRow" + i, "", new Vector2(0, bot), new Vector2(1, top),
+                             new Color(0, 0, 0, 0), TextMain);
+                var lbl = rb.transform.Find("QueueRow" + i + "Label") as RectTransform;
+                if (lbl != null)
+                {
+                    var t = lbl.GetComponent<Text>();
+                    t.alignment = TextAnchor.MiddleLeft;
+                    t.resizeTextForBestFit = false;
+                    t.fontSize = baseFontSize - 4;
+                    lbl.offsetMin = new Vector2(14, 0);
+                    lbl.offsetMax = new Vector2(-10, 0);
+                }
+            }
+            Label(v, "QueueEmpty", "", TextAnchor.UpperLeft, baseFontSize - 3, TextDim,
+                  new Vector2(0.05f, 0.60f), new Vector2(0.95f, 0.93f), Vector2.zero, Vector2.zero);
+
+            // 진행 표시 (FR-47) — «현재 3/12 스텝 · 남은 2건»
+            Label(v, "QueueProgress", "", TextAnchor.MiddleLeft, baseFontSize - 4, Accent,
+                  new Vector2(0.03f, 0.393f), new Vector2(0.97f, 0.435f), Vector2.zero, Vector2.zero);
+            Label(v, "QueueStatus", "", TextAnchor.MiddleLeft, baseFontSize - 5, TextDim,
+                  new Vector2(0.03f, 0.348f), new Vector2(0.97f, 0.390f), Vector2.zero, Vector2.zero);
+
+            // 목록 편집 (FR-43)
+            BtnRow(v, 0.03f, 0.97f, 0.278f, 0.342f, 0.012f, new[]
+            {
+                ("BtnQAdd",    "Add",    SubBg, Accent),
+                ("BtnQDel",    "Delete", SubBg, Warn),
+                ("BtnQUp",     "Up ▲",   SubBg, Warn),
+                ("BtnQDown",   "Down ▼", SubBg, Warn),
+            }, labelMax: QLabelMax);
+
+            // 항목별 설정 (FR-44) — 반복 횟수와 켜기/끄기
+            Btn(v, "BtnQRepMinus", "Repeat −", new Vector2(0.03f, 0.203f), new Vector2(0.26f, 0.267f), SubBg, Accent, QLabelMax);
+            Label(v, "QueueRepeat", "1x", TextAnchor.MiddleCenter, QLabelMax, TextMain,
+                  new Vector2(0.26f, 0.203f), new Vector2(0.47f, 0.267f), Vector2.zero, Vector2.zero);
+            Btn(v, "BtnQRepPlus", "Repeat +", new Vector2(0.47f, 0.203f), new Vector2(0.70f, 0.267f), SubBg, Accent, QLabelMax);
+            Btn(v, "BtnQToggle", "On/Off", new Vector2(0.71f, 0.203f), new Vector2(0.97f, 0.267f), SubBg, Accent, QLabelMax);
+
+            // 실행 (FR-42·FR-48)
+            BtnRow(v, 0.03f, 0.97f, 0.118f, 0.192f, 0.012f, new[]
+            {
+                ("BtnQStart", wordQStart, Accent, Color.black),
+                ("BtnQPause", wordQPause, SubBg,  Accent),
+                ("BtnQSkip",  "Skip",     SubBg,  Accent),
+                ("BtnQAbort", "Abort",    Bad,    Color.black),
+            }, labelMax: QLabelMax);
+
+            // 파일 (FR-46)
+            BtnRow(v, 0.03f, 0.97f, 0.062f, 0.112f, 0.012f, new[]
+            {
+                ("BtnQNew",  "New",  SubBg, Accent),
+                ("BtnQSave", "Save", SubBg, Accent),
+                ("BtnQOpen", "Open", SubBg, Accent),
+            }, labelMax: QLabelMax);
+
+            // 큐 옵션 — 눌러서 켜고 끈다. 켜져 있으면 옐로 바탕이 된다.
+            BtnRow(v, 0.03f, 0.97f, 0.006f, 0.056f, 0.012f, new[]
+            {
+                ("BtnQLoop",  "Loop",          SubBg, Accent),
+                ("BtnQOnErr", "Stop on Error", SubBg, Accent),
+            }, labelMax: QLabelMax);
+
+            BuildQueuePicker(v);
+
+            v.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 파일 고르는 창. **루틴과 큐를 한 목록에 같이 보여 준다.**
+        ///
+        /// 「Add」와 「Open」 어느 쪽으로 열어도 같은 창이고 같은 목록이다.
+        /// 무엇을 할지는 창이 아니라 **고른 줄**이 정한다 — `▶` 루틴은 큐에 넣고,
+        /// `≡` 큐는 통째로 연다. 확정 버튼 글자가 그에 맞춰 «Add» ↔ «Load» 로 바뀐다.
+        /// </summary>
+        void BuildQueuePicker(RectTransform p)
+        {
+            var v = Panel(p, "QueuePickPanel", new Vector2(0.02f, 0.02f), new Vector2(0.98f, 0.98f), Vector2.zero, Vector2.zero, Bg);
+            Frame(v, Accent);
+
+            Label(v, "PickTitle", "", TextAnchor.MiddleLeft, titleFontSize - 2, Accent,
+                  new Vector2(0.04f, 0.925f), new Vector2(0.70f, 0.985f), Vector2.zero, Vector2.zero);
+            Label(v, "PickCount", "", TextAnchor.MiddleRight, baseFontSize - 4, TextDim,
+                  new Vector2(0.70f, 0.925f), new Vector2(0.96f, 0.985f), Vector2.zero, Vector2.zero);
+
+            var lb = Panel(v, "PickListBg", new Vector2(0.04f, 0.30f), new Vector2(0.96f, 0.915f), Vector2.zero, Vector2.zero, SubBg);
+            for (int i = 0; i < PickRows; i++)
+            {
+                float h = 1f / PickRows;
+                float top = 1f - i * h, bot = top - h;
+                var rb = Btn(lb, "PickRow" + i, "", new Vector2(0, bot), new Vector2(1, top),
+                             new Color(0, 0, 0, 0), TextMain);
+                var lbl = rb.transform.Find("PickRow" + i + "Label") as RectTransform;
+                if (lbl != null)
+                {
+                    var t = lbl.GetComponent<Text>();
+                    t.alignment = TextAnchor.MiddleLeft;
+                    t.resizeTextForBestFit = false;
+                    t.fontSize = baseFontSize - 4;
+                    lbl.offsetMin = new Vector2(14, 0);
+                    lbl.offsetMax = new Vector2(-10, 0);
+                }
+            }
+            Label(v, "PickEmpty", "", TextAnchor.UpperLeft, baseFontSize - 3, TextDim,
+                  new Vector2(0.06f, 0.62f), new Vector2(0.94f, 0.90f), Vector2.zero, Vector2.zero);
+            Label(v, "PickWarn", "", TextAnchor.MiddleLeft, baseFontSize - 4, Warn,
+                  new Vector2(0.04f, 0.235f), new Vector2(0.96f, 0.293f), Vector2.zero, Vector2.zero);
+
+            Btn(v, "BtnPickPrev", "▲", new Vector2(0.04f, 0.135f), new Vector2(0.24f, 0.225f), SubBg, Accent, QLabelMax);
+            Label(v, "PickPage", "", TextAnchor.MiddleCenter, baseFontSize - 4, TextDim,
+                  new Vector2(0.24f, 0.135f), new Vector2(0.76f, 0.225f), Vector2.zero, Vector2.zero);
+            Btn(v, "BtnPickNext", "▼", new Vector2(0.76f, 0.135f), new Vector2(0.96f, 0.225f), SubBg, Accent, QLabelMax);
+
+            BtnRow(v, 0.04f, 0.96f, 0.03f, 0.125f, 0.02f, new[]
+            {
+                ("BtnPickOk",     wordPickAdd, Accent, Color.black),
+                ("BtnPickCancel", "Cancel",    SubBg,  TextMain),
+            }, labelMax: QLabelMax);
 
             v.gameObject.SetActive(false);
         }
@@ -2121,7 +2901,7 @@ namespace SOArmControl
                            Vector2.zero, Vector2.one, new Vector2(2, 0), new Vector2(-2, 0));
 
             // 버튼 폭에 맞춰 글자를 자동으로 줄인다.
-            // 고정 크기로 두니 "순서 ▲", "삭제" 처럼 좁은 버튼에서 글자가 잘렸다.
+            // 고정 크기로 두니 "Stop on Error", "실패 시 정지" 처럼 긴 라벨이 좁은 버튼에서 잘렸다.
             lb.resizeTextForBestFit = true;
             lb.resizeTextMinSize = 11;
             // labelMax 를 주면 그 크기를 넘지 않는다. 한 줄에 놓인 버튼들의
