@@ -194,7 +194,7 @@ Unity로 만든 **디지털 트윈(Digital Twin)** 환경에서 시각화하고 
 | FR-19 | 두 로봇을 미러(Mirror) 제어할 수 있어야 한다 | ✅ | `SetJointBoth()` / `SetGripperBoth()` |
 | FR-20 | 로봇별로 사용 여부(채널 on/off)를 켜고 끌 수 있어야 한다 | ✅ | `robot1Enabled` / `robot2Enabled` |
 | FR-21 | 전체 홈 이동 / 전체 정지 / 전체 재연결 버튼이 있어야 한다 | ✅ | 전체 정지(`StopAll`)는 채널 on/off 와 무관하게 항상 두 로봇 모두 세운다 — 꺼둔 채널이라고 안 세우면 그 로봇이 이미 움직이는 중일 때 못 멈춘다 |
-| FR-22 | 두 로봇 협동 작업 시퀀스 (Cooperative) | ⬜ | 현재 `ControlMode` 는 `Independent`/`Mirror` 2개뿐. `PROJECT_NOTES.md` 의 5개 모드 기술은 **구버전** |
+| FR-22 | 두 로봇 협동 작업 시퀀스 (Cooperative) | ✅ | 전용 `ControlMode` 로 만들지 않았다. 루틴 스텝마다 대상(`Waypoint.target` = `robot1`/`robot2`/`both`)을 지정할 수 있으므로, 한 루틴 안에서 R1 과 R2 가 번갈아 움직이는 것으로 전달 시퀀스가 표현된다. 여러 루틴을 이어 붙이는 것은 작업 큐(FR-42~48)가 맡는다. 2026-08-06 두 로봇이 물건을 주고받는 것까지 실물 확인. `ControlMode` 가 `Independent`/`Mirror` 2개뿐인 것은 그대로이고, `PROJECT_NOTES.md` 의 5개 모드 기술은 여전히 **구버전** 이다 |
 
 ### 4.4 동작 녹화·재생 (Record / Play)
 
